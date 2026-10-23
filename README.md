@@ -20,8 +20,8 @@ The game is at http://localhost:5180.
 - Canals carry shade on the surface. Palms are small shade trees. A spring house is
   only at full strength near the spring and on the water network.
 - Qanats bring water without a river. Unshaded wells and pumps evaporate.
-- Cisterns store spare water.
-- Caravans buy watered or shaded lots and pay the city. They leave dry lots.
+- Cisterns store spare water and release only what the district is missing.
+- Caravans buy watered or shaded lots and pay the city while a caravanserai is open. They leave dry lots.
 - Sandstorms bury a service. Windbreaks hold them back and a storm can push the spring.
 - The art direction is adobe: low roofs, sand, terracotta and turquoise. The music is slow.
 

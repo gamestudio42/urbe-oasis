@@ -9,12 +9,12 @@ import { nudgeSpring } from './spring';
 import { monthIndex } from '../../time';
 
 /**
- * Hackers and ICE (neon ruleset).
+ * Sandstorms (oasis ruleset).
  *
- * Once a month a city may suffer an intrusion. The chance grows with population and falls with
- * windbreak coverage around the target. A successful intrusion takes one service offline for
- * `offlineTicks`, which the utilities pass already respects, and steals cash; a blocked one only
- * emits an event so the player sees the windbreak paying off.
+ * Once a month a city may be buried. The chance grows with population and falls with
+ * windbreak coverage around the target. A storm that lands takes one service offline for
+ * `offlineTicks` and nudges the spring. A blocked one only emits an event. Sand does not
+ * take money.
  *
  * Target selection and the roll both use `engine.rng`, in building order after the windbreak scan.
  */
@@ -82,14 +82,14 @@ function isServiceTarget(b: BuildingRecord): boolean {
 }
 
 /**
- * Firewall coverage 0..1 at a building: the best node within `windbreakRadius` scaled by its
- * distance, capped at 1. Nodes only cover while they are powered, online and on the data network.
+ * Windbreak coverage 0..1 at a building: the best node within `windbreakRadius` scaled by its
+ * distance, capped at 1. A node covers while it is powered and online.
  */
 export function windbreakCoverage(engine: SimulationEngine, b: BuildingRecord): number {
   let best = 0;
   const radius = OASIS_STORM.windbreakRadius;
   for (const node of engine.buildings.ofKind('windbreak')) {
-    if (!node.powered || node.offline > 0 || node.linked !== true) continue;
+    if (!node.powered || node.offline > 0) continue;
     const d = Math.max(
       Math.max(node.x - b.x, b.x - (node.x + node.w - 1), 0),
       Math.max(node.y - b.y, b.y - (node.y + node.h - 1), 0),

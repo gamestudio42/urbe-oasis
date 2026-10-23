@@ -1,8 +1,8 @@
 /**
- * Neo Urbe balance: the cyberpunk ruleset. Kept apart from `BALANCE` so Urbe keeps its classic
- * numbers byte for byte, and so a single place documents every new knob.
+ * Urbe Oasis balance: the desert ruleset. Kept apart from `BALANCE` so the classic
+ * numbers stay byte for byte, and so a single place documents every new knob.
  *
- * Provenance of each formula lives in `docs/neon-spec.md`; this file only holds constants.
+ * Provenance of each formula lives in `docs/oasis-spec.md`; this file only holds constants.
  */
 
 /** Water grid: qanats, cascading dry spells and cisterns. */

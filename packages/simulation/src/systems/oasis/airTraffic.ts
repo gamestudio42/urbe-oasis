@@ -4,16 +4,11 @@ import type { World } from '../../world/world';
 import { isOperatingHub } from '../traffic';
 
 /**
- * Drone air traffic (neon ruleset).
+ * Arcade traffic relief (oasis ruleset).
  *
- * Drone ports open an aerial lane above the road network. The lane is purely additive: it never
- * touches the ground `traffic` layer. Consumers instead read `arcadeRelief`, which lowers the
- * congestion they feel while a port is online, so the ground rules stay exactly as they are.
- *
- * A lane is the longest straight run of road touching the port, measured along the street as
- * well as away from the building. A port set beside an avenue therefore flies that avenue.
- * The lanes are a derived read model, rebuilt on demand for the renderer; the only serialized
- * state is the drone port buildings themselves.
+ * A covered arcade eases congestion while it is powered and online. The relief is additive:
+ * it never writes the ground `traffic` layer. The lane is the longest straight road beside
+ * the building, kept so the relief has a length, and the adobe city does not draw drones on it.
  */
 
 /** A rendered aerial corridor along the road that touches a port. */
@@ -31,7 +26,7 @@ export interface ArcadeLane {
 export function arcadeCount(engine: SimulationEngine): number {
   let ports = 0;
   for (const b of engine.buildings.values()) {
-    if (b.kind === 'arcade' && b.powered && b.offline === 0 && b.linked === true) ports++;
+    if (b.kind === 'arcade' && b.powered && b.offline === 0) ports++;
   }
   return ports;
 }
@@ -57,7 +52,7 @@ export function arcadeRelief(engine: SimulationEngine, roadTiles: number): numbe
 export function arcadeLanes(engine: SimulationEngine): ArcadeLane[] {
   const lanes: ArcadeLane[] = [];
   for (const port of engine.buildings.values()) {
-    if (port.kind !== 'arcade' || !isOperatingHub(port) || port.linked !== true) continue;
+    if (port.kind !== 'arcade' || !isOperatingHub(port)) continue;
     const lane = longestArcadeLane(engine.world, port);
     if (lane) lanes.push(lane);
   }

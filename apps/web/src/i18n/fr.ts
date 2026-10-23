@@ -455,7 +455,7 @@ export const fr = {
     brownout: 'Énergie insuffisante ! Construisez plus de centrales.',
     waterShortage: 'Pénurie d’eau ! Construisez plus de pompes.',
     waterStress: 'Ce quartier s’assèche.',
-    canalCollapse: 'Un canal a cédé et une partie du réseau est à sec.',
+    canalCollapse: 'Un qanat s’est asséché et une partie du quartier n’a plus d’eau.',
     caravanTrade: 'Une caravane a acheté une parcelle et a payé la caisse.',
     caravanLeave: 'Une caravane a quitté une parcelle sèche.',
     sandstorm: 'Une tempête de sable a enseveli un service.',

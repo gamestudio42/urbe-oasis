@@ -165,6 +165,7 @@ export function MainMenu({
                 max={3}
                 step={1}
                 value={terrain.rivers}
+                data-testid="terrain-rivers"
                 onChange={(e) => setTerrain({ ...terrain, rivers: Number(e.target.value) })}
               />
             </label>

@@ -19,6 +19,11 @@ function corpTown(): SimulationEngine {
   });
   e.disastersEnabled = false;
   buildTown(e);
+  const road = e.execute({ type: 'road', x0: 40, y0: 20, x1: 48, y1: 20 });
+  const hall = e.execute({ type: 'place', kind: 'caravanserai', x: 47, y: 21 });
+  if (!road.ok || !hall.ok) {
+    throw new Error(`road ${road.reason ?? 'ok'} hall ${hall.reason ?? 'ok'}`);
+  }
   return e;
 }
 
@@ -86,6 +91,22 @@ describe('neon caravans', () => {
     b.runMonths(18);
     expect(a.oasis.caravans).toEqual(b.oasis.caravans);
     expect(a.oasis.trade).toBe(b.oasis.trade);
+  });
+
+  it('does not buy without an operating caravanserai', () => {
+    const e = createEngine({
+      seed: 'neon-corp',
+      size: 64,
+      ruleset: 'oasis',
+      terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
+      funds: 400_000,
+    });
+    e.disastersEnabled = false;
+    buildTown(e);
+    e.runMonths(24);
+    expect(e.oasis.caravans).toHaveLength(OASIS_CARAVAN.count);
+    expect(e.oasis.trade).toBe(0);
+    expect([...e.buildings.values()].some((b) => b.owner !== undefined)).toBe(false);
   });
 
   it('leaves a classic city without caravans', () => {

@@ -79,31 +79,25 @@ References studied (cloned into the git-ignored `references/` folder):
 | Disasters   | Economic crisis, blackout, epidemic                         | New        |                                                                       |
 | Diagnostics | "Why is this not growing" panel                             | New        |                                                                       |
 
-## Neo Urbe (neon ruleset)
+## Urbe Oasis (oasis ruleset)
 
-Everything below only runs with `ruleset: 'neon'`. Formulas live in
-[docs/neon-spec.md](neon-spec.md), constants in `packages/shared/src/balance/neon.ts`.
+Everything below only runs with `ruleset: 'oasis'`. Formulas live in
+[docs/oasis-spec.md](oasis-spec.md), constants in `packages/shared/src/balance/oasis.ts`.
 
-| System        | Mechanic                                                      | Provenance | Notes                                                              |
-| ------------- | ------------------------------------------------------------- | ---------- | ------------------------------------------------------------------ |
-| Ruleset       | `classic`/`neon` stored in the snapshot and the save          | New        | Save v2; v1 migrates to `classic`.                                 |
-| Ruleset       | Separate save envelope and extension for Neo Urbe             | New        | `neon-city-save` / `.neon.json`, so the games never mix files.     |
-| Power         | Overload when demand reaches 90% of supply                     | New        | Reuses the classic component solver, including the road hop.       |
-| Power         | Cascading blackout off a stressed component                    | New        | Takes a share of buildings offline for two days.                   |
-| Power         | Substations add supply; batteries buffer charge                | New        | Charge is persisted per building.                                  |
-| Power         | Demand ≥ 90% of supply stresses a component                    | New        | Same components the classic solver found, road hop included.       |
-| Power         | A stressed, short component can blow into a cascading blackout | New        | 8% per day, 35% of its buildings offline for 2 days, via `rng`.     |
-| Corporations  | Four agents with cash and a preferred quadrant                 | New        | Buy vacant zoned lots once a month.                                |
-| Corporations  | Corporate lots stamp extra land value around them              | New        | Reuses the influence layer; averaged by the normal pass.           |
-| Corporations  | Tax skim moves cash from the treasury to the corporation       | New        | Reported in `CityStats.neon.skimmed`.                              |
-| Security      | Monthly intrusion chance grows with population                 | New        | Capped at 0.8.                                                     |
-| Security      | Firewalls cut the chance and need power and a data link           | New        | Coverage scaled by distance inside the radius. A dark or unlinked node covers nothing. |
-| Security      | A successful intrusion takes a service offline and steals cash | New        | Reuses the `offline` counter the utilities pass already respects.  |
-| Traffic       | Drone ports relieve congestion on a separate aerial layer      | New        | A port counts only while powered, online and linked. The ground `traffic` layer is never written. |
-| Traffic       | Aerial lanes derived from the road network beside each port    | New        | Read model rebuilt for the renderer; not serialized.               |
-| Zoning        | Dense lots reach level 7, light lots level 3                   | Observed   | SC2000 has light/dense; the neon caps are ours.                    |
-| Zoning        | Capacity, power and water extrapolate past the classic table   | New        | Exact at or below level 5, so the classic table stays the source.  |
-| Data          | Fiber conducts bandwidth from a datacenter or an edge node     | New        | Third pass of the utility solver, after power and water. One road tile does not cut it. |
-| Data          | Datacenter output needs power and a reached water network  | New        | 400 cooled, 120 dry, 0 offline. A pair covers the reference town. An edge node supplies 80 on power alone. A hacked hall still draws power. |
-| Data          | A lot without a link stops at level 2                          | New        | Same ceiling as a lot without water. Both are required to go higher. |
-| Data          | `linked` is optional in the save                               | New        | `SAVE_VERSION` stays 2. A neon file without the layer loads as zeros and rebuilds. |
+| System       | Mechanic                                                         | Provenance | Notes                                                                                          |
+| ------------ | ---------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
+| Ruleset      | `classic`/`oasis` stored in the snapshot and the save            | New        | Save v2; v1 migrates to `classic`.                                                             |
+| Ruleset      | Separate save envelope and extension for Urbe Oasis              | New        | `oasis-city-save` / `.oasis.json`, so a classic file stays classic.                           |
+| Shade        | Canals and buildings conduct shade after the water pass          | New        | The shade flag used for evaporation is the one from the previous pass.                        |
+| Shade        | A palm supplies 80 with no power and no water                    | New        | A spring house supplies 400 when powered, watered and near the spring, else 120 or 0.         |
+| Shade        | A lot without water or shade stops at level 2                    | New        | With both, dense stops at 5 and light at 2.                                                   |
+| Water        | An unshaded well or pump keeps 55% of its output                 | New        | A qanat does not evaporate. It adds 260 while powered and needs no river.                     |
+| Water        | A spare cistern charges and does not add stored water            | New        | A short component is topped up only by the missing water, and the charge falls by that share. |
+| Water        | Demand at 90% of supply parches a component                      | New        | Same water components the classic solver found.                                                |
+| Water        | A parched component with a qanat dries one qanat                 | New        | Offline for two days, and the collapse toast fires. Without a qanat, a share of buildings goes offline and only the water-stress toast fires. |
+| Spring       | The spring wanders from a seed and the month                     | New        | Chebyshev radius 20, a step of 5 every 6 months. A sandstorm nudges it 2 tiles.               |
+| Caravans     | Four houses buy watered or shaded vacant lots                    | New        | The fee is paid into the treasury. A dry lot may be abandoned.                                |
+| Caravans     | Buy and abandon need an open caravanserai                        | New        | Powered and online. Without one, the month does not move cash.                                |
+| Storms       | A monthly sandstorm may bury a service                           | New        | Sand does not take money. A storm that lands nudges the spring.                               |
+| Storms       | A windbreak lowers the chance inside its radius                  | New        | It covers while powered and online. Shade is not required.                                    |
+| Traffic      | An arcade eases congestion on the streets beside it              | New        | It counts while powered and online. The adobe theme does not draw drones.                     |

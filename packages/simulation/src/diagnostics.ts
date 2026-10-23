@@ -86,9 +86,6 @@ export function diagnoseTile(ctx: DiagnoseContext, x: number, y: number): Proble
     const spec = PLACEABLE_SPECS[building.kind];
     const needsPower = spec.powerUse > 0;
     if (needsPower && !building.powered) add(powerProblem(ctx), 3);
-    if (neon && (building.kind === 'windbreak' || building.kind === 'arcade') && w.linked[i] !== 1) {
-      add('NO_SHADE', 2);
-    }
     if (spec.requiresRoad) {
       const roads = ctx.roads ?? new RoadNetwork(w);
       roads.update();

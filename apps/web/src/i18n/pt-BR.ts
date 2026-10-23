@@ -457,7 +457,7 @@ export const ptBR = {
     brownout: 'Energia insuficiente! Construa mais usinas.',
     waterShortage: 'Falta água! Construa mais bombas.',
     waterStress: 'Este bairro está secando.',
-    canalCollapse: 'Um canal cedeu e parte da rede ficou seca.',
+    canalCollapse: 'Um qanat secou e parte do bairro ficou sem água.',
     caravanTrade: 'Uma caravana comprou um lote e pagou o caixa.',
     caravanLeave: 'Uma caravana abandonou um lote seco.',
     sandstorm: 'Uma tempestade de areia soterrrou um serviço.',

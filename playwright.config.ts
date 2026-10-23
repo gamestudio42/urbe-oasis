@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 5180;
+const PORT = Number(process.env.OASIS_PORT ?? 5180);
 
 export default defineConfig({
   testDir: 'tests/e2e',

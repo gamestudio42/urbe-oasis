@@ -71,14 +71,90 @@ export function waterSupply(world: World, b: BuildingRecord, oasis = false): num
   return supply;
 }
 
-/** Water a building adds, including cistern charge. Classic cities ignore the cistern term. */
+/**
+ * Water released by cisterns on the last oasis solve. Not serialized: the charge on
+ * `engine.oasis.cisterns` is the persisted store, and this map is only what that solve spent.
+ */
+const cisternRelease = new WeakMap<SimulationEngine, Map<number, number>>();
+
+/** Water a building adds. A cistern adds only the shortfall settled for this solve. */
 export function oasisWaterOutput(engine: SimulationEngine, b: BuildingRecord): number {
   const oasis = engine.ruleset === 'oasis';
   const base = waterSupply(engine.world, b, oasis);
-  if (!oasis || b.kind !== 'cistern' || b.offline > 0 || !b.powered) return base;
-  const entry = engine.oasis.cisterns.find((c) => c.buildingId === b.id);
-  if (!entry || entry.charge <= 0) return base;
-  return base + Math.round(entry.charge * OASIS_WATER.cisternOutput);
+  if (!oasis || b.kind !== 'cistern') return base;
+  return base + (cisternRelease.get(engine)?.get(b.id) ?? 0);
+}
+
+/** Water cisterns added on the last settle, for the grid report. */
+export function cisternDelivery(engine: SimulationEngine): number {
+  const releases = cisternRelease.get(engine);
+  if (!releases) return 0;
+  let total = 0;
+  for (const water of releases.values()) total += water;
+  return total;
+}
+
+/**
+ * Before the water solve: a spare component charges its cisterns and they add nothing.
+ * A short one is topped up only by the missing water, and the charge falls by that share.
+ */
+function settleCisterns(engine: SimulationEngine): void {
+  const releases = new Map<number, number>();
+  cisternRelease.set(engine, releases);
+  const components = waterNetworkComponents(
+    engine,
+    (b) => waterSupply(engine.world, b, true) > 0 || b.kind === 'cistern',
+  );
+  for (const buildings of components) {
+    let base = 0;
+    let demand = 0;
+    const banks: BuildingRecord[] = [];
+    for (const b of buildings) {
+      base += waterSupply(engine.world, b, true);
+      demand += waterDemand(b);
+      if (b.kind === 'cistern' && b.powered && b.offline === 0) banks.push(b);
+    }
+    if (banks.length === 0) continue;
+    const shortfall = demand - base;
+    if (shortfall <= 0) {
+      for (const bank of banks) {
+        const entry = cisternCharge(engine, bank.id);
+        entry.charge = Math.min(1, entry.charge + OASIS_WATER.cisternDischarge);
+      }
+      continue;
+    }
+    const stored = banks.map((bank) => {
+      const entry = cisternCharge(engine, bank.id);
+      return { bank, entry, water: Math.round(entry.charge * OASIS_WATER.cisternOutput) };
+    });
+    let available = 0;
+    for (const row of stored) available += row.water;
+    if (available <= 0) continue;
+    const deliver = Math.min(shortfall, available);
+    let left = deliver;
+    for (let i = 0; i < stored.length; i++) {
+      const row = stored[i] as (typeof stored)[number];
+      const share =
+        i === stored.length - 1
+          ? left
+          : Math.min(left, Math.round((deliver * row.water) / available));
+      left -= share;
+      if (share <= 0) continue;
+      releases.set(row.bank.id, share);
+      row.entry.charge = Math.max(0, row.entry.charge - share / OASIS_WATER.cisternOutput);
+    }
+  }
+}
+
+function cisternCharge(
+  engine: SimulationEngine,
+  id: number,
+): { buildingId: number; charge: number } {
+  const found = engine.oasis.cisterns.find((c) => c.buildingId === id);
+  if (found) return found;
+  const created = { buildingId: id, charge: 0 };
+  engine.oasis.cisterns.push(created);
+  return created;
 }
 
 /** Bandwidth a zone lot asks for. Placeables do not consume data; they only need to be reached. */
@@ -134,6 +210,7 @@ export function updateUtilities(
     (b, on) => (b.powered = on),
     { conductors: powerConductors, supply: powerSupply, demand: powerDemand },
   );
+  if (write && engine.ruleset === 'oasis') settleCisterns(engine);
   const water = solve(
     engine,
     write,
@@ -432,7 +509,10 @@ export function powerNetworkComponents(engine: SimulationEngine): BuildingRecord
 }
 
 /** Water components: buildings and pipes, starting at a tile that can give water. */
-export function waterNetworkComponents(engine: SimulationEngine): BuildingRecord[][] {
+export function waterNetworkComponents(
+  engine: SimulationEngine,
+  isSource?: (b: BuildingRecord) => boolean,
+): BuildingRecord[][] {
   const w = engine.world;
   const infra = w.structure.infra;
   const buildingId = w.buildingId;
@@ -441,7 +521,11 @@ export function waterNetworkComponents(engine: SimulationEngine): BuildingRecord
     if ((buildingId[i] as number) !== 0 || ((infra[i] as number) & Infra.Pipe) !== 0)
       conductors[i] = 1;
   }
-  return walkComponents(engine, conductors, (b) => oasisWaterOutput(engine, b) > 0);
+  return walkComponents(
+    engine,
+    conductors,
+    isSource ?? ((b) => oasisWaterOutput(engine, b) > 0),
+  );
 }
 
 function walkComponents(

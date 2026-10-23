@@ -8,14 +8,13 @@ import type { SimulationEngine } from '../../engine';
 import { monthIndex } from '../../time';
 
 /**
- * Megacaravans (neon ruleset).
+ * Caravans (oasis ruleset).
  *
- * Each corporation is an agent with cash, a preferred quadrant and a portfolio. Once a month it
- * looks for a vacant lot inside its quadrant and buys it: the lot keeps its kind and level, gains
- * an `owner`, and the corporation stamps extra land value around its new property.
+ * Four houses are founded once. While a caravanserai is powered and online, each house may buy
+ * one vacant watered or shaded lot in its quadrant and pay the treasury, or abandon one dry lot.
+ * Without that building the houses exist but the month does not move cash.
  *
- * Nothing new is spawned, so the classic growth pipeline keeps running untouched; the corporation
- * only takes over lots the city failed to fill.
+ * Houses act in id order and scan lots in index order, so the RNG stream stays reproducible.
  */
 
 /** Result of one caravan pass, for the report. */
@@ -56,6 +55,7 @@ export function updateCaravans(engine: SimulationEngine): CaravanResult {
   if (engine.oasis.caravans.length === 0) result.founded = initCaravans(engine);
   if (engine.oasis.lastCaravanMonth === month) return result;
   engine.oasis.lastCaravanMonth = month;
+  if (!caravanseraiOpen(engine)) return result;
 
   for (const corp of engine.oasis.caravans) {
     if (corp.capital < OASIS_CARAVAN.startingCapital * OASIS_CARAVAN.buyReserve) continue;
@@ -78,6 +78,14 @@ export function updateCaravans(engine: SimulationEngine): CaravanResult {
   }
   releaseDryLots(engine, result);
   return result;
+}
+
+/** True when at least one caravanserai has power and is not buried or offline. */
+function caravanseraiOpen(engine: SimulationEngine): boolean {
+  for (const b of engine.buildings.ofKind('caravanserai')) {
+    if (b.powered && b.offline === 0) return true;
+  }
+  return false;
 }
 
 /** First vacant zoned lot in a quadrant: nobody lives or works there yet and no one owns it. */

@@ -23,9 +23,12 @@ An unshaded well or pump keeps `evaporation` (0.55) of its output. A qanat does 
 Shade is solved after water, so the shade flag used for evaporation is the one from the
 previous pass.
 
-A cistern charges while its water component has spare supply and adds
-`charge * cisternOutput` on the next solve. A component whose demand reaches
-`overloadThreshold` (0.9) of its supply is parched and may cascade.
+A cistern charges while its water component has spare supply, and that stored water stays out of
+the offer. When demand passes the base supply, the cistern releases only the missing water, up
+to `charge * cisternOutput`, and the charge falls by the same share. A component whose demand
+reaches `overloadThreshold` (0.9) of its supply is parched. If that component has a qanat, one
+qanat goes offline for `cascadeOutageDays` and the collapse notice fires. With no qanat, a share
+of the other buildings goes offline and only the water-stress notice fires.
 
 ## Spring
 
@@ -40,12 +43,19 @@ The position is on `CityStats.oasis.spring` and drawn by the renderer.
 
 Four houses buy vacant zoned lots that are watered or shaded, in their own quadrant.
 The fee is paid into the city treasury (`funds += fee`). Each month a house may abandon
-one owned lot that is neither watered nor shaded.
+one owned lot that is neither watered nor shaded. Buy and abandon run only while a
+caravanserai is powered and online. Without one, the month does not move cash.
 
 ## Sandstorms
 
-Once a month a service with jobs may be buried. A windbreak in radius lowers the chance.
-A buried service goes offline. Sand does not take money. A storm that lands nudges the spring.
+Once a month a service with jobs may be buried. A windbreak in radius lowers the chance
+while it is powered and online; shade is not required. A buried service goes offline.
+Sand does not take money. A storm that lands nudges the spring.
+
+## Arcades
+
+An arcade eases traffic on the streets beside it while it is powered and online. The
+road is required when it is placed. The adobe theme does not draw drones.
 
 ## Saves
 

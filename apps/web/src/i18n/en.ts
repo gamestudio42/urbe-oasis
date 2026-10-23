@@ -87,7 +87,7 @@ export const en = {
     marina: 'On the coast, with a road. Industrial jobs, raises the waterfront and links the city to the region.',
     airport:
       'Flat 4×4 area, with a road. Commercial jobs and a regional link, but the noise lowers nearby land value.',
-    qanat: 'Brings water where there is no river. Needs power. Shade keeps it from drying.',
+    qanat: 'Brings water where there is no river. Needs power.',
     cistern: 'Stores spare water and feeds the district when the pipes run short.',
     windbreak: 'Slows a sandstorm. Covers a 6-tile radius. Needs power.',
     arcade: 'A covered street. Eases traffic nearby. Needs a road.',
@@ -455,7 +455,7 @@ export const en = {
     brownout: 'Not enough power! Build more plants.',
     waterShortage: 'Water shortage! Build more pumps.',
     waterStress: 'This district is drying out.',
-    canalCollapse: 'A canal gave way and part of the network is dry.',
+    canalCollapse: 'A qanat dried up and part of the district lost water.',
     caravanTrade: 'A caravan bought a lot and paid the treasury.',
     caravanLeave: 'A caravan left a dry lot.',
     sandstorm: 'A sandstorm buried a service.',

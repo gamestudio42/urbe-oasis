@@ -10,8 +10,8 @@ import {
 } from './composer';
 
 /**
- * Synthwave music for Neo Urbe: a sawtooth bass pulse, a detuned pad, a square lead through a
- * long delay and a plucked arpeggio, all scheduled ahead on the AudioContext clock. Bars come
+ * Desert music for Urbe Oasis: sine bass, triangle pad, lead and arpeggio, scheduled ahead
+ * on the AudioContext clock. Bars come
  * from `composeBar`, so the music is deterministic for a seed.
  */
 

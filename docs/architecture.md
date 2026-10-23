@@ -1,11 +1,11 @@
 # Architecture
 
-This repository is **Neo Urbe**, a cyberpunk isometric city builder. There is no backend:
+This repository is **Urbe Oasis**, a desert isometric city builder. There is no backend:
 the game runs in the browser, and saves live in IndexedDB or in exported files.
 
-`apps/neon` is the game the player opens. It boots the shared city UI in `apps/web` with
-the neon theme, the neon ruleset and its own soundtrack. The classic ruleset stays in the
-simulation so neon mechanics remain a gated layer; new cities from the menu are neon.
+`apps/oasis` is the game the player opens. It boots the shared city UI in `apps/web` with
+the adobe theme, the oasis ruleset and its own soundtrack. The classic ruleset stays in the
+simulation so oasis mechanics remain a gated layer; new cities from the menu are oasis.
 
 ## Packages
 
@@ -19,10 +19,11 @@ simulation so neon mechanics remain a gated layer; new cities from the menu are 
 | `packages/simulation` | City engine: world, systems, commands, persistence, scenarios          | `@city/shared`, `@shell/kernel`    |
 | `packages/theme`      | Colourless `Theme` interface injected into the renderer                | nothing                            |
 | `packages/theme-urbe` | Classic palette, kept so the renderer can still draw that ruleset      | `@theme/core`                      |
-| `packages/theme-neon` | Cyberpunk palette, CSS tokens and audio parameters                     | `@theme/core`                      |
+| `packages/theme-neon` | Cyberpunk palette kept so the sprite tests still have a cyber skin    | `@theme/core`                      |
+| `packages/theme-oasis`| Desert palette, CSS tokens and audio parameters                        | `@theme/core`                      |
 | `packages/view-city`  | Pixi renderer, sprites and animation layer, theme injected             | pixi.js + city packages            |
-| `apps/web`            | City UI: Vite + React panels, worker host, shared by the neon shell    | city packages + shell              |
-| `apps/neon`           | Neo Urbe: neon theme, neon ruleset, synthwave, port 5178               | view-city + themes + city packages |
+| `apps/web`            | City UI: Vite + React panels, worker host, shared by the oasis shell   | city packages + shell              |
+| `apps/oasis`          | Urbe Oasis: adobe theme, oasis ruleset, desert music, port 5180        | view-city + themes + city packages |
 | `tools/`              | Headless city reports and the tick benchmark                           | shared, simulation                 |
 | `tests/`              | Unit, integration, scenario (Vitest) and end-to-end (Playwright) tests | everything                         |
 
@@ -31,10 +32,10 @@ and `tsx` compile them on the fly, so there is no package build step.
 
 ## Publish
 
-`pnpm dev` serves Neo Urbe on port 5178 with `base: '/'`. `pnpm build` writes `apps/neon/dist`.
+`pnpm dev` serves Urbe Oasis on port 5180 with `base: '/'`. `pnpm build` writes `apps/oasis/dist`.
 GitHub Pages publishes that folder (`BASE_PATH` from the repository name).
 
-New cities use the `neon-city-save` envelope (`.neon.json`). The decoder still accepts the
+New cities use the `oasis-city-save` envelope (`.oasis.json`). The decoder still accepts the
 classic `city-builder-save` envelope; the `ruleset` stored in the file decides which rules run.
 
 The simulation package compiles with `lib: ["ES2023"]` and no ambient types, so any accidental
@@ -90,7 +91,7 @@ flowchart LR
 | Pause     | `ui/PauseOverlay.tsx` | Vignette and "Pausado" badge; does not block the map         |
 | Toolbar   | `ui/Toolbar.tsx`      | Tool groups with hotkeys and cost tooltips                   |
 | Minimap   | `ui/Minimap.tsx`      | Isometric diamond, current overlay, view rectangle, recentre |
-| Overlays  | `ui/OverlayPanel.tsx` | Twelve thematic maps, plus a data map in Neo Urbe            |
+| Overlays  | `ui/OverlayPanel.tsx` | Twelve thematic maps, plus a shade map in Urbe Oasis        |
 | Budget    | `ui/BudgetPanel.tsx`  | Taxes, department funding, monthly ledger, debt warnings     |
 | Charts    | `ui/ChartsPanel.tsx`  | Population, money, demand and environment history            |
 | Inspector | `ui/Inspector.tsx`    | Tile facts and the "why is it (not) growing" problem list    |
@@ -130,7 +131,7 @@ The map is a square grid (`size × size`, 128 by default) stored as a structure 
 | `infra`                                      | `Uint8Array` | Bit flags: road, power line, water pipe, rubble, fiber (16). Fiber stays unset in a classic city |
 | `buildingId`                                 | `Int32Array` | Building occupying the tile, `0` = none                                                          |
 | `powered`, `watered`                         | `Uint8Array` | Utility service flags                                                                            |
-| `linked`                                     | `Uint8Array` | Neon data service. Not a structure layer, and omitted from a classic snapshot                    |
+| `linked`                                     | `Uint8Array` | Oasis shade. Not a structure layer, and omitted from a classic snapshot                         |
 | `fire`                                       | `Uint8Array` | Fire intensity, `0` = not burning                                                                |
 | `pollution`, `crime`, `landValue`            | `Uint8Array` | Influence maps, 0..255                                                                           |
 | `traffic`, `jobAccess`                       | `Uint8Array` | Aggregated traffic load and job accessibility                                                    |
@@ -148,7 +149,7 @@ footprint of `w × h` tiles.
 | Unit  | Value               | Systems                                                               |
 | ----- | ------------------- | --------------------------------------------------------------------- |
 | Tick  | 1/4 day             | Fires, active disasters, command application                          |
-| Day   | 4 ticks             | Network rebuilds (power, water, and neon data) when dirty             |
+| Day   | 4 ticks             | Network rebuilds (power, water, and oasis shade) when dirty           |
 | Month | 30 days = 120 ticks | Traffic, services, influence (last 3 ticks), then demand, growth, tax |
 | Year  | 12 months           | Yearly statistics, evaluation                                         |
 
@@ -160,8 +161,8 @@ real time and runs a whole number of ticks per frame, capped to avoid a spiral o
 Each `step()` runs, in order:
 
 1. Apply queued commands (recorded with their tick number for replay).
-2. At the start of a day, rebuild the power and water networks if they are dirty. A neon city
-   rebuilds the data network in the same pass, after water.
+2. At the start of a day, rebuild the power and water networks if they are dirty. An oasis city
+   rebuilds the shade network in the same pass, after water.
 3. Advance fires and disasters, then custom systems.
 4. Advance the tick counter and run the month stage of the new tick, if any: traffic and job
    accessibility (tick 117 of the month), service coverage (118), influence maps (119), and the
@@ -178,29 +179,30 @@ order. The engine only orchestrates; game rules live in the systems.
 
 ## Rulesets
 
-`EngineOptions.ruleset` selects `'classic'` (Urbe, default) or `'neon'` (Neo Urbe). The flag is
+`EngineOptions.ruleset` selects `'classic'` (Urbe, default) or `'oasis'` (Urbe Oasis). The flag is
 stored in the snapshot and in the save, so a loaded city keeps its own rules regardless of the app
-that opened it. The classic path is untouched: every neon branch is guarded by
-`ruleset === 'neon'`, and the classic unit, scenario and E2E suites keep the same hashes.
+that opened it. The classic path is untouched: every oasis branch is guarded by
+`ruleset === 'oasis'`, and the classic unit, scenario and E2E suites keep the same hashes.
 
-| Area     | Classic                 | Neon                                                                     |
+| Area     | Classic                 | Oasis                                                                    |
 | -------- | ----------------------- | ------------------------------------------------------------------------ |
-| Power    | Component balance       | Same components, plus overload, cascading blackouts and batteries        |
-| Land     | Vacant lots stay vacant | Four megacorps buy idle zoned lots and stamp land value                  |
-| Security | No intrusions           | Hackers take services offline; firewalls block them                      |
-| Traffic  | Ground network only     | Drone ports add an aerial relief layer above it                          |
-| Zoning   | Classic level caps      | Dense level 7, light level 3, extrapolated capacity and demand           |
-| Data     | No data network         | Fiber, datacenters and edge nodes. A lot without a link stops at level 2 |
+| Water    | Component balance       | Same components, plus evaporation, cisterns, qanats and parched districts |
+| Shade    | No shade network        | Canals, palms and spring houses. A lot without shade or water stops at 2 |
+| Land     | Vacant lots stay vacant | Four caravans buy watered or shaded lots while a caravanserai is open   |
+| Storms   | No sandstorms           | A monthly storm buries a service; a powered windbreak can block it      |
+| Traffic  | Ground network only     | An arcade eases congestion. The adobe theme does not draw drones         |
+| Zoning   | Classic level caps      | Dense level 5 and light level 2 when the lot has water and shade         |
 
-The six mechanics live in `packages/simulation/src/systems/neon/` (the data pass itself stays in
+The oasis systems live in `packages/simulation/src/systems/oasis/` (the shade pass itself stays in
 `systems/utilities.ts`, beside power and water); their constants are in
-`packages/shared/src/balance/neon.ts` and their formulas in [neon-spec.md](neon-spec.md).
-`CityStats.neon` carries the extra telemetry (stressed components, battery charge, firewall
-coverage, drone ports, corporations, skimmed cash, and data supply, demand and the served
-fraction) and is absent in a classic city.
+`packages/shared/src/balance/oasis.ts` and their formulas in [oasis-spec.md](oasis-spec.md).
+`CityStats.oasis` carries the extra telemetry (parched districts, cistern charge, windbreak
+coverage, arcades, caravans, trade paid in, shade supply and demand, and the spring) and is
+absent in a classic city.
 
 Themes are orthogonal to the ruleset: `@view/city` receives a `Theme` and never hardcodes a colour,
-so `apps/web` injects `@theme/urbe` and `apps/neon` injects `@theme/neon`. A third skin is a new
+so `apps/web` injects `@theme/urbe` and `apps/oasis` injects `@theme/oasis`. `@theme/neon` stays
+in the repo so the cyber sprite tests still have a skin. A further skin is a new
 `packages/theme-*` package, not a fork of the renderer.
 
 ## Determinism

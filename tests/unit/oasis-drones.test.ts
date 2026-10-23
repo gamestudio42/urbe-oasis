@@ -12,26 +12,9 @@ import {
 import { describe, expect, it } from 'vitest';
 
 /**
- * Flat neon city with the standard town and one drone port beside the avenue at y = 20.
- * The port footprint is 2x2, so (38,21) hugs the road and satisfies `requiresRoad`.
+ * Flat oasis city with the standard town and room for an arcade beside the avenue at y = 20.
+ * The footprint is 2x2, so (38,21) hugs the road and satisfies `requiresRoad`.
  */
-/** Puts an edge node on a free side of a building so the port joins the data network. */
-function linkPort(e: SimulationEngine, x: number, y: number, w = 1, h = 1): void {
-  const spots: Array<[number, number]> = [
-    [x + w, y],
-    [x - 1, y],
-    [x, y + h],
-    [x, y - 1],
-    [x + w, y + 1],
-    [x + 1, y + h],
-  ];
-  for (const [sx, sy] of spots) {
-    if (sx < 0 || sy < 0) continue;
-    if (e.execute({ type: 'place', kind: 'palm', x: sx, y: sy }).ok) return;
-  }
-  throw new Error(`no tile for an edge node beside ${x},${y}`);
-}
-
 function droneTown(seed = 'neon-drone'): SimulationEngine {
   const e = createEngine({
     seed,
@@ -59,9 +42,6 @@ describe('neon drone traffic', () => {
     const e = droneTown();
     expect(e.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 }).ok).toBe(true);
     e.refreshUtilities();
-    expect(arcadeCount(e)).toBe(0);
-    linkPort(e, 38, 21, 2, 2);
-    e.refreshUtilities();
     expect(arcadeCount(e)).toBe(1);
     expect(arcadeCapacity(e)).toBe(OASIS_ARCADE.perPort);
     expect(arcadeRelief(e, 100)).toBeGreaterThan(0);
@@ -70,7 +50,6 @@ describe('neon drone traffic', () => {
   it('never exceeds the configured relief cap', () => {
     const e = droneTown();
     e.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
-    linkPort(e, 38, 21, 2, 2);
     e.refreshUtilities();
     expect(arcadeRelief(e, 1)).toBeLessThanOrEqual(OASIS_ARCADE.relief);
     expect(arcadeRelief(e, 10_000)).toBeLessThanOrEqual(OASIS_ARCADE.relief);
@@ -79,11 +58,9 @@ describe('neon drone traffic', () => {
   it('scales relief with the number of online ports', () => {
     const e = droneTown();
     e.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
-    linkPort(e, 38, 21, 2, 2);
     e.refreshUtilities();
     const one = arcadeRelief(e, 400);
     expect(e.execute({ type: 'place', kind: 'arcade', x: 22, y: 13 }).ok).toBe(true);
-    linkPort(e, 22, 13, 2, 2);
     e.refreshUtilities();
     const two = arcadeRelief(e, 400);
     expect(two).toBeGreaterThanOrEqual(one);
@@ -92,7 +69,6 @@ describe('neon drone traffic', () => {
   it('takes an offline port out of service', () => {
     const e = droneTown();
     e.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
-    linkPort(e, 38, 21, 2, 2);
     e.refreshUtilities();
     expect(arcadeCount(e)).toBe(1);
     const port = e.buildings.ofKind('arcade')[0];
@@ -106,7 +82,6 @@ describe('neon drone traffic', () => {
   it('derives a lane along the avenue beside the port', () => {
     const e = droneTown();
     e.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
-    linkPort(e, 38, 21, 2, 2);
     e.refreshUtilities();
     const lanes = arcadeLanes(e);
     expect(lanes).toHaveLength(1);
@@ -133,8 +108,6 @@ describe('neon drone traffic', () => {
     const b = droneTown('drone-same');
     a.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
     b.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
-    linkPort(a, 38, 21, 2, 2);
-    linkPort(b, 38, 21, 2, 2);
     a.runMonths(6);
     b.runMonths(6);
     expect(arcadeLanes(a)).toEqual(arcadeLanes(b));

@@ -241,15 +241,23 @@ export class AnimationLayer {
     this.trucks.step(fireView, this.stations, dt);
     this.puffs.step(frame.underground ? [] : this.ventsInView(frame.view), dt);
     this.hubs.step(dt);
-    this.aerial.setPorts(world, this.buildings.values());
-    this.aerial.step(dt);
+    if (this.theme.style === 'cyber') {
+      this.aerial.setPorts(world, this.buildings.values());
+      this.aerial.step(dt);
+    } else if (this.aerial.drones.length > 0) {
+      this.aerial.clear();
+    }
 
     const alpha = frame.overlay ? OVERLAY_ALPHA : 1;
     this.syncVehicles(world, !frame.underground, alpha);
     this.syncPuffs(!frame.underground, alpha, frame.zoom);
     this.syncBoats(world, !frame.underground && frame.zoom >= BOAT_MIN_ZOOM, alpha);
     this.syncPlanes(world, !frame.underground, alpha);
-    this.syncDrones(world, !frame.underground && frame.zoom >= DRONE_MIN_ZOOM, alpha);
+    this.syncDrones(
+      world,
+      this.theme.style === 'cyber' && !frame.underground && frame.zoom >= DRONE_MIN_ZOOM,
+      alpha,
+    );
   }
 
   stats(): AnimationStats {

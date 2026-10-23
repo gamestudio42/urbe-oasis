@@ -455,7 +455,7 @@ export const de = {
     brownout: 'Zu wenig Strom! Baue mehr Kraftwerke.',
     waterShortage: 'Wassermangel! Baue mehr Pumpen.',
     waterStress: 'Dieses Viertel trocknet aus.',
-    canalCollapse: 'Ein Kanal ist eingebrochen und ein Teil des Netzes ist trocken.',
+    canalCollapse: 'Ein Qanat ist versiegt und ein Teil des Viertels hat kein Wasser mehr.',
     caravanTrade: 'Eine Karawane hat ein Grundstück gekauft und die Kasse bezahlt.',
     caravanLeave: 'Eine Karawane hat ein trockenes Grundstück verlassen.',
     sandstorm: 'Ein Sandsturm hat einen Dienst verschüttet.',

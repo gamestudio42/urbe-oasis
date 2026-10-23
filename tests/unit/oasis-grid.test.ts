@@ -54,6 +54,54 @@ describe('neon power grid', () => {
     expect(summary.charge).toBeGreaterThan(0);
   });
 
+  it('spends cistern charge only on the water the district is missing', () => {
+    const e = createEngine({
+      seed: 'cistern-spend',
+      size: 32,
+      ruleset: 'oasis',
+      terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
+      funds: 400_000,
+    });
+    e.disastersEnabled = false;
+    expect(e.execute({ type: 'place', kind: 'coalPlant', x: 4, y: 4 }).ok).toBe(true);
+    expect(e.execute({ type: 'place', kind: 'well', x: 7, y: 4 }).ok).toBe(true);
+    expect(e.execute({ type: 'place', kind: 'cistern', x: 7, y: 5 }).ok).toBe(true);
+    for (const x of [8, 9]) {
+      e.buildings.add({
+        kind: 'residential',
+        x,
+        y: 4,
+        w: 1,
+        h: 1,
+        level: 5,
+        capacity: 40,
+        occupancy: 10,
+        condition: 100,
+        age: 0,
+        abandoned: false,
+        emptyMonths: 0,
+        variant: 0,
+        powered: true,
+        watered: false,
+        offline: 0,
+        attractiveness: 0,
+      });
+    }
+    const bank = e.buildings.ofKind('cistern')[0];
+    expect(bank).toBeDefined();
+    if (!bank) return;
+    const stored = e.oasis.cisterns.find((c) => c.buildingId === bank.id);
+    if (stored) stored.charge = 1;
+    else e.oasis.cisterns.push({ buildingId: bank.id, charge: 1 });
+    e.refreshUtilities();
+    const entry = e.oasis.cisterns.find((c) => c.buildingId === bank.id);
+    const well = Math.round(40 * OASIS_WATER.evaporation);
+    const demand = 36 * 2;
+    const spent = demand - well;
+    expect(entry?.charge).toBeCloseTo(1 - spent / OASIS_WATER.cisternOutput, 5);
+    expect(e.stats().water.supply).toBe(well + spent);
+  });
+
   it('marks a component as parched past the threshold', () => {
     const e = createEngine({
       seed: 'overload',
@@ -94,6 +142,50 @@ describe('neon power grid', () => {
     expect(e.oasis.parched.length).toBe(1);
     expect(isParched(e, e.world.index(8, 4))).toBe(true);
     expect(isParched(e, e.world.index(28, 4))).toBe(false);
+  });
+
+  it('takes a qanat offline when a parched district cascades', () => {
+    const e = createEngine({
+      seed: 'qanat-cascade',
+      size: 32,
+      ruleset: 'oasis',
+      terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
+      funds: 400_000,
+    });
+    e.disastersEnabled = false;
+    expect(e.execute({ type: 'place', kind: 'coalPlant', x: 4, y: 4 }).ok).toBe(true);
+    expect(e.execute({ type: 'place', kind: 'well', x: 7, y: 4 }).ok).toBe(true);
+    expect(e.execute({ type: 'place', kind: 'qanat', x: 7, y: 5 }).ok).toBe(true);
+    for (let x = 8; x < 18; x++) {
+      e.buildings.add({
+        kind: 'residential',
+        x,
+        y: 4,
+        w: 1,
+        h: 1,
+        level: 5,
+        capacity: 40,
+        occupancy: 10,
+        condition: 100,
+        age: 0,
+        abandoned: false,
+        emptyMonths: 0,
+        variant: 0,
+        powered: true,
+        watered: false,
+        offline: 0,
+        attractiveness: 0,
+      });
+    }
+    let dried = false;
+    for (let n = 0; n < 400 && !dried; n++) {
+      e.refreshUtilities();
+      const qanat = e.buildings.ofKind('qanat')[0];
+      dried = qanat !== undefined && qanat.offline > 0;
+    }
+    expect(dried).toBe(true);
+    const events = e.takeEvents().filter((event) => event.type === 'canalCollapse');
+    expect(events.length).toBeGreaterThan(0);
   });
 
   it('is deterministic for the same seed and commands', () => {

@@ -1,6 +1,7 @@
 import { OASIS_WATER, type BuildingRecord } from '@city/shared';
 import type { SimulationEngine } from '../../engine';
 import {
+  cisternDelivery,
   oasisWaterOutput,
   waterDemand,
   waterNetworkComponents,
@@ -8,18 +9,17 @@ import {
 } from '../utilities';
 
 /**
- * Unstable power grid (neon ruleset).
+ * Oasis water stress.
  *
  * The classic solver already balances supply and demand per connected component. This layer adds
- * the cyberpunk failure modes on top of that solution:
+ * the desert failure modes on top of that solution:
  *
- * - **Overload**: a component whose demand reaches `overloadThreshold` of its supply is stressed.
- *   Stressed components are stored in `oasis.parched` so the UI and the inspector can show it.
- * - **Cascade**: a stressed component can blow a qanat, taking a share of its buildings
- *   offline for a few days. The outage uses the existing `offline` counter, so every consumer
- *   (services, pumps, hubs) already respects it.
- * - **Batteries**: a bank charges while its component has headroom and releases energy while the
- *   component is short. Charge is persisted per building.
+ * - **Overload**: a component whose demand reaches `overloadThreshold` of its supply is parched.
+ *   Parched components are stored in `oasis.parched` so the UI and the inspector can show it.
+ * - **Cascade**: a parched component can dry a qanat, or, with no qanat, take a share of its
+ *   buildings offline. The outage uses the existing `offline` counter.
+ * - **Cisterns**: charge and release happen in the water solve. This pass only reports what
+ *   that solve delivered.
  *
  * Every random decision draws from `engine.rng` in building order, so a seed plus a command log
  * always replays the same outages.
@@ -31,14 +31,13 @@ export interface GridResult {
   parched: number;
   /** Buildings thrown offline by cascades this pass. */
   cascaded: number;
-  /** Power delivered by cisterns this pass. */
+  /** Water delivered by cisterns on the last solve. */
   cisternOutput: number;
 }
 
-/** One connected component of the power network. */
+/** One connected component of the water network. */
 interface Component {
   buildings: BuildingRecord[];
-  cisterns: BuildingRecord[];
   supply: number;
   demand: number;
 }
@@ -60,7 +59,7 @@ export function updateGrid(engine: SimulationEngine): GridResult {
     if (anchor) parched.push(engine.world.index(anchor.x, anchor.y));
   }
   engine.oasis.parched = parched;
-  result.cisternOutput = dischargeBatteries(engine, components);
+  result.cisternOutput = cisternDelivery(engine);
   return result;
 }
 
@@ -68,11 +67,10 @@ export function updateGrid(engine: SimulationEngine): GridResult {
 function waterComponents(engine: SimulationEngine): Component[] {
   const components: Component[] = [];
   for (const buildings of waterNetworkComponents(engine)) {
-    const component: Component = { buildings, cisterns: [], supply: 0, demand: 0 };
+    const component: Component = { buildings, supply: 0, demand: 0 };
     for (const b of buildings) {
       component.supply += oasisWaterOutput(engine, b);
       component.demand += waterDemand(b);
-      if (b.kind === 'cistern') component.cisterns.push(b);
     }
     components.push(component);
   }
@@ -80,46 +78,9 @@ function waterComponents(engine: SimulationEngine): Component[] {
 }
 
 /**
- * Battery banks: charge while the component has headroom, discharge while it is short. A bank
- * covers `cisternOutput` of missing power per tick, draining one `cisternDischarge` step.
- */
-function dischargeBatteries(engine: SimulationEngine, components: Component[]): number {
-  const banks = engine.oasis.cisterns;
-  let delivered = 0;
-  for (const component of components) {
-    if (component.cisterns.length === 0) continue;
-    const shortfall = component.demand - component.supply;
-    const share = Math.min(
-      OASIS_WATER.cisternOutput,
-      shortfall > 0 ? shortfall / component.cisterns.length : 0,
-    );
-    for (const bank of component.cisterns) {
-      const entry = chargeOf(banks, bank.id);
-      if (shortfall > 0) {
-        delivered += share;
-        entry.charge = Math.max(0, entry.charge - OASIS_WATER.cisternDischarge);
-      } else {
-        entry.charge = Math.min(1, entry.charge + OASIS_WATER.cisternDischarge);
-      }
-    }
-  }
-  return delivered;
-}
-
-function chargeOf(
-  list: Array<{ buildingId: number; charge: number }>,
-  id: number,
-): { buildingId: number; charge: number } {
-  const found = list.find((b) => b.buildingId === id);
-  if (found) return found;
-  const created = { buildingId: id, charge: 0 };
-  list.push(created);
-  return created;
-}
-
-/**
- * Daily: a stressed component may blow a qanat. When it does, a share of its buildings goes
- * offline for `cascadeOutageDays`, and the event is emitted once for the toast and the sound.
+ * Daily: a parched, short component may cascade. A qanat in it goes offline and the
+ * collapse toast fires. With no qanat, a share of the other buildings goes offline
+ * and only the water-stress toast fires.
  */
 export function cascade(engine: SimulationEngine, utilities: UtilityResult): GridResult {
   const result: GridResult = { parched: engine.oasis.parched.length, cascaded: 0, cisternOutput: 0 };
@@ -129,8 +90,17 @@ export function cascade(engine: SimulationEngine, utilities: UtilityResult): Gri
     const ratio = component.supply > 0 ? component.demand / component.supply : 0;
     if (ratio < OASIS_WATER.overloadThreshold) continue;
     if (!engine.rng.chance(OASIS_WATER.cascadeChance)) continue;
+    const qanats = component.buildings.filter((b) => b.kind === 'qanat' && b.offline === 0);
+    if (qanats.length > 0) {
+      const qanat = qanats[engine.rng.range(0, qanats.length - 1)] as BuildingRecord;
+      qanat.offline = ticks;
+      engine.buildings.touch(qanat);
+      result.cascaded++;
+      engine.emit({ type: 'canalCollapse', x: qanat.x, y: qanat.y, tiles: 1 });
+      continue;
+    }
     const targets: BuildingRecord[] = component.buildings.filter(
-      (b) => b.offline === 0 && b.kind !== 'cistern' && b.kind !== 'qanat',
+      (b) => b.offline === 0 && b.kind !== 'cistern',
     );
     if (targets.length === 0) continue;
     const share = Math.max(1, Math.round(targets.length * OASIS_WATER.cascadeShare));
@@ -143,7 +113,6 @@ export function cascade(engine: SimulationEngine, utilities: UtilityResult): Gri
     }
     const anchor = targets[0] as BuildingRecord;
     engine.emit({ type: 'waterStress', x: anchor.x, y: anchor.y });
-    engine.emit({ type: 'canalCollapse', x: anchor.x, y: anchor.y, tiles: result.cascaded });
   }
   return result;
 }

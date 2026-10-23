@@ -26,7 +26,7 @@ Presets (`packages/simulation/src/scenarios/presets.ts`) drive the city with a s
 | ------------ | --------------------------------------------------------------------- |
 | `balanced`   | Flat map, the scenario town with four services; adds plants and pumps |
 | `disasters`  | Same town with fires and disasters on; clears rubble and rebuilds     |
-| `neon-balanced` | The balanced town under the neon ruleset, plus a fiber spine and two datacenters |
+| `oasis-balanced` | The balanced town under the oasis ruleset, plus a canal spine and two spring houses |
 | `no-power`   | Same town without any power plant                                     |
 | `high-taxes` | Same town with every tax at 15%                                       |
 | `grid`       | Flat 128×128 map filled with a street grid of dense zones (benchmark) |
@@ -43,28 +43,12 @@ Final month:
 | `high-taxes` | 234 – 292     | −99 476 – −88 428 | 2 – 12%      | 83 – 88%  | 100%      | 50 – 67% | 5 of 5          |
 | `no-power`   | 0             | −24 835           | –            | –         | 0%        | –        | 5 of 5          |
 
-### Neo Urbe (`neon-balanced`, 64×64, 120 months, seeds 1–3)
+### Earlier cyberpunk run
 
-The preset is the balanced town plus fiber along the water pipes and two datacenters: one against
-the coal plant, one beside the pump column. Each hall supplies 400 when the water network reaches
-it and draws 20 power, so the pair matches the old single hall's 800 bandwidth and 40 power. Upkeep
-is 1 per hall. Eight per hall left seed 2 at −1,608 after 120 months, and four left it at −680.
-One per hall is what closes every seed.
-
-| Seed | Population | Funds | Unemployment | Occupancy | Power | Water | Data  | Congestion | Bankrupt |
-| ---- | ---------- | ----- | ------------ | --------- | ----- | ----- | ----- | ---------- | -------- |
-| 1    | 2 432      | 119   | 12.7%        | 82.2%     | 98.4% | 88.1% | 88.1% | 0.429      | no       |
-| 2    | 2 489      | 16    | 14.6%        | 81.1%     | 94.3% | 81.5% | 81.5% | 0.431      | no       |
-| 3    | 2 354      | 104   | 10.2%        | 72.4%     | 93.7% | 92.8% | 92.8% | 0.369      | no       |
-
-Every seed is out of debt at month 120. The trough is still deep (−6,898, −7,625 and −7,604), and
-seed 2 only crosses zero in the last month. Data served matches water served because the cable
-follows the pipes; demand at the end is 577, 592 and 580 against a combined supply of 800. During
-the run a hack drops one hall for half a month and the far side goes dark, which is why the lowest
-monthly data share (seed 1) falls to about 0.43. Coal supply stays 800. End-of-run power demand is
-808, 827 and 826, a little over the plant, and the served share stays above 0.93 because only the
-last consumers are cut. The halls are 40 of that demand; the zones are what cross the 0.9 stress
-line, so the halls were not shrunk to hide it. The month stays near 1.5 ms.
+The table that used to sit here was `neon-balanced`: a 64×64 town run for 120 months on seeds 1–3
+under the cyberpunk ruleset. Those numbers belong to that run. They have not been repeated for
+Urbe Oasis, so this document does not treat them as the current result. Rerun `oasis-balanced`
+before quoting a figure.
 
 - **Balanced:** every seed grows for twenty years and ends with RCI demand near zero (the
   town is full). Seeds 1, 2 and 4 are in debt for 4 to 8 months between months 18 and 25 and

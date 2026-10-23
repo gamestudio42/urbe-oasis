@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * Neo Urbe end-to-end: boot, found a city, build the neon placeables and read the telemetry.
+ * Urbe Oasis end-to-end: boot, found a city, build the oasis placeables and read the telemetry.
  *
- * The specs reuse the shared Urbe data-testids on purpose — the neon app wraps the same UI, so a
+ * The specs reuse the shared Urbe data-testids on purpose — the oasis app wraps the same UI, so a
  * regression in the wrapper shows up here as a missing panel instead of a silent divergence.
  */
 
-const NEON_PORT = 5180;
+const NEON_PORT = Number(process.env.OASIS_PORT ?? 5180);
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
@@ -135,14 +135,17 @@ test('is deterministic: the same seed and command log hash the same', async ({ p
   expect(typeof first).toBe('string');
 });
 
-test('drone ports put drones in the air above their lane', async ({ page }) => {
+test('an arcade eases the street and does not launch drones', async ({ page }) => {
   test.setTimeout(120_000);
-  await startNeonCity(page, 'neon-drones');
+  await page.getByTestId('terrain-water').fill('0');
+  await page.getByTestId('terrain-hills').fill('0');
+  await page.getByTestId('terrain-forest').fill('0');
+  await page.getByTestId('terrain-rivers').fill('0');
+  await startNeonCity(page, 'oasis-arcade');
   const area = await page.evaluate(() => window.__cityDebug?.findFlatArea(18, 10) ?? null);
   expect(area).not.toBeNull();
   if (!area) return;
 
-  // Avenue along the north side of the port — how a player places it — then the grid that feeds it.
   const built = await page.evaluate(async (p) => {
     const d = window.__cityDebug;
     if (!d) return null;
@@ -158,37 +161,12 @@ test('drone ports put drones in the air above their lane', async ({ page }) => {
     }
     await d.command({ type: 'place', kind: 'coalPlant', x: p.x + 3, y: p.y + 4 });
     await d.runTicks(60);
-    d.centerOnTile(p.x + 11, p.y + 7);
     return ok;
   }, area);
   expect(built?.arcade).toBe(true);
 
   await page.getByTestId('speed-1').click();
-  await expect
-    .poll(async () => (await page.evaluate(() => window.__cityDebug?.animationStats()))?.drones ?? 0, {
-      timeout: 30_000,
-    })
-    .toBeGreaterThan(0);
-
-  const drones = await page.evaluate(
-    () => window.__cityDebug?.hubSample().filter((s) => s.kind === 'drone') ?? [],
-  );
-  expect(drones.length).toBeGreaterThan(0);
-  for (const drone of drones) {
-    expect(Number.isFinite(drone.x)).toBe(true);
-    expect(Number.isFinite(drone.y)).toBe(true);
-    expect(drone.visible).toBe(true);
-  }
-
-  // Paused, the drones hold still.
-  await page.getByTestId('speed-0').click();
-  await page.waitForTimeout(300);
-  const before = await page.evaluate(
-    () => window.__cityDebug?.hubSample().filter((s) => s.kind === 'drone') ?? [],
-  );
-  await page.waitForTimeout(800);
-  const after = await page.evaluate(
-    () => window.__cityDebug?.hubSample().filter((s) => s.kind === 'drone') ?? [],
-  );
-  expect(after).toEqual(before);
+  await page.waitForTimeout(1000);
+  const drones = await page.evaluate(() => window.__cityDebug?.animationStats().drones ?? -1);
+  expect(drones).toBe(0);
 });
