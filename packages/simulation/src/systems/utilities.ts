@@ -1,0 +1,570 @@
+import {
+  Infra,
+  OASIS_SHADE,
+  OASIS_WATER,
+  PLACEABLE_SPECS,
+  ZONE_SPECS,
+  ZoneType,
+  isZoneKind,
+  type BuildingRecord,
+  type PlaceableKind,
+  type UtilityStats,
+} from '@city/shared';
+import type { SimulationEngine } from '../engine';
+import { springNear } from './oasis/spring';
+import { oasisShade, oasisPower, oasisWater } from './oasis/vertical';
+import type { World } from '../world/world';
+import { hubJobs } from './demand';
+
+export interface UtilityResult extends UtilityStats {
+  /** True when some consumer in a supplied component went unserved. */
+  shortage: boolean;
+}
+
+interface NetworkSpec {
+  /** 1 on tiles that carry the network. */
+  conductors: Uint8Array;
+  supply(b: BuildingRecord): number;
+  demand(b: BuildingRecord): number;
+  /** Adjusts the computed layer before it is written to the world. */
+  postProcess?(next: Uint8Array): void;
+}
+
+export function powerDemand(b: BuildingRecord): number {
+  if (!isZoneKind(b.kind)) return PLACEABLE_SPECS[b.kind].powerUse;
+  if (b.abandoned) return 0;
+  // Neon spires grow past the classic table; `oasisPower` extrapolates identically for both rules.
+  const table = ZONE_SPECS[b.kind].power;
+  return (table[b.level] ?? oasisPower(b.kind, b.level)) as number;
+}
+
+export function waterDemand(b: BuildingRecord): number {
+  if (!isZoneKind(b.kind) || b.abandoned) return 0;
+  const table = ZONE_SPECS[b.kind].water;
+  return (table[b.level] ?? oasisWater(b.kind, b.level)) as number;
+}
+
+export function powerSupply(b: BuildingRecord): number {
+  if (isZoneKind(b.kind) || b.offline > 0) return 0;
+  return PLACEABLE_SPECS[b.kind].powerSupply;
+}
+
+export function pumpNearWater(world: World, b: BuildingRecord): boolean {
+  for (let y = b.y - 1; y <= b.y + b.h; y++) {
+    for (let x = b.x - 1; x <= b.x + b.w; x++) {
+      if (world.inBounds(x, y) && world.isWater(world.index(x, y))) return true;
+    }
+  }
+  return false;
+}
+
+export function waterSupply(world: World, b: BuildingRecord, oasis = false): number {
+  if (isZoneKind(b.kind) || !b.powered || b.offline > 0) return 0;
+  const spec = PLACEABLE_SPECS[b.kind];
+  if (spec.waterSupply <= 0 && spec.waterSupplyNearWater <= 0) return 0;
+  let supply = pumpNearWater(world, b) ? spec.waterSupplyNearWater : spec.waterSupply;
+  // An unshaded well or pump loses water to the sun. Qanats are exempt.
+  // `linked` is the shade flag from the previous solve: shade runs after water.
+  if (oasis && (b.kind === 'well' || b.kind === 'waterPump') && b.linked !== true) {
+    supply = Math.round(supply * OASIS_WATER.evaporation);
+  }
+  return supply;
+}
+
+/** Water a building adds, including cistern charge. Classic cities ignore the cistern term. */
+export function oasisWaterOutput(engine: SimulationEngine, b: BuildingRecord): number {
+  const oasis = engine.ruleset === 'oasis';
+  const base = waterSupply(engine.world, b, oasis);
+  if (!oasis || b.kind !== 'cistern' || b.offline > 0 || !b.powered) return base;
+  const entry = engine.oasis.cisterns.find((c) => c.buildingId === b.id);
+  if (!entry || entry.charge <= 0) return base;
+  return base + Math.round(entry.charge * OASIS_WATER.cisternOutput);
+}
+
+/** Bandwidth a zone lot asks for. Placeables do not consume data; they only need to be reached. */
+export function shadeDemand(b: BuildingRecord): number {
+  if (!isZoneKind(b.kind) || b.abandoned) return 0;
+  return oasisShade(b.kind, b.level);
+}
+
+/**
+ * Shade a spring house or palm adds. A palm needs neither power nor water. A spring house
+ * needs power; full output also needs the spring nearby and water. `nearSpring` defaults to
+ * true so a direct call still describes a house that has not lost the spring.
+ */
+export function shadeSupply(b: BuildingRecord, nearSpring = true): number {
+  if (isZoneKind(b.kind) || b.offline > 0) return 0;
+  if (b.kind === 'palm') return OASIS_SHADE.palmSupply;
+  if (!b.powered) return 0;
+  if (b.kind === 'springHouse') {
+    if (nearSpring && b.watered) return OASIS_SHADE.springSupply;
+    if (nearSpring || b.watered) return OASIS_SHADE.springSupplyDry;
+    return 0;
+  }
+  return 0;
+}
+
+/**
+ * Recomputes power, then water (pumps need power), then the neon data network (halls need both).
+ * With `write` it updates the service layers and building flags; without it only the summary
+ * is computed. The data pass does not run in a classic city.
+ */
+export function updateUtilities(
+  engine: SimulationEngine,
+  write = true,
+): { power: UtilityResult; water: UtilityResult; data?: UtilityResult } {
+  const w = engine.world;
+  const infra = w.structure.infra;
+  const zone = w.zone;
+  const buildingId = w.buildingId;
+  const powerConductors = new Uint8Array(w.tileCount);
+  const waterConductors = new Uint8Array(w.tileCount);
+  for (let i = 0; i < w.tileCount; i++) {
+    const flags = infra[i] as number;
+    const built = (buildingId[i] as number) !== 0;
+    if (built || (flags & Infra.PowerLine) !== 0 || (zone[i] as number) !== ZoneType.None)
+      powerConductors[i] = 1;
+    if (built || (flags & Infra.Pipe) !== 0) waterConductors[i] = 1;
+  }
+  const power = solve(
+    engine,
+    write,
+    'powered',
+    (b) => b.powered,
+    (b, on) => (b.powered = on),
+    { conductors: powerConductors, supply: powerSupply, demand: powerDemand },
+  );
+  const water = solve(
+    engine,
+    write,
+    'watered',
+    (b) => b.watered,
+    (b, on) => (b.watered = on),
+    {
+      conductors: waterConductors,
+      supply: (b) => oasisWaterOutput(engine, b),
+      demand: waterDemand,
+      postProcess: (next) => spreadWaterToEmptyZones(w, next),
+    },
+  );
+  let data: UtilityResult | undefined;
+  if (engine.ruleset === 'oasis') {
+    const dataConductors = new Uint8Array(w.tileCount);
+    for (let i = 0; i < w.tileCount; i++) {
+      const built = (buildingId[i] as number) !== 0;
+      if (built || ((infra[i] as number) & Infra.Canal) !== 0) dataConductors[i] = 1;
+    }
+    data = solve(
+      engine,
+      write,
+      'linked',
+      (b) => b.linked === true,
+      (b, on) => {
+        b.linked = on;
+      },
+      {
+        conductors: dataConductors,
+        supply: (b) => shadeSupply(b, springNear(engine, b)),
+        demand: shadeDemand,
+        postProcess: (next) => spreadWaterToEmptyZones(w, next),
+      },
+    );
+  }
+  if (write) updateHubJobs(engine);
+  return data ? { power, water, data } : { power, water };
+}
+
+/** One connected component of the power network, as the classic solver sees it. */
+export interface PowerComponent {
+  buildings: BuildingRecord[];
+  supply: number;
+  demand: number;
+}
+
+/**
+ * Groups buildings into power components using exactly the conductor rules of the classic
+ * solver (built tiles, power lines and zoned tiles, jumping over a plain road). The neon grid
+ * layer reuses this so overload, cascade and cisterns describe the same components the
+ * `powered` layer was solved from.
+ */
+export function powerComponents(engine: SimulationEngine): PowerComponent[] {
+  const w = engine.world;
+  const size = w.size;
+  const count = w.tileCount;
+  const infra = w.structure.infra;
+  const buildingId = w.buildingId;
+  const conductors = new Uint8Array(count);
+  for (let i = 0; i < count; i++) {
+    const flags = infra[i] as number;
+    if ((buildingId[i] as number) !== 0 || (flags & Infra.PowerLine) !== 0 || (w.zone[i] as number) !== ZoneType.None)
+      conductors[i] = 1;
+  }
+  const visited = new Uint8Array(count);
+  const queue = new Int32Array(count);
+  const claimed = new Set<number>();
+  const components: PowerComponent[] = [];
+
+  for (const source of engine.buildings.values()) {
+    if (powerSupply(source) <= 0) continue;
+    const start = w.index(source.x, source.y);
+    if (visited[start] === 1) continue;
+    const component: PowerComponent = { buildings: [], supply: 0, demand: 0 };
+    let tail = 0;
+    for (let y = source.y; y < source.y + source.h; y++) {
+      for (let x = source.x; x < source.x + source.w; x++) {
+        const t = y * size + x;
+        visited[t] = 1;
+        queue[tail++] = t;
+      }
+    }
+    for (let head = 0; head < tail; head++) {
+      const t = queue[head] as number;
+      const id = buildingId[t] as number;
+      if (id !== 0 && !claimed.has(id)) {
+        const b = engine.buildings.get(id);
+        if (b) {
+          claimed.add(id);
+          component.buildings.push(b);
+          component.supply += powerSupply(b);
+          component.demand += powerDemand(b);
+        }
+      }
+      const tx = t % size;
+      if (t >= size)
+        tail = enqueue(conductors, infra, visited, queue, tail, t - size, t >= 2 * size ? t - 2 * size : -1);
+      if (tx < size - 1)
+        tail = enqueue(conductors, infra, visited, queue, tail, t + 1, tx < size - 2 ? t + 2 : -1);
+      if (t < count - size)
+        tail = enqueue(conductors, infra, visited, queue, tail, t + size, t < count - 2 * size ? t + 2 * size : -1);
+      if (tx > 0)
+        tail = enqueue(conductors, infra, visited, queue, tail, t - 1, tx > 1 ? t - 2 : -1);
+    }
+    components.push(component);
+  }
+  return components;
+}
+
+/** Sets hub capacity to its current job count and occupancy to it while the hub operates. */
+function updateHubJobs(engine: SimulationEngine): void {
+  let residents = 0;
+  const operating = new Map<string, number>();
+  const hubs: BuildingRecord[] = [];
+  for (const b of engine.buildings.values()) {
+    if (isZoneKind(b.kind)) {
+      if (b.kind === 'residential' && !b.abandoned) residents += b.occupancy;
+      continue;
+    }
+    if (PLACEABLE_SPECS[b.kind].jobs <= 0) continue;
+    hubs.push(b);
+    if (b.powered && b.offline === 0) operating.set(b.kind, (operating.get(b.kind) ?? 0) + 1);
+  }
+  for (const b of hubs) {
+    const spec = PLACEABLE_SPECS[b.kind as PlaceableKind];
+    b.capacity = hubJobs(spec, residents, operating.get(b.kind) ?? 0);
+    b.occupancy = b.powered && b.offline === 0 ? b.capacity : 0;
+  }
+}
+
+type ServiceLayer = 'powered' | 'watered' | 'linked';
+
+function serviceLayer(w: World, layer: ServiceLayer): Uint8Array {
+  return layer === 'linked' ? w.linked : w.structure[layer];
+}
+
+function solve(
+  engine: SimulationEngine,
+  write: boolean,
+  layer: ServiceLayer,
+  getServed: (b: BuildingRecord) => boolean,
+  setServed: (b: BuildingRecord, on: boolean) => void,
+  spec: NetworkSpec,
+): UtilityResult {
+  const w = engine.world;
+  const size = w.size;
+  const count = w.tileCount;
+  const conductors = spec.conductors;
+  const infra = w.structure.infra;
+  const buildingId = w.buildingId;
+  const next = new Uint8Array(w.tileCount);
+  const visited = new Uint8Array(w.tileCount);
+  // Per building id: footprints are contiguous conductors, so each building joins one component.
+  const state = new Uint8Array(engine.buildings.nextId);
+  const queue = new Int32Array(w.tileCount);
+  const result: UtilityResult = { supply: 0, demand: 0, served: 0, shortage: false };
+  let consumers = 0;
+  let servedConsumers = 0;
+
+  for (const source of engine.buildings.values()) {
+    if (spec.supply(source) <= 0) continue;
+    const start = w.index(source.x, source.y);
+    if (visited[start] === 1) continue;
+    // Breadth-first discovery from the source footprint.
+    let tail = 0;
+    for (let y = source.y; y < source.y + source.h; y++) {
+      for (let x = source.x; x < source.x + source.w; x++) {
+        const t = y * size + x;
+        visited[t] = 1;
+        queue[tail++] = t;
+      }
+    }
+    const order: BuildingRecord[] = [];
+    const firstTile: number[] = [];
+    let supply = 0;
+    for (let head = 0; head < tail; head++) {
+      const t = queue[head] as number;
+      const id = buildingId[t] as number;
+      if (id !== 0 && state[id] === UNREACHED) {
+        const b = engine.buildings.get(id);
+        if (b) {
+          state[id] = UNSERVED;
+          supply += spec.supply(b);
+          order.push(b);
+          firstTile.push(head);
+        }
+      }
+      // Row bounds compare the index directly; only the column needs a division.
+      const tx = t % size;
+      if (t >= size)
+        tail = enqueue(
+          conductors,
+          infra,
+          visited,
+          queue,
+          tail,
+          t - size,
+          t >= 2 * size ? t - 2 * size : -1,
+        );
+      if (tx < size - 1)
+        tail = enqueue(conductors, infra, visited, queue, tail, t + 1, tx < size - 2 ? t + 2 : -1);
+      if (t < count - size)
+        tail = enqueue(
+          conductors,
+          infra,
+          visited,
+          queue,
+          tail,
+          t + size,
+          t < count - 2 * size ? t + 2 * size : -1,
+        );
+      if (tx > 0)
+        tail = enqueue(conductors, infra, visited, queue, tail, t - 1, tx > 1 ? t - 2 : -1);
+    }
+    // Nearest-first allocation; the first consumer that does not fit cuts off the rest.
+    let remaining = supply;
+    let cutoff = Number.POSITIVE_INFINITY;
+    for (let k = 0; k < order.length; k++) {
+      const b = order[k] as BuildingRecord;
+      const demand = spec.demand(b);
+      const isSource = spec.supply(b) > 0;
+      if (demand > 0 && !isSource) {
+        consumers++;
+        result.demand += demand;
+      }
+      if (isSource || (cutoff === Number.POSITIVE_INFINITY && remaining >= demand)) {
+        remaining -= isSource ? 0 : demand;
+        state[b.id] = SERVED;
+        if (demand > 0 && !isSource) servedConsumers++;
+      } else {
+        if (cutoff === Number.POSITIVE_INFINITY) cutoff = firstTile[k] as number;
+        result.shortage = true;
+      }
+    }
+    result.supply += supply;
+    for (let k = 0; k < tail; k++) {
+      const t = queue[k] as number;
+      const id = buildingId[t] as number;
+      next[t] = id !== 0 ? (state[id] === SERVED ? 1 : 0) : k < cutoff ? 1 : 0;
+    }
+  }
+
+  for (const b of engine.buildings.values()) {
+    const reached = state[b.id] as number;
+    const on = reached === SERVED;
+    if (write && getServed(b) !== on) {
+      setServed(b, on);
+      engine.buildings.touch(b);
+    }
+    if (reached === UNREACHED) {
+      const demand = spec.demand(b);
+      if (demand > 0 && spec.supply(b) <= 0) {
+        consumers++;
+        result.demand += demand;
+      }
+    }
+  }
+  result.served = consumers === 0 ? 1 : servedConsumers / consumers;
+  if (!write) return result;
+  spec.postProcess?.(next);
+  const data = serviceLayer(w, layer);
+  for (let i = 0; i < w.tileCount; i++) {
+    const v = next[i] as number;
+    if (data[i] !== v) {
+      data[i] = v;
+      w.markDirty(i);
+    }
+  }
+  return result;
+}
+
+const UNREACHED = 0;
+const UNSERVED = 1;
+const SERVED = 2;
+
+/**
+ * Groups every powered building into connected components, using the exact traversal of the
+ * classic solver (including the hop over a road tile).
+ */
+export function powerNetworkComponents(engine: SimulationEngine): BuildingRecord[][] {
+  const w = engine.world;
+  const infra = w.structure.infra;
+  const zone = w.zone;
+  const buildingId = w.buildingId;
+  const conductors = new Uint8Array(w.tileCount);
+  for (let i = 0; i < w.tileCount; i++) {
+    if (
+      (buildingId[i] as number) !== 0 ||
+      ((infra[i] as number) & Infra.PowerLine) !== 0 ||
+      (zone[i] as number) !== ZoneType.None
+    )
+      conductors[i] = 1;
+  }
+  return walkComponents(engine, conductors, (b) => powerSupply(b) > 0);
+}
+
+/** Water components: buildings and pipes, starting at a tile that can give water. */
+export function waterNetworkComponents(engine: SimulationEngine): BuildingRecord[][] {
+  const w = engine.world;
+  const infra = w.structure.infra;
+  const buildingId = w.buildingId;
+  const conductors = new Uint8Array(w.tileCount);
+  for (let i = 0; i < w.tileCount; i++) {
+    if ((buildingId[i] as number) !== 0 || ((infra[i] as number) & Infra.Pipe) !== 0)
+      conductors[i] = 1;
+  }
+  return walkComponents(engine, conductors, (b) => oasisWaterOutput(engine, b) > 0);
+}
+
+function walkComponents(
+  engine: SimulationEngine,
+  conductors: Uint8Array,
+  isSource: (b: BuildingRecord) => boolean,
+): BuildingRecord[][] {
+  const w = engine.world;
+  const size = w.size;
+  const count = w.tileCount;
+  const infra = w.structure.infra;
+  const buildingId = w.buildingId;
+  const visited = new Uint8Array(count);
+  const owned = new Uint8Array(engine.buildings.nextId);
+  const queue = new Int32Array(count);
+  const components: BuildingRecord[][] = [];
+
+  for (const source of engine.buildings.values()) {
+    if (!isSource(source)) continue;
+    const start = w.index(source.x, source.y);
+    if (visited[start] === 1) continue;
+    const component: BuildingRecord[] = [];
+    let tail = 0;
+    for (let y = source.y; y < source.y + source.h; y++) {
+      for (let x = source.x; x < source.x + source.w; x++) {
+        const t = y * size + x;
+        visited[t] = 1;
+        queue[tail++] = t;
+      }
+    }
+    for (let head = 0; head < tail; head++) {
+      const t = queue[head] as number;
+      const id = buildingId[t] as number;
+      if (id !== 0 && owned[id] !== 1) {
+        const b = engine.buildings.get(id);
+        if (b) {
+          owned[id] = 1;
+          component.push(b);
+        }
+      }
+      const tx = t % size;
+      if (t >= size)
+        tail = enqueue(
+          conductors,
+          infra,
+          visited,
+          queue,
+          tail,
+          t - size,
+          t >= 2 * size ? t - 2 * size : -1,
+        );
+      if (tx < size - 1)
+        tail = enqueue(conductors, infra, visited, queue, tail, t + 1, tx < size - 2 ? t + 2 : -1);
+      if (t < count - size)
+        tail = enqueue(
+          conductors,
+          infra,
+          visited,
+          queue,
+          tail,
+          t + size,
+          t < count - 2 * size ? t + 2 * size : -1,
+        );
+      if (tx > 0)
+        tail = enqueue(conductors, infra, visited, queue, tail, t - 1, tx > 1 ? t - 2 : -1);
+    }
+    components.push(component);
+  }
+  return components;
+}
+
+/**
+ * Enqueues neighbour `n`; when `n` is a plain road tile, conduction jumps over it to `beyond`
+ * (zones and buildings on both sides of a street stay connected).
+ */
+function enqueue(
+  conductors: Uint8Array,
+  infra: Uint8Array,
+  visited: Uint8Array,
+  queue: Int32Array,
+  tail: number,
+  n: number,
+  beyond: number,
+): number {
+  if (visited[n] === 1) return tail;
+  if (conductors[n] === 1) {
+    visited[n] = 1;
+    queue[tail] = n;
+    return tail + 1;
+  }
+  if (
+    beyond < 0 ||
+    visited[beyond] === 1 ||
+    ((infra[n] as number) & Infra.Road) === 0 ||
+    conductors[beyond] !== 1
+  )
+    return tail;
+  visited[beyond] = 1;
+  queue[tail] = beyond;
+  return tail + 1;
+}
+
+/** Empty zoned tiles count as watered when an orthogonal neighbour is watered. */
+function spreadWaterToEmptyZones(w: World, next: Uint8Array): void {
+  const size = w.size;
+  const add: number[] = [];
+  for (let i = 0; i < w.tileCount; i++) {
+    if (
+      (w.zone[i] as number) === ZoneType.None ||
+      (w.buildingId[i] as number) !== 0 ||
+      next[i] === 1
+    )
+      continue;
+    const x = i % size;
+    const y = (i / size) | 0;
+    if (
+      (y > 0 && next[i - size] === 1) ||
+      (x < size - 1 && next[i + 1] === 1) ||
+      (y < size - 1 && next[i + size] === 1) ||
+      (x > 0 && next[i - 1] === 1)
+    ) {
+      add.push(i);
+    }
+  }
+  for (const i of add) next[i] = 1;
+}

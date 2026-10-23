@@ -1,0 +1,32 @@
+{
+  "name": "@oasis/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5180",
+    "build": "vite build",
+    "preview": "vite preview --port 5180",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@city/shared": "workspace:*",
+    "@city/simulation": "workspace:*",
+    "@shell/bridge": "workspace:*",
+    "@shell/chrome": "workspace:*",
+    "@shell/view-iso": "workspace:*",
+    "@theme/core": "workspace:*",
+    "@theme/oasis": "workspace:*",
+    "@theme/urbe": "workspace:*",
+    "@view/city": "workspace:*",
+    "pixi.js": "^8.22.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.4"
+  }
+}

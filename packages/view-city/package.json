@@ -1,0 +1,20 @@
+{
+  "name": "@view/city",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@city/shared": "workspace:*",
+    "@city/simulation": "workspace:*",
+    "@shell/chrome": "workspace:*",
+    "@shell/view-iso": "workspace:*",
+    "@theme/core": "workspace:*",
+    "pixi.js": "^8.22.0"
+  }
+}

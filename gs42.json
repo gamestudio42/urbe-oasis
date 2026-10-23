@@ -1,0 +1,14 @@
+{
+  "title": "Urbe Oasis",
+  "tagline": {
+    "en": "Shade the lots. Follow the spring.",
+    "pt": "Faça sombra nos lotes. Siga a nascente.",
+    "es": "Da sombra a los lotes. Sigue el manantial.",
+    "fr": "Ombrage les parcelles. Suis la source.",
+    "de": "Beschatte die Grundstücke. Folge der Quelle."
+  },
+  "cover": "apps/oasis/public/favicon.svg",
+  "genre": "city-builder",
+  "tech": ["TypeScript", "PixiJS", "Web Worker"],
+  "order": 2
+}

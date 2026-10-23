@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Urbe Oasis: shade the lots, store the water, and follow the spring."
+    />
+    <meta name="theme-color" content="#1c1410" />
+    <meta property="og:title" content="Urbe Oasis — shade, water and the spring" />
+    <meta
+      property="og:description"
+      content="A desert city builder: canals, cisterns, caravans and a spring that moves."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://gamestudio42.github.io/urbe-oasis/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Urbe Oasis — shade, water and the spring" />
+    <meta
+      name="twitter:description"
+      content="A desert city builder: canals, cisterns, caravans and a spring that moves."
+    />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <title>Urbe Oasis — shade, water and the spring</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #1c1410;
+      }
+      .static-splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        background: radial-gradient(circle at 50% 42%, #3a2a22 0%, #1c1410 70%);
+        color: #f3e6d0;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+      }
+      .static-splash img {
+        width: 96px;
+        height: 96px;
+      }
+      .static-splash strong {
+        font-size: 34px;
+        font-weight: 800;
+        letter-spacing: 0.28em;
+        margin-right: -0.28em;
+        color: #e4d2a8;
+      }
+      .static-splash span {
+        color: #c4a574;
+        font-size: 14px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .studio-splash {
+        display: inline-flex;
+        margin-top: 8px;
+      }
+      .studio-splash img {
+        width: 36px;
+        height: 36px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="static-splash" aria-busy="true">
+        <img src="%BASE_URL%favicon.svg" alt="" />
+        <strong>URBE OASIS</strong>
+        <span>Drawing water…</span>
+        <a class="studio-splash" href="https://gamestudio42.github.io/" aria-label="Game Studio 42">
+          <img src="%BASE_URL%studio-badge.svg" alt="" width="36" height="36" />
+        </a>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

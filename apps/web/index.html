@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Urbe: build, manage and grow your city. An isometric city simulator in the browser."
+    />
+    <meta name="theme-color" content="#16202c" />
+    <meta property="og:title" content="Urbe — build your city" />
+    <meta
+      property="og:description"
+      content="An isometric city simulator in the browser: zones, power, water, budget and disasters."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://gamestudio42.github.io/urbe/" />
+    <meta property="og:image" content="https://gamestudio42.github.io/urbe/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Urbe — build your city" />
+    <meta
+      name="twitter:description"
+      content="An isometric city simulator in the browser: zones, power, water, budget and disasters."
+    />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <title>Urbe — build your city</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #16202c;
+      }
+      .static-splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        background: radial-gradient(circle at 50% 40%, #233247 0%, #16202c 70%);
+        color: #e8eef6;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      }
+      .static-splash img {
+        width: 96px;
+        height: 96px;
+      }
+      .static-splash strong {
+        font-size: 40px;
+        font-weight: 800;
+        letter-spacing: 0.3em;
+        margin-right: -0.3em;
+        line-height: 1;
+      }
+      .static-splash span {
+        color: #94a3b8;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="static-splash" aria-busy="true">
+        <img src="%BASE_URL%favicon.svg" alt="" />
+        <strong>URBE</strong>
+        <span>Loading…</span>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script
+      data-goatcounter="https://gamestudio42.goatcounter.com/count"
+      async
+      src="//gc.zgo.at/count.js"
+    ></script>
+  </body>
+</html>

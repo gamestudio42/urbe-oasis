@@ -1,0 +1,126 @@
+import { BALANCE, OASIS_WATER, OASIS_HEAT, PLACEABLE_SPECS } from '@city/shared';
+import {
+  cisternSummary,
+  createEngine,
+  isParched,
+  oasisCapacity,
+  oasisMaxLevel,
+  SimulationEngine,
+} from '@city/simulation';
+import { describe, expect, it } from 'vitest';
+
+/** A flat neon city with a road, a coal plant and a few dense residential lots. */
+function neonTown(size = 40): SimulationEngine {
+  const e = createEngine({
+    seed: 'neon-grid',
+    size,
+    name: 'Neon',
+    ruleset: 'oasis',
+    terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
+    funds: 200_000,
+  });
+  e.disastersEnabled = false;
+  e.execute({ type: 'road', x0: 4, y0: 10, x1: 30, y1: 10 });
+  e.execute({ type: 'place', kind: 'coalPlant', x: 6, y: 12 });
+  return e;
+}
+
+describe('neon power grid', () => {
+  it('keeps a lightly loaded component out of overload', () => {
+    const e = neonTown();
+    e.runMonths(2);
+    expect(e.oasis.parched).toEqual([]);
+    expect(isParched(e, e.world.index(10, 10))).toBe(false);
+  });
+
+  it('adds qanat supply to the water network', () => {
+    const e = neonTown();
+    e.refreshUtilities();
+    const before = e.stats().water.supply;
+    expect(e.execute({ type: 'place', kind: 'qanat', x: 9, y: 12 }).ok).toBe(true);
+    e.refreshUtilities();
+    expect(e.stats().water.supply).toBe(before + OASIS_WATER.qanatSupply);
+  });
+
+  it('charges an idle cistern bank and reports it', () => {
+    const e = neonTown();
+    // The coal plant footprint is 3x3 at (6,12); the bank sits on its east edge.
+    expect(e.execute({ type: 'place', kind: 'well', x: 9, y: 12 }).ok).toBe(true);
+    expect(e.execute({ type: 'place', kind: 'cistern', x: 10, y: 12 }).ok).toBe(true);
+    e.runMonths(1);
+    e.refreshUtilities();
+    const summary = cisternSummary(e);
+    expect(summary.banks).toBe(1);
+    expect(summary.charge).toBeGreaterThan(0);
+  });
+
+  it('marks a component as parched past the threshold', () => {
+    const e = createEngine({
+      seed: 'overload',
+      size: 32,
+      ruleset: 'oasis',
+      terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
+      funds: 400_000,
+    });
+    e.disastersEnabled = false;
+    // A coal plant powers a well. Two level-5 homes drink more than the well can give.
+    expect(e.execute({ type: 'place', kind: 'coalPlant', x: 4, y: 4 }).ok).toBe(true);
+    expect(e.execute({ type: 'place', kind: 'well', x: 7, y: 4 }).ok).toBe(true);
+    for (const x of [8, 9]) {
+      e.buildings.add({
+        kind: 'residential',
+        x,
+        y: 4,
+        w: 1,
+        h: 1,
+        level: 5,
+        capacity: 40,
+        occupancy: 10,
+        condition: 100,
+        age: 0,
+        abandoned: false,
+        emptyMonths: 0,
+        variant: 0,
+        powered: true,
+        watered: false,
+        offline: 0,
+        attractiveness: 0,
+      });
+    }
+    e.refreshUtilities();
+    const water = e.stats().water;
+    expect(water.supply).toBe(Math.round(40 * OASIS_WATER.evaporation));
+    expect(water.demand / water.supply).toBeGreaterThanOrEqual(OASIS_WATER.overloadThreshold);
+    expect(e.oasis.parched.length).toBe(1);
+    expect(isParched(e, e.world.index(8, 4))).toBe(true);
+    expect(isParched(e, e.world.index(28, 4))).toBe(false);
+  });
+
+  it('is deterministic for the same seed and commands', () => {
+    const a = neonTown();
+    const b = neonTown();
+    a.runMonths(4);
+    b.runMonths(4);
+    expect(a.stats()).toEqual(b.stats());
+  });
+});
+
+describe('neon vertical density', () => {
+  it('raises the level cap but keeps the classic cap for a classic city', () => {
+    expect(oasisMaxLevel(2, true, false, 5)).toBe(BALANCE.zones.maxLevelDense);
+    expect(oasisMaxLevel(2, true, true, 5)).toBe(OASIS_HEAT.maxLevelDense);
+    expect(oasisMaxLevel(1, false, true, 2)).toBeLessThanOrEqual(2);
+  });
+
+  it('extrapolates capacity past the classic table', () => {
+    const classic = 400;
+    expect(oasisCapacity('residential', 6)).toBeGreaterThan(classic);
+    // Level 5 still reads the classic number exactly.
+    expect(oasisCapacity('residential', 5)).toBe(classic);
+  });
+
+  it('keeps the neon-only placeables out of the classic spec costs', () => {
+    expect(PLACEABLE_SPECS.qanat.waterSupply).toBeGreaterThan(0);
+    expect(PLACEABLE_SPECS.cistern.cost).toBeGreaterThan(0);
+  });
+});

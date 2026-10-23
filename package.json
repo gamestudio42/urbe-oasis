@@ -1,0 +1,43 @@
+{
+  "name": "urbe-oasis",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Urbe Oasis — a desert city builder that runs in the browser.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.27.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @oasis/web dev",
+    "build": "pnpm --filter @oasis/web build",
+    "preview": "pnpm --filter @oasis/web preview",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -p packages/kernel && tsc -p packages/shared && tsc -p packages/simulation && tsc -p packages/bridge && tsc -p packages/view-iso && tsc -p packages/chrome && tsc -p packages/theme && tsc -p packages/theme-urbe && tsc -p packages/theme-neon && tsc -p packages/theme-oasis && tsc -p packages/view-city && tsc -p apps/web && tsc -p apps/oasis && tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:simulation": "vitest run --config vitest.scenarios.config.ts",
+    "test:e2e": "playwright test",
+    "sim": "tsx tools/headless-sim.ts",
+    "bench": "tsx tools/benchmark.ts",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:simulation && pnpm build"
+  },
+  "devDependencies": {
+    "@city/shared": "workspace:*",
+    "@city/simulation": "workspace:*",
+    "@shell/kernel": "workspace:*",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^22.20.5",
+    "eslint": "^10.13.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.0",
+    "vitest": "^5.0.5"
+  }
+}

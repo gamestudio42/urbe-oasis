@@ -1,0 +1,13 @@
+node_modules/
+dist/
+dist-site/
+site/
+coverage/
+reports/
+playwright-report/
+test-results/
+blob-report/
+references/
+*.log
+.DS_Store
+.vite/

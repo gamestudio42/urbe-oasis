@@ -1,0 +1,11 @@
+---
+description: English for code, comments, commits and pull requests
+alwaysApply: true
+---
+
+# English only (except player catalogs)
+
+- Write all code, identifiers, comments and technical docs in English.
+- Write commit messages, PR titles and PR bodies in English.
+- Player-facing strings belong in `apps/web/src/i18n/` (`en`, `pt-BR`, `es`, `fr`, `de`). Neo Urbe overrides live in `apps/neon/src/i18n.ts`. Do not hardcode UI copy in components.
+- Chat with the user may stay in Portuguese when they write in Portuguese.
