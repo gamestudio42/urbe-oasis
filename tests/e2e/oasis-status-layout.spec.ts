@@ -41,6 +41,9 @@ for (const populated of [false, true]) {
           elements.map((element) => ({
             top: element.getBoundingClientRect().top,
             left: element.getBoundingClientRect().left,
+            width: element.getBoundingClientRect().width,
+            height: element.getBoundingClientRect().height,
+            lineHeight: Number.parseFloat(getComputedStyle(element).lineHeight),
             overflow: element.scrollWidth - element.clientWidth,
           })),
         );
@@ -48,6 +51,11 @@ for (const populated of [false, true]) {
         const positions = rows.map((r) => (width > 480 ? r.top : r.left));
         expect(Math.max(...positions) - Math.min(...positions)).toBeLessThanOrEqual(1);
         expect(rows.every((r) => r.overflow <= 1)).toBe(true);
+        const widths = rows.map((r) => r.width);
+        expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+        if (!populated && width >= 800 && tag === 'strong') {
+          expect(rows.every((r) => r.height <= r.lineHeight + 1)).toBe(true);
+        }
       }
       await panel.screenshot({
         path: `test-results/oasis-status-${populated ? 'populated' : 'empty'}-${width}.png`,

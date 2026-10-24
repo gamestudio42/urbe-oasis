@@ -28,7 +28,8 @@ The survival panel shows served shares and supply/demand from engine statistics,
 charge and the number of placed cisterns. Empty cities display “No consumers”; unpowered
 cisterns still count as placed buildings. Water and shade buttons toggle their overlays, the
 reserve button selects the cistern tool, and the spring button recentres the surface view.
-The three resource indicators share label, value and detail rows. Wrapped translations or
+The three resource indicators have equal content widths and internal spacing in a 550 px
+desktop panel, and share label, value and detail rows. Wrapped translations or
 empty-state values expand their shared row, keeping adjacent indicators aligned without
 truncating telemetry. On phone widths, the indicators stack with labels on the left and
 values and details on the right. Browser checks cover empty and populated cities at narrow

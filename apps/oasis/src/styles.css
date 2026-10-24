@@ -192,8 +192,7 @@ body,
 }
 
 .oasis-resource:first-child {
-  border-left: 0;
-  padding-left: 0;
+  border-left-color: transparent;
 }
 .oasis-resource > span {
   font-size: 12px;
@@ -759,7 +758,7 @@ body,
 
 .oasis-status {
   left: 20px;
-  width: min(490px, calc(100% - 100px));
+  width: min(550px, calc(100% - 100px));
   padding: 10px 14px;
 }
 .oasis-resources {
