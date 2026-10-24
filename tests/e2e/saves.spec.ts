@@ -99,9 +99,12 @@ test('disasters can be triggered from the system panel', async ({ page }) => {
   await startCity(page, 'disasters-e2e');
   await page.evaluate(() => window.__cityDebug?.setSpeed(0));
   await page.getByTestId('open-system').click();
+  await page.getByTestId('system-scenarios').locator('summary').click();
   await page.getByTestId('trigger-blackout').click();
+  await page.getByTestId('confirm-disaster').click();
   await expect(page.getByTestId('toasts')).toContainText('não pode acontecer agora');
   await page.getByTestId('trigger-crisis').click();
+  await page.getByTestId('confirm-disaster').click();
   await expect(page.getByTestId('hud-alerts')).toContainText('Crise econômica');
 
   const forest = await page.evaluate(() => {

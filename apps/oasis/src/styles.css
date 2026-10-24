@@ -883,3 +883,261 @@ body,
     height: 90px;
   }
 }
+
+/* Management panels share the Oasis materials and reserve the audio rail. */
+.budget-panel,
+.system-panel {
+  width: min(580px, calc(100vw - 80px));
+  align-self: flex-end;
+  backdrop-filter: blur(12px);
+}
+.budget-panel .panel-header,
+.system-panel .panel-header {
+  padding: 12px 16px;
+}
+.budget-panel .panel-header h2,
+.system-panel .panel-header h2 {
+  font-size: 18px;
+}
+.budget-panel .icon-button,
+.system-panel .icon-button {
+  width: 32px;
+  height: 32px;
+}
+.budget-panel .panel-body,
+.system-panel .panel-body {
+  padding: 16px;
+}
+.report-period {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.budget-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 18px;
+  background: var(--panel-border);
+}
+.budget-overview > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  background: var(--panel);
+  min-width: 0;
+}
+.budget-overview span {
+  color: var(--muted);
+  font-size: 11px;
+  min-height: 2.5em;
+}
+.budget-overview strong {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.budget-overview .budget-balance {
+  background: color-mix(in srgb, var(--panel) 90%, var(--accent));
+}
+.budget-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 12px;
+}
+.management-section {
+  padding: 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  min-width: 0;
+}
+.management-section h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+.management-section h4 {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 16px 0 8px;
+  font-weight: 600;
+}
+.budget-panel .slider-row {
+  grid-template-columns: minmax(65px, 0.9fr) minmax(40px, 1fr) 3em;
+  gap: 8px;
+  min-height: 36px;
+  font-size: 12px;
+}
+.budget-panel input[type='range'] {
+  width: 100%;
+  min-width: 0;
+  height: 24px;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+.budget-panel input[type='range']::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 4px;
+  background: var(--panel-border);
+}
+.budget-panel input[type='range']::-moz-range-track {
+  height: 5px;
+  border-radius: 4px;
+  background: var(--panel-border);
+}
+.budget-panel input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -5.5px;
+  border: 2px solid var(--text);
+  border-radius: 50%;
+  background: var(--accent);
+}
+.budget-panel input[type='range']::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--text);
+  border-radius: 50%;
+  background: var(--accent);
+}
+.budget-panel .budget-columns {
+  align-items: start;
+  gap: 20px;
+  margin-top: 20px;
+}
+.budget-panel .ledger th,
+.budget-panel .ledger td {
+  padding: 5px 0;
+}
+.budget-panel .ledger .total th,
+.budget-panel .ledger .total td {
+  padding-top: 9px;
+}
+.budget-panel .budget-summary {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 12px;
+  gap: 10px;
+  font-size: 13px;
+}
+.budget-panel .fact-note {
+  opacity: 1;
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.system-panel .panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.system-panel .save-section .button-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.system-panel .button {
+  min-height: 36px;
+}
+.system-panel .button.primary {
+  color: var(--text);
+}
+.system-panel .button.primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 80%, var(--panel));
+}
+.system-panel .locale-trigger {
+  background: var(--panel);
+  border-color: var(--panel-border);
+  min-height: 36px;
+}
+.system-panel .check-row {
+  justify-content: space-between;
+  flex-direction: row-reverse;
+  padding: 7px 0;
+  margin: 0;
+  gap: 16px;
+  cursor: pointer;
+}
+.system-panel input[type='checkbox'] {
+  accent-color: var(--accent);
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  cursor: pointer;
+}
+.system-panel .check-row:has(input:disabled) {
+  color: var(--muted);
+}
+.system-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 4px 0;
+}
+.system-panel details[open] > summary {
+  margin-bottom: 12px;
+}
+.system-panel .small {
+  line-height: 1.6;
+}
+.scenario-confirmation {
+  border-top: 1px solid var(--panel-border);
+  margin-top: 12px;
+  padding-top: 12px;
+}
+.system-panel .danger {
+  border-color: var(--bad);
+  color: var(--text);
+  background: color-mix(in srgb, var(--bad) 45%, var(--panel));
+}
+.system-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  padding-top: 4px;
+}
+.app:has(.oasis-construction) .side-panels {
+  bottom: 140px;
+}
+@media (max-width: 760px) {
+  .app:has(.oasis-construction) .toasts {
+    top: auto;
+    bottom: 100px;
+    left: 12px;
+    right: 60px;
+    transform: none;
+    max-height: 112px;
+    overflow-y: auto;
+  }
+  .budget-controls,
+  .budget-panel .budget-columns,
+  .system-panel .save-section .button-row {
+    grid-template-columns: 1fr;
+  }
+  .budget-overview {
+    grid-template-columns: 1fr;
+  }
+  .budget-overview > div {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .budget-overview span {
+    min-height: 0;
+  }
+  .budget-overview strong {
+    font-size: 18px;
+  }
+  .budget-panel .panel-body,
+  .system-panel .panel-body {
+    padding: 10px;
+  }
+}

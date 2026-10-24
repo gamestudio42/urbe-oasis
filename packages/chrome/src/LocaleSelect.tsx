@@ -85,7 +85,17 @@ export function LocaleSelect<L extends string>({
   };
 
   return (
-    <div className={`field locale-field ${className}`.trim()} ref={rootRef}>
+    <div
+      className={`field locale-field ${className}`.trim()}
+      ref={rootRef}
+      onKeyDown={(event) => {
+        if (open && event.key === 'Escape') {
+          event.stopPropagation();
+          setOpen(false);
+          triggerRef.current?.focus({ preventScroll: true });
+        }
+      }}
+    >
       <span>{caption}</span>
       <select
         className="locale-native"

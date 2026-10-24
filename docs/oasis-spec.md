@@ -41,6 +41,23 @@ the tray; Escape first closes an open tray and returns focus to its category wit
 the selected tool. Keyboard shortcuts and tutorial actions use the same shared controller.
 The active tool remains visible above the dock. The classic toolbar is unchanged.
 
+### Management panels
+
+Management panels use a wider, responsive layout with fixed headers and scrollable bodies.
+The budget leads with income, operating expenses and net balance from the last completed
+monthly report, explicitly dated across year boundaries. Before the first close it shows a
+pending-report message. Taxes and departmental funding still send the original commands;
+construction spending stays separate from operating net. The annualized balance is labelled
+as last month times twelve, not a forecast. Ledger rows keep their natural height.
+
+The system panel separates save actions, display/audio preferences, keyboard help and
+collapsed scenario tools. Manual disasters require an inline confirmation; cancelling it
+does not issue a command. The random-disaster setting keeps its existing behavior. Panels
+accept Escape from focused controls and restore focus to their opener; Escape first cancels
+an active scenario confirmation. These panels are non-modal and do not change game speed.
+Browser validation covers actual tax/funding commands, report values, keyboard focus,
+confirmation/cancellation and narrow layouts, alongside the existing save and audio flows.
+
 ### Interface icons
 
 The adobe theme has a complete collection for all 36 construction tools, separate category
