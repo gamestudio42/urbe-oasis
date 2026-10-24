@@ -24,6 +24,7 @@ export function Panel({
           type="button"
           className="icon-button"
           onClick={onClose}
+          data-testid={`${testId}-close`}
           aria-label={closeLabel}
           title={closeLabel}
         >

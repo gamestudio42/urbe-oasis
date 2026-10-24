@@ -52,6 +52,12 @@ resource-panel height so wrapped labels and status messages cannot overlap it.
 Browser validation covers the full tool catalog, category identity, theme injection, selected
 and locked states, audio states, keyboard focus, narrow viewports and unchanged simulation hash.
 
+Floating panels reserve a separate right-hand rail for sound and music controls, with a gap
+between the rail and the panel edges. Panels fit narrow viewports and sit above the resource
+and chronicle cards; their headers remain outside the scrolling body. Browser checks at
+320, 390, 800 and 1440 px verify real close-button clicks for terrain inspection, budget,
+charts, overlays and the system menu, alongside independent audio toggles.
+
 Adobe terrain uses smoothly interpolated deterministic color variation, sparse wind marks and
 small stones. Undeveloped tiles adjacent to real water receive decorative banks and reeds.
 These details are baked into terrain chunks, use theme colors and do not mutate world state,

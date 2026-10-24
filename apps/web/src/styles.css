@@ -902,9 +902,11 @@ input[type='range'] {
 .side-panels {
   position: absolute;
   top: 64px;
-  right: 10px;
+  /* Leave the 40 px audio controls and a 10 px gap outside the panel stack. */
+  right: 60px;
   bottom: 52px;
-  width: 340px;
+  width: min(340px, calc(100% - 80px));
+  z-index: 12;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -925,6 +927,7 @@ input[type='range'] {
 
 .panel-header {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px 6px 12px;
@@ -955,7 +958,7 @@ input[type='range'] {
 }
 
 .charts-panel {
-  width: min(560px, calc(100vw - 340px));
+  width: min(560px, calc(100vw - 80px));
   align-self: flex-end;
 }
 
