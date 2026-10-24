@@ -32,6 +32,11 @@ import {
   drawDronePort,
   drawDroneShadow,
   drawFirewall,
+  drawAdobeArcade,
+  drawAdobeCaravanserai,
+  drawAdobeCistern,
+  drawAdobeQanat,
+  drawAdobeWindbreak,
   drawOasisShade,
   drawSubstation,
 } from './oasisSprites';
@@ -274,10 +279,15 @@ export function drawBuilding(
     else drawMarina(g, theme, side);
   }
   else if (kind === 'airport') drawAirport(g, theme);
+  else if (theme.style === 'adobe' && kind === 'qanat') drawAdobeQanat(g, theme);
   else if (kind === 'qanat') drawSubstation(g, theme);
+  else if (theme.style === 'adobe' && kind === 'cistern') drawAdobeCistern(g, theme);
   else if (kind === 'cistern') drawBattery(g, theme);
+  else if (theme.style === 'adobe' && kind === 'windbreak') drawAdobeWindbreak(g, theme);
   else if (kind === 'windbreak') drawFirewall(g, theme);
+  else if (theme.style === 'adobe' && kind === 'arcade') drawAdobeArcade(g, theme);
   else if (kind === 'arcade') drawDronePort(g, theme);
+  else if (theme.style === 'adobe' && kind === 'caravanserai') drawAdobeCaravanserai(g, theme);
   else if (kind === 'caravanserai') drawCorpHQ(g, theme);
   else if (theme.style === 'adobe' && (kind === 'springHouse' || kind === 'palm')) {
     drawOasisShade(g, theme, kind);

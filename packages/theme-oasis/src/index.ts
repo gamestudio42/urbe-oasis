@@ -236,12 +236,12 @@ for (const [token, value] of Object.entries(urbe.colors)) {
   colors[token] = OASIS_OVERRIDES[token] ?? grade(value);
 }
 
-/** Lot paint: clay walls, sand roofs, one gold opening, a terracotta band. */
+/** Lot paint: one terracotta city. Roofs are the same clay, a little lighter than the walls. */
 const adobeLot = (wall: number, roof: number, window: number | undefined, accent: number) => ({
-  wall: mix(grade(wall), 0xc17a45, 0.62),
-  roof: mix(grade(roof), 0xe4d2a8, 0.5),
-  ...(window === undefined ? {} : { window: mix(window, 0xe8c872, 0.7) }),
-  accent: mix(accent, 0xc4512c, 0.4),
+  wall: mix(grade(wall), 0xd4653a, 0.8),
+  roof: mix(grade(roof), 0xe7b08a, 0.74),
+  ...(window === undefined ? {} : { window: mix(window, 0x4a3024, 0.72) }),
+  accent: mix(accent, 0x8d4030, 0.6),
 });
 
 export const oasis: Theme = {
