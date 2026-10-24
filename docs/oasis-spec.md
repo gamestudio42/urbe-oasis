@@ -24,11 +24,25 @@ The shade step requires a residential tile with both water and shade. The cister
 stored water, rather than merely placing the building. Completion is stored independently from
 the classic tutorial under `oasis.tutorial.founding.v1`, with copy in all five supported locales.
 
+The Oasis guide presents one short action per step, ordered tool buttons with actual catalog
+prices, and expandable explanations. Selecting a tool folds the guide to free the map; its
+header remains available. Coverage shortcuts use the existing power, water and shade overlays.
+The guide stays above the measured construction dock and hides while a tool tray, inspector
+or management panel is open. On phones its expanded sheet temporarily hides the resource card;
+folding it restores the card. Escape folds the guide and returns focus to its toggle.
+
+After founding, a collapsed guide offers optional, live goals: 100 residents, cisterns at least
+half full, a completed non-negative operating report with residents, positive windbreak coverage,
+and the first caravan receipt. These are presentation targets, not simulation rules, rewards or
+new unlocks. Status is recomputed from current telemetry, may regress, and survives save/load
+through the existing city data. The guide can reopen founding in a paused city without resetting
+the world or its tutorial-completion preference. Classic cities retain the shared tutorial.
+
 The survival panel shows served shares and supply/demand from engine statistics, plus cistern
 charge and the number of placed cisterns. Empty cities display “No consumers”; unpowered
 cisterns still count as placed buildings. Water and shade buttons toggle their overlays, the
 reserve button selects the cistern tool, and the spring button recentres the surface view.
-The three resource indicators have equal content widths and internal spacing in a 550 px
+The three resource indicators have equal content widths and internal spacing in a 600 px
 desktop panel, and share label, value and detail rows. Wrapped translations or
 empty-state values expand their shared row, keeping adjacent indicators aligned without
 truncating telemetry. On phone widths, the indicators stack with labels on the left and

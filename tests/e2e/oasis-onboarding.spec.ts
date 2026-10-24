@@ -104,6 +104,10 @@ test('guides a real settlement through water, shade and a powered cistern', asyn
     TICKS_PER_MONTH,
   );
   await expect(page.getByTestId('tutorial-tool-qanat')).toBeVisible();
+  await page.getByTestId('tutorial-coverage').click();
+  await expect(page.getByTestId('oasis-water')).toHaveAttribute('aria-pressed', 'true');
+  await page.getByTestId('tutorial-coverage').click();
+  await expect(page.getByTestId('oasis-water')).toHaveAttribute('aria-pressed', 'false');
   await page.getByTestId('tutorial-tool-qanat').click();
   await expect(page.getByTestId('tool-qanat')).toHaveAttribute('aria-pressed', 'true');
   await send([
@@ -111,6 +115,10 @@ test('guides a real settlement through water, shade and a powered cistern', asyn
     { type: 'pipe', x0: 5, y0: 6, x1: 9, y1: 9 },
   ]);
   await expect(page.getByTestId('tutorial-tool-palm')).toBeVisible();
+  await page.getByTestId('tutorial-coverage').click();
+  await expect(page.getByTestId('oasis-shade')).toHaveAttribute('aria-pressed', 'true');
+  await page.getByTestId('tutorial-coverage').click();
+  await expect(page.getByTestId('oasis-shade')).toHaveAttribute('aria-pressed', 'false');
   await send(
     [
       { type: 'place', kind: 'palm', x: 11, y: 7 },

@@ -42,6 +42,8 @@ export interface AppProps {
   status?: (session: GameSession) => ReactNode;
   /** Hosts can provide their own construction layout while retaining the shared controller. */
   toolbar?: (session: GameSession) => ReactNode;
+  /** Hosts can present their own guide while keeping the shared tutorial state. */
+  guide?: (session: GameSession) => ReactNode;
 }
 
 export function App({
@@ -53,6 +55,7 @@ export function App({
   credit,
   status,
   toolbar,
+  guide,
 }: AppProps = {}) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [session, setSession] = useState<GameSession | null>(null);
@@ -72,7 +75,13 @@ export function App({
         <div ref={hostRef} className="viewport" />
         {session ? (
           <>
-            <Screens session={session} credit={credit} status={status} toolbar={toolbar} />
+            <Screens
+              session={session}
+              credit={credit}
+              status={status}
+              toolbar={toolbar}
+              guide={guide}
+            />
             <BootScreen session={session} credit={credit?.('boot')} />
           </>
         ) : (
@@ -88,11 +97,13 @@ function Screens({
   credit,
   status,
   toolbar,
+  guide,
 }: {
   session: GameSession;
   credit?: AppProps['credit'];
   status?: AppProps['status'];
   toolbar?: AppProps['toolbar'];
+  guide?: AppProps['guide'];
 }) {
   const booted = useStore(session.ui, (s) => s.boot.step === 'done');
   const screen = useStore(session.ui, (s) => s.screen);
@@ -131,7 +142,7 @@ function Screens({
           </SystemPanel>
         )}
       </div>
-      <Tutorial session={session} />
+      {guide ? guide(session) : <Tutorial session={session} />}
       <Toasts session={session} />
     </>
   );

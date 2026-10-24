@@ -567,6 +567,12 @@ export class GameSession {
     this.checkTutorial();
   }
 
+  /** Review the founding guide without resetting the city or its completion preference. */
+  restartTutorial(): void {
+    this.ui.set({ tutorial: 0, panel: null, selected: null });
+    this.setSpeed(0);
+  }
+
   skipTutorial(): void {
     markTutorialDone(this.ruleset);
     this.ui.set({ tutorial: null });
