@@ -91,6 +91,15 @@ const NEON_OVERRIDES: Record<string, number> = {
   'vehicle.fireLightOff': 0x2de2e6,
   'vehicle.fireLightDark': 0x3a1020,
   'vehicle.fireLightGlow': 0xff2d55,
+  'walker.robeA': 0x00e5ff,
+  'walker.robeB': 0xff2d55,
+  'walker.robeC': 0xb14dff,
+  'walker.robeD': 0xffd21f,
+  'walker.head': 0xe0c0a0,
+  'camel.body': 0x8a7a6a,
+  'camel.shade': 0x5a4a3a,
+  'camel.load': 0x00e5ff,
+  'camel.loadAlt': 0xff2d55,
 
   // Aircraft and airport.
   'plane.body': 0x2a3140,

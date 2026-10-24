@@ -14,6 +14,7 @@ import {
 } from './oasisArchitecture';
 import { drawUtility } from './utilitySprites';
 import { drawDesertPalm } from './oasisLandscape';
+import { drawCamel, drawWalker } from './streetLifeSprites';
 import {
   HEADINGS,
   drawAirport,
@@ -277,8 +278,7 @@ export function drawBuilding(
   } else if (kind === 'marina') {
     if (theme.style === 'cyber') drawCyberMarina(g, theme, side);
     else drawMarina(g, theme, side);
-  }
-  else if (kind === 'airport') drawAirport(g, theme);
+  } else if (kind === 'airport') drawAirport(g, theme);
   else if (theme.style === 'adobe' && kind === 'qanat') drawAdobeQanat(g, theme);
   else if (kind === 'qanat') drawSubstation(g, theme);
   else if (theme.style === 'adobe' && kind === 'cistern') drawAdobeCistern(g, theme);
@@ -328,16 +328,7 @@ export class SpriteFactory {
         : b.variant & 3;
     const key = `b:${b.kind}:${level}:${variant}:${b.abandoned ? 1 : 0}:${side}`;
     return this.get(key, (g) => {
-      drawBuilding(
-        g,
-        this.theme,
-        b.kind,
-        b.w,
-        level,
-        variant,
-        b.abandoned,
-        side,
-      );
+      drawBuilding(g, this.theme, b.kind, b.w, level, variant, b.abandoned, side);
     });
   }
 
@@ -415,6 +406,23 @@ export class SpriteFactory {
   vehicle(kind: VehicleKind, axis: 'x' | 'y', carColor: number, light = false): SpriteTexture {
     const key = `v:${this.theme.style}:${kind}:${axis}:${kind === 'car' ? carColor % this.theme.cars.length : 0}:${light ? 1 : 0}`;
     return this.get(key, (g) => drawVehicle(g, this.theme, kind, axis, carColor, light));
+  }
+
+  /** Architecture style of the theme this factory draws. */
+  get style(): Theme['style'] {
+    return this.theme.style;
+  }
+
+  /** A pedestrian, its feet at the origin. */
+  walker(robe: number, frame: number): SpriteTexture {
+    return this.get(`walker:${robe % 4}:${frame % 2}`, (g) =>
+      drawWalker(g, this.theme, robe, frame),
+    );
+  }
+
+  /** A pack camel facing right, its feet at the origin. */
+  camel(load: number, frame: number): SpriteTexture {
+    return this.get(`camel:${load % 2}:${frame % 2}`, (g) => drawCamel(g, this.theme, load, frame));
   }
 
   smokePuff(): SpriteTexture {

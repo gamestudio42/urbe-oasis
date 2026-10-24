@@ -211,6 +211,30 @@ covers all sixteen road connection masks against actual vehicle paths, canal and
 preservation, chunk boundaries, classic isolation and simulation hash stability. Browser checks
 exercise construction shortcuts and the grid toggle alongside the responsive dock.
 
+### Street life
+
+The adobe renderer adds cosmetic street life that only reads the mirror world and draws from its
+own seeded generator, never the engine's random stream:
+
+- **Pedestrians** walk the sidewalk lane on either side of a street. Each occupied lot adds
+  footfall to the road tiles it fronts. Shops add the most, then the caravanserai, other
+  staffed services, homes and industry. The number of walkers follows the footfall of the
+  visible streets, up to 220. Walkers stop for a moment at road tiles that front a shop, the
+  caravanserai or an arcade. They freeze while the city is paused, and hide below zoom 0.85,
+  underground and when animations are off.
+- **Caravans**: while a caravanserai is staffed, a pack line of three or four camels walks from a
+  map-edge road (or the farthest road of its network) to the caravanserai's door, fading in and
+  out at the ends. A new caravan leaves every 26 game seconds, with at most three on the road. A
+  caravanserai that a sandstorm buries sends none, but caravans already on the road finish their
+  trip. A caravanserai that reopens sends one straight away.
+- **Palm-lined canals**: about 40% of canal tiles that carry shade grow a small date palm on the
+  bank, chosen by tile hash so it never flickers. Dry canals stay bare, so the palms show where
+  shade flows. They supply nothing to the simulation.
+
+Colours come from the `walker.*` and `camel.*` theme tokens. Street-life sprites share the
+vehicle layer and its depth order. Hub staffing changes now reach the mirror world, so a staffed
+caravanserai never reads as idle after an outage.
+
 ## Journey
 
 Cities that the Oasis menu founds follow a five-chapter journey after the founding tutorial.

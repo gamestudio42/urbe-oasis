@@ -248,6 +248,8 @@ export class GameRenderer {
         boats: 0,
         planes: 0,
         drones: 0,
+        walkers: 0,
+        camels: 0,
       }
     );
   }
