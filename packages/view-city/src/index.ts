@@ -4,6 +4,7 @@ export {
   type HighlightTile,
   type RendererInput,
   type PlacementPreview,
+  type RenderStats,
   type ServiceTraceView,
 } from './GameRenderer';
 export {

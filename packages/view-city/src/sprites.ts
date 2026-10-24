@@ -456,6 +456,11 @@ export class SpriteFactory {
     });
   }
 
+  /** Textures generated so far; a steadily growing count would be a leak. */
+  get cachedTextures(): number {
+    return this.cache.size;
+  }
+
   private get(key: string, draw: (g: Graphics) => void): SpriteTexture {
     const cached = this.cache.get(key);
     if (cached) return cached;

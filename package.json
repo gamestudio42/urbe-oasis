@@ -21,6 +21,7 @@
     "test:simulation": "vitest run --config vitest.scenarios.config.ts",
     "test:e2e": "playwright test",
     "sim": "tsx tools/headless-sim.ts",
+    "bench:render": "tsx tools/render-benchmark.ts",
     "bench": "tsx tools/benchmark.ts",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:simulation && pnpm build"
   },

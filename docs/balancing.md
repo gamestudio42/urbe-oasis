@@ -335,3 +335,41 @@ The benchmark grid city is classic, so it never runs the journey. It ends at 326
 4312 buildings. p95 in milliseconds: traffic 7.702, services 1.283, influence 7.017, close 8.130,
 utility refresh 6.638. **The heavy-tick budget still fails**, by 0.13 ms on the month close. That
 is within this shared machine's run-to-run variation, and the earlier checkpoints also record it.
+
+## Rendering, memory and long-session checkpoint (2026-10-24)
+
+`pnpm bench:render` checks the production build in real browsers. It serves `apps/oasis/dist`
+with a preview server and builds two Oasis cities with the same automated players as `pnpm sim`:
+`journey-64` (seed 3, 48 months, 4715 residents, street life and caravans) and `balanced-128`
+(seed 1, 60 months, 2305 residents). It measures `requestAnimationFrame` intervals in four views:
+idle at zoom 1, panning, street level at zoom 2.4, and the zoomed-out overview at 0.5. It then
+runs each city at full speed and samples heap, frame rate and renderer counts every 30 seconds.
+The debug API's `renderStats()` reports chunks, visible chunks, display objects and generated
+textures. A count that keeps rising in a steady city points to a leak.
+
+```sh
+pnpm build
+pnpm bench:render --headed --view 8 --session 180     # GPU, a visible browser window
+pnpm bench:render --browsers chromium --session 600   # headless, ten-minute session
+```
+
+**Headed Chromium 156 on this machine's GPU (Wayland desktop, 1440×900):** every view of both
+cities holds 60 fps, with p50 16.7 ms and p95 16.8 ms. Frames over 33 ms make up 0.4% of the
+`journey-64` views (2% of its overview) and at most 0.2% of the `balanced-128` views. During three
+minutes at full speed (about 120 game months), the heap swings between 44 and 142 MB on
+`journey-64` and between 60 and 105 MB on `balanced-128`, with no upward trend. Generated
+textures stay at 154 and 134. Display objects follow the city's own growth (547 to 615 as
+`journey-64` keeps building) or stay flat (742 to 737). One 30-second sample dropped to 30 fps
+during a month close at full speed; the next returned to 60.
+
+**Headless runs render through software (SwiftShader).** Frame times there vary several-fold
+between identical runs (for example, an idle p50 of 16.8 ms in one run and 66.7 ms in the next),
+because the simulation worker and the software rasteriser compete for the CPU. Use headless
+results only for leak trends, not for fluidity. Turning animations off, or pausing during the
+views, did not make the 64-tile city consistently faster, so the cost is not street life.
+
+**Not yet covered:** Firefox and WebKit, whose Playwright builds (`firefox-1555`, `webkit-2370`)
+are not installed here (`pnpm exec playwright install firefox webkit`); other GPUs and phones;
+sessions longer than ten minutes; and real players. The new E2E check `oasis-render-health`
+keeps the leak guard in CI: after warm-up, textures may not grow by more than 12 and display
+objects stay within bounds over 20 seconds at full speed.

@@ -11,7 +11,7 @@ import {
 import type { MusicStatus } from '../audio/sound';
 import type { SaveSlot } from '../persistence/saves';
 import type { AnimationStats, HubSample, VehicleSample } from '@view/city';
-import type { PlacementPreview } from '@view/city';
+import type { PlacementPreview, RenderStats } from '@view/city';
 import type { Point } from '@view/city';
 import type { BootState, GameSession } from './session';
 
@@ -35,6 +35,8 @@ export interface CityDebugApi {
   hash(): Promise<string>;
   terrainHash(): string | null;
   fps(): number;
+  /** Renderer counts for leak and load checks (read-only). */
+  renderStats(): RenderStats;
   /** Live cars, fire engines, smoke puffs and visible water glints. */
   animationStats(): AnimationStats;
   /** Screen positions of a few vehicles. */
@@ -107,6 +109,7 @@ export function installDebugApi(session: GameSession): void {
       return w ? new Fnv1a().bytes(w.heights).bytes(w.terrain).bytes(w.trees).hex() : null;
     },
     fps: () => session.renderer.fps,
+    renderStats: () => session.renderer.renderStats(),
     animationStats: () => session.renderer.animationStats(),
     vehicleSample: () => session.renderer.vehicleSample(),
     hubSample: () => session.renderer.hubSample(),
