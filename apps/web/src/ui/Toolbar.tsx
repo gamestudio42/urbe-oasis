@@ -5,7 +5,7 @@ import { useStore } from '../state/store';
 import { TOOL_GROUPS, toolsFor, type ToolDef } from '../tools/tools';
 import { ToolIcon } from './icons';
 
-function costLabel(tool: ToolDef, t: Strings, locale: Locale): string | null {
+export function costLabel(tool: ToolDef, t: Strings, locale: Locale): string | null {
   const c = BALANCE.costs;
   const money = (value: number) => formatMoney(value, locale);
   switch (tool.id) {

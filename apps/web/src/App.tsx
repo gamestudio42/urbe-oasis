@@ -37,9 +37,11 @@ export interface AppProps {
   credit?: (placement: 'boot' | 'menu' | 'play') => ReactNode;
   /** Ruleset-specific telemetry, kept outside the shared city UI. */
   status?: (session: GameSession) => ReactNode;
+  /** Hosts can provide their own construction layout while retaining the shared controller. */
+  toolbar?: (session: GameSession) => ReactNode;
 }
 
-export function App({ theme, menuSeed, ruleset, music, credit, status }: AppProps = {}) {
+export function App({ theme, menuSeed, ruleset, music, credit, status, toolbar }: AppProps = {}) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [session, setSession] = useState<GameSession | null>(null);
 
@@ -57,7 +59,7 @@ export function App({ theme, menuSeed, ruleset, music, credit, status }: AppProp
       <div ref={hostRef} className="viewport" />
       {session ? (
         <>
-          <Screens session={session} credit={credit} status={status} />
+          <Screens session={session} credit={credit} status={status} toolbar={toolbar} />
           <BootScreen session={session} credit={credit?.('boot')} />
         </>
       ) : (
@@ -71,10 +73,12 @@ function Screens({
   session,
   credit,
   status,
+  toolbar,
 }: {
   session: GameSession;
   credit?: AppProps['credit'];
   status?: AppProps['status'];
+  toolbar?: AppProps['toolbar'];
 }) {
   const booted = useStore(session.ui, (s) => s.boot.step === 'done');
   const screen = useStore(session.ui, (s) => s.screen);
@@ -98,7 +102,7 @@ function Screens({
       <Hud session={session} credit={credit?.('play')} />
       {status?.(session)}
       <CityAudio session={session} />
-      <Toolbar session={session} />
+      {toolbar ? toolbar(session) : <Toolbar session={session} />}
       <Minimap session={session} />
       <TileReadout session={session} />
       <ToolTooltip session={session} />

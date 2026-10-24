@@ -12,6 +12,7 @@ import { BRIDGE_DECK, BRIDGE_INSET, ROAD_INSET, isLandRoad } from './bridge';
 import { HEIGHT_STEP, tileLocalToScreen, tileQuad, vertexToScreen, type Point } from './iso';
 import { HEADINGS, drawBoat } from './hubSprites';
 import { drawOasisLotDetails } from './oasisLotDetails';
+import { desertTone, drawDesertSurface } from './desertSurface';
 import type { SpriteFactory } from './sprites';
 
 export type OverlayMode =
@@ -96,7 +97,7 @@ export function drawGround(g: Graphics, theme: Theme, ctx: DrawContext, area: Ch
     const [n, e, s, w] = world.corners(x, y);
     const terrain = world.terrain[i] as number;
     const infra = infraLayer[i] as number;
-    const jitter = 0.975 + tileHash(x, y) * 0.05;
+    const jitter = theme.style === 'adobe' ? desertTone(x, y) : 0.975 + tileHash(x, y) * 0.05;
     const light = 1 + 0.16 * (e - w) + 0.1 * (s - n) + 0.025 * Math.min(n, e, s, w);
     let fill = shade(theme.terrain[terrain] ?? 0x777777, jitter * light);
     if (ctx.underground) {
@@ -108,6 +109,8 @@ export function drawGround(g: Graphics, theme: Theme, ctx: DrawContext, area: Ch
     if (x === size - 1) skirt(g, q[2], q[1], s, e, skirtColor);
 
     fillQuad(g, q, fill);
+    if (theme.style === 'adobe' && !ctx.underground && ctx.overlay === 'none')
+      drawDesertSurface(g, theme, world, x, y, q);
     if (terrain === Terrain.Water && !ctx.underground) {
       g.poly(q.flatMap((p) => [p.x, p.y])).stroke({ width: 1, color: waterEdge, alpha: 0.25 });
       drawMarinaPiers(g, theme, ctx, x, y, q);

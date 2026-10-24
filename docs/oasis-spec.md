@@ -26,6 +26,17 @@ charge and the number of placed cisterns. Empty cities display â€œNo consumersâ€
 cisterns still count as placed buildings. Water and shade buttons toggle their overlays, the
 reserve button selects the cistern tool, and the spring button recentres the surface view.
 
+The Oasis construction dock groups tools into six named categories. Opening a category shows
+tool names, costs and population requirements from the shared catalog. Selecting a tool closes
+the tray; Escape first closes an open tray and returns focus to its category without cancelling
+the selected tool. Keyboard shortcuts and tutorial actions use the same shared controller.
+The active tool remains visible above the dock. The classic toolbar is unchanged.
+
+Adobe terrain uses smoothly interpolated deterministic color variation, sparse wind marks and
+small stones. Undeveloped tiles adjacent to real water receive decorative banks and reeds.
+These details are baked into terrain chunks, use theme colors and do not mutate world state,
+consume simulation RNG, or supply water or shade. Diagnostic overlays omit surface details.
+
 ## Shade
 
 Canals (`Infra.Canal`) and buildings conduct shade, the same way pipes conduct water.

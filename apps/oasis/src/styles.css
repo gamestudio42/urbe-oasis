@@ -529,3 +529,271 @@ body,
   top: 286px;
   max-height: calc(100% - 464px);
 }
+
+/* Construction workspace: categories stay compact; the tool library opens on demand. */
+.oasis-construction {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(620px, calc(100% - 40px));
+  z-index: 15;
+  pointer-events: none;
+}
+.construction-dock,
+.construction-tray {
+  pointer-events: auto;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+}
+.construction-dock {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  padding: 7px;
+  gap: 4px;
+}
+.construction-dock > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 58px;
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+}
+.construction-dock svg {
+  width: 24px;
+  height: 24px;
+}
+.construction-dock button[data-active='true'],
+.construction-dock button:hover {
+  border-color: var(--panel-border);
+  background: var(--panel-border);
+  color: var(--text);
+}
+.construction-dock button[aria-expanded='true'] {
+  border-color: var(--accent);
+}
+.construction-selection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 8px;
+  padding: 7px 12px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.construction-selection svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.construction-selection span {
+  color: var(--muted);
+}
+.oasis-construction kbd {
+  margin-left: auto;
+  padding: 2px 5px;
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  color: var(--muted);
+  font: inherit;
+  font-size: 10px;
+}
+.construction-tray {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  width: 100%;
+  max-height: min(380px, calc(100dvh - 240px));
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 18px;
+}
+.construction-tray[hidden] {
+  display: none;
+}
+.construction-tray header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.construction-tray header small {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.construction-tray h2 {
+  margin: 3px 0 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+.construction-tray header button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 26px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.construction-tools {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.construction-tool {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 68px;
+  padding: 10px;
+  text-align: left;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.construction-tool > svg {
+  width: 27px;
+  height: 27px;
+  flex: none;
+}
+.construction-tool > span {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.construction-tool strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.construction-tool small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.construction-tool[data-locked='true'] > svg {
+  opacity: 0.45;
+}
+.construction-tool:hover,
+.construction-tool[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--panel-border);
+}
+.oasis-construction button:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.oasis-status {
+  left: 20px;
+  width: min(490px, calc(100% - 100px));
+  padding: 10px 14px;
+}
+.oasis-resources {
+  margin-top: 4px;
+}
+.oasis-resource {
+  gap: 3px;
+  padding: 5px 10px;
+}
+.oasis-resource > strong {
+  font-size: 15px;
+}
+.oasis-resource > small {
+  font-size: 10px;
+}
+.oasis-policy > button {
+  padding-top: 7px;
+  margin-top: 4px;
+}
+.oasis-chronicle {
+  top: 220px;
+}
+.app:has(.inspector) .oasis-chronicle {
+  left: 20px;
+  top: 232px;
+  max-height: calc(100% - 420px);
+}
+.app:has(.oasis-construction) .paused-banner {
+  bottom: 57px;
+}
+@media (max-width: 1180px) {
+  .app:has(.oasis-construction) .hud {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .app:has(.oasis-construction) .hud > * {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .oasis-construction {
+    left: auto;
+    right: 16px;
+    transform: none;
+    width: min(560px, calc(100% - 230px));
+  }
+  .construction-dock > button {
+    font-size: 10px;
+  }
+  .construction-tools {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .construction-tool {
+    min-height: 58px;
+  }
+  .app:has(.oasis-construction) .paused-banner {
+    bottom: 158px;
+  }
+}
+@media (max-width: 720px) {
+  .oasis-construction {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+  }
+  .construction-dock {
+    padding: 4px;
+    gap: 0;
+  }
+  .construction-dock > button {
+    font-size: 9px;
+  }
+  .construction-selection span {
+    display: none;
+  }
+  .app:has(.oasis-construction) .minimap {
+    display: none;
+  }
+  .app:has(.oasis-construction) .readout {
+    display: none;
+  }
+  .oasis-status {
+    left: 12px;
+    width: calc(100% - 70px);
+  }
+  .oasis-chronicle {
+    top: 270px;
+  }
+}
+@media (min-width: 721px) and (max-width: 1180px) {
+  .app:has(.oasis-construction) .minimap,
+  .app:has(.oasis-construction) .minimap canvas {
+    width: 180px;
+    height: 90px;
+  }
+}

@@ -40,6 +40,7 @@ test.beforeEach(async ({ page }) => {
     window.__cityDebug!.centerOnTile(12, 12);
     window.__cityDebug!.setZoom(1.5);
   });
+  await page.getByTestId('tool-category-utilities').click();
   await page.getByTestId('tool-canal').click();
 });
 

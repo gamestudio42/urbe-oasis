@@ -87,6 +87,7 @@ test('offers the neon-only tools and hides them from classic Urbe', async ({ pag
 
 test('canal tool stays on the surface and the shade overlay is listed', async ({ page }) => {
   await startNeonCity(page, 'neon-canal');
+  await page.getByTestId('tool-category-utilities').click();
   await page.getByTestId('tool-canal').click();
   await expect(page.getByTestId('tool-canal')).toHaveAttribute('aria-pressed', 'true');
   await page.getByTestId('open-system').click();
