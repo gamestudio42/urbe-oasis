@@ -59,7 +59,14 @@ function slotDate(slot: SaveSlot, locale: Locale): string {
 }
 
 /** Main-menu block: continue the latest city, open a file, or pick a saved city. */
-export function SavedCities({ session }: { session: GameSession }) {
+export function SavedCities({
+  session,
+  showContinue = true,
+}: {
+  session: GameSession;
+  /** The launcher menu shows its own, larger continue card. */
+  showContinue?: boolean;
+}) {
   const t = useStrings(session.ui);
   const locale = useStore(session.ui, (s) => s.locale);
   const saves = useStore(session.ui, (s) => s.saves);
@@ -69,7 +76,7 @@ export function SavedCities({ session }: { session: GameSession }) {
   return (
     <section className="saved-cities" data-testid="saved-cities">
       <div className="menu-actions">
-        {latest && (
+        {showContinue && latest && (
           <button
             type="button"
             className="button"

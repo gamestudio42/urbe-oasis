@@ -1,4 +1,13 @@
-export { AudioGraph, readFlag, Voice, writeFlag, type NoiseSpec, type ToneSpec } from './audio';
+export {
+  AudioGraph,
+  readFlag,
+  readLevel,
+  Voice,
+  writeFlag,
+  writeLevel,
+  type NoiseSpec,
+  type ToneSpec,
+} from './audio';
 export { BootView } from './BootView';
 export { Logo } from './Logo';
 export { SfxBoard, type DroneTone, type SfxRecipe } from './sfx';

@@ -237,6 +237,10 @@ export const es = {
   },
   menu: {
     language: 'Idioma',
+    newCity: 'Nueva ciudad',
+    advanced: 'Opciones avanzadas',
+    back: 'Volver',
+    latest: 'Última ciudad',
     subtitle: 'Construye, administra y haz crecer tu ciudad.',
     cityName: 'Nombre de la ciudad',
     defaultCityName: 'Nueva Ciudad',
@@ -482,6 +486,10 @@ export const es = {
   system: {
     display: 'Visualización',
     audio: 'Audio',
+    volume: 'Volumen',
+    volumeMaster: 'General',
+    volumeMusic: 'Música',
+    volumeEffects: 'Efectos',
     shortcuts: 'Atajos de teclado',
     advanced: 'Herramientas de escenario',
     confirmDisaster: 'Esta acción afectará a la ciudad inmediatamente.',

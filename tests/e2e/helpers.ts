@@ -25,6 +25,15 @@ export async function pinE2ELocale(page: Page): Promise<void> {
   await page.addInitScript(() => localStorage.setItem('cityBuilder.locale', 'pt-BR'));
 }
 
+/** Oasis launcher menu: shows the founding form and unfolds its world options. */
+export async function openWorldOptions(page: Page): Promise<void> {
+  const newCity = page.getByTestId('menu-new-city');
+  if (await newCity.isVisible()) await newCity.click();
+  const advanced = page.getByTestId('menu-advanced');
+  if ((await advanced.getAttribute('open')) === null)
+    await page.getByTestId('menu-advanced-toggle').click();
+}
+
 /** Starts a new city from the main menu with a fixed seed. */
 export async function startCity(
   page: Page,

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { openWorldOptions } from './helpers';
 
 /**
  * Urbe Oasis end-to-end: boot, found a city, build the oasis placeables and read the telemetry.
@@ -20,6 +21,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function startNeonCity(page: import('@playwright/test').Page, seed: string) {
+  await openWorldOptions(page);
   await page.getByTestId('seed-input').fill(seed);
   await page.getByTestId('start-city').click();
   await page.waitForFunction(() => window.__cityDebug?.isReady() === true, null, {
@@ -211,6 +213,7 @@ test('replays the same command log and ticks to the same hash', async ({ page })
 
 test('an arcade eases the street and does not launch drones', async ({ page }) => {
   test.setTimeout(120_000);
+  await openWorldOptions(page);
   await page.getByTestId('terrain-water').fill('0');
   await page.getByTestId('terrain-hills').fill('0');
   await page.getByTestId('terrain-forest').fill('0');

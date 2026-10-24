@@ -1,5 +1,14 @@
 import { createRandom, type Random } from '@view/city';
-import { barSeconds, composeBar, midiToHz, TRACKS, type NoteEvent, type TrackId } from './composer';
+import {
+  barSeconds,
+  composeBar,
+  midiToHz,
+  moodSpec,
+  TRACKS,
+  type Mood,
+  type NoteEvent,
+  type TrackId,
+} from './composer';
 
 // The shared board already applies music and master attenuation.
 const LEVEL = 1;
@@ -17,7 +26,15 @@ export interface MusicState {
   playing: boolean;
   track: TrackId;
   ducked: boolean;
+  mood: Mood;
 }
+
+/** Brightness of the score per mood, before the pause filter. */
+const MOOD_TONE: Record<Mood, number> = { calm: 5200, prosperous: 6400, scarce: 2600, storm: 3200 };
+/** Desert wind under the score per mood, as a multiple of its calm level. */
+const MOOD_WIND: Record<Mood, number> = { calm: 1, prosperous: 0.8, scarce: 2.2, storm: 4 };
+const MOOD_SECONDS = 4;
+const WIND_LEVEL = 0.018;
 
 /** Procedural plucked strings, breathy flute, frame drum and a quiet desert sound bed. */
 export class OasisMusic {
@@ -34,6 +51,8 @@ export class OasisMusic {
   private disposed = false;
   private ducked = false;
   private track: TrackId = 'menu';
+  private mood: Mood = 'calm';
+  private wind: GainNode | null = null;
 
   constructor(
     private readonly ctx: AudioContext,
@@ -54,7 +73,7 @@ export class OasisMusic {
     const wet = this.keep(ctx.createGain());
     wet.gain.value = 0.22;
     this.reverb.connect(wet).connect(this.tone);
-    this.ambience(420, 0.018, 0.07);
+    this.wind = this.ambience(420, WIND_LEVEL, 0.07);
     this.ambience(1800, 0.006, 0.23);
   }
 
@@ -63,7 +82,29 @@ export class OasisMusic {
       playing: this.enabled && this.ctx.state === 'running',
       track: this.track,
       ducked: this.ducked,
+      mood: this.mood,
     };
+  }
+
+  /** Reshapes the next bars and slowly retunes brightness and wind. The menu stays calm. */
+  setMood(mood: Mood): void {
+    if (this.disposed || mood === this.mood) return;
+    this.mood = mood;
+    const now = this.ctx.currentTime;
+    if (!this.ducked) ramp(this.tone.frequency, this.brightness(), now, MOOD_SECONDS);
+    if (this.wind) ramp(this.wind.gain, WIND_LEVEL * this.windScale(), now, MOOD_SECONDS);
+  }
+
+  private effectiveMood(): Mood {
+    return this.track === 'city' ? this.mood : 'calm';
+  }
+
+  private brightness(): number {
+    return MOOD_TONE[this.effectiveMood()];
+  }
+
+  private windScale(): number {
+    return MOOD_WIND[this.effectiveMood()];
   }
 
   start(track: TrackId): void {
@@ -89,6 +130,9 @@ export class OasisMusic {
   setTrack(track: TrackId): void {
     if (this.disposed || track === this.track) return;
     this.track = track;
+    const now = this.ctx.currentTime;
+    if (!this.ducked) ramp(this.tone.frequency, this.brightness(), now, CROSSFADE_SECONDS);
+    if (this.wind) ramp(this.wind.gain, WIND_LEVEL * this.windScale(), now, CROSSFADE_SECONDS);
     if (!this.enabled) return;
     this.closeChannel(CROSSFADE_SECONDS);
     this.openChannel();
@@ -100,7 +144,7 @@ export class OasisMusic {
     if (this.disposed || this.ducked === paused) return;
     this.ducked = paused;
     ramp(this.duck.gain, paused ? 0.5 : 1, this.ctx.currentTime, 0.35);
-    ramp(this.tone.frequency, paused ? 1200 : 5200, this.ctx.currentTime, 0.35);
+    ramp(this.tone.frequency, paused ? 1200 : this.brightness(), this.ctx.currentTime, 0.35);
   }
 
   dispose(): void {
@@ -156,7 +200,7 @@ export class OasisMusic {
     if (!channel || !this.enabled) return;
     const now = this.ctx.currentTime;
     if (channel.next < now) channel.next = now + 0.05;
-    const spec = TRACKS[channel.track];
+    const spec = moodSpec(TRACKS[channel.track], this.effectiveMood());
     while (channel.next < now + 1.2) {
       for (const note of composeBar(spec, channel.bar, channel.random)) {
         this.note(
@@ -259,7 +303,7 @@ export class OasisMusic {
   }
 
   /** Filtered noise with a slow swell; music mute also silences both ambience layers. */
-  private ambience(frequency: number, level: number, rate: number): void {
+  private ambience(frequency: number, level: number, rate: number): GainNode {
     const source = this.keep(this.ctx.createBufferSource());
     source.buffer = this.noise;
     source.loop = true;
@@ -279,6 +323,7 @@ export class OasisMusic {
       this.sources.add(node);
       node.start();
     }
+    return gain;
   }
 }
 

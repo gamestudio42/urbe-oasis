@@ -45,7 +45,8 @@ test('Oasis music emits audio, follows the city, and persists independently', as
   await page.goto('/');
   await page.getByTestId('main-menu').waitFor();
   expect((await state(page))?.playing).toBe(false);
-  await page.getByTestId('city-name-input').click();
+  // Any click is the gesture that unlocks audio; the title exists in every menu view.
+  await page.locator('.menu-title').click();
   await expect.poll(() => signal(page)).toBeGreaterThan(0.001);
   expect(await state(page)).toMatchObject({ playing: true, track: 'menu' });
   // Existence of a signal is insufficient: measure after both startup fades through
@@ -78,7 +79,8 @@ test('Oasis music emits audio, follows the city, and persists independently', as
   await page.getByTestId('hud-music').click();
   await page.reload();
   await page.getByTestId('main-menu').waitFor();
-  await page.getByTestId('city-name-input').click();
+  // Any click is the gesture that unlocks audio; the title exists in every menu view.
+  await page.locator('.menu-title').click();
   expect(await state(page)).toMatchObject({ enabled: false, playing: false });
   expect(
     await page.evaluate(() => ({

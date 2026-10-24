@@ -1,6 +1,6 @@
 import { TICKS_PER_MONTH, ZoneDensity, ZoneType, type Command } from '@city/shared';
 import { expect, test, type Page } from '@playwright/test';
-import { dragTiles } from './helpers';
+import { dragTiles, openWorldOptions } from './helpers';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
@@ -13,6 +13,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function found(page: Page) {
+  await openWorldOptions(page);
   await page.getByTestId('seed-input').fill('oasis-founding');
   await page.getByTestId('size-select').selectOption('64');
   await page.getByTestId('start-city').click();
@@ -20,6 +21,7 @@ async function found(page: Page) {
 }
 
 test('introduces survival even when the classic tutorial was completed', async ({ page }) => {
+  await openWorldOptions(page);
   await expect(page.getByTestId('terrain-water')).toHaveValue('0.04');
   await expect(page.getByTestId('terrain-forest')).toHaveValue('0.04');
   await expect(page.getByTestId('terrain-hills')).toHaveValue('0.15');
@@ -54,6 +56,7 @@ test('introduces survival even when the classic tutorial was completed', async (
 
 test('guides a real settlement through water, shade and a powered cistern', async ({ page }) => {
   test.setTimeout(120_000);
+  await openWorldOptions(page);
   for (const key of ['water', 'hills', 'forest', 'rivers']) {
     await page.getByTestId(`terrain-${key}`).fill('0');
   }
