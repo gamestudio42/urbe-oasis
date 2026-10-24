@@ -1,4 +1,4 @@
-import { Infra, type BuildingRecord, type Speed } from '@city/shared';
+import { Infra, PLACEABLE_SPECS, type BuildingRecord, type Speed } from '@city/shared';
 import type { World } from '@city/simulation';
 import type { Theme } from '@theme/core';
 import { Container, Sprite } from 'pixi.js';
@@ -13,12 +13,23 @@ import { createRandom } from './random';
 import { headingAt, lanePoint, worldRoadView, type RoadView } from './roads';
 import { SmokeSim, puffLook, smokeVents } from './smoke';
 import { VehicleSim, type Vehicle } from './vehicles';
+import { CaravanSim, caravanRoute, type CaravanRoute } from './caravans';
+import { SIDEWALK_OFFSET, WalkerSim, type StreetLife } from './walkers';
 import { sparkleAlpha, sparkleSpots, type SparkleSpot } from './water';
 
 /** Game-time multiplier per simulation speed: paused, 1×, 2×, 3×. */
 export const SPEED_FACTORS = [0, 1, 1.6, 2.2] as const;
 /** Cars are too small to read below this zoom. */
 export const CAR_MIN_ZOOM = 0.45;
+/** Pedestrians are too small to read below this zoom; camels read a little earlier. */
+export const WALKER_MIN_ZOOM = 0.85;
+export const CAMEL_MIN_ZOOM = 0.6;
+/** People read beside the cars at street zoom. */
+const WALKER_SCALE = 1.2;
+/** Camels stand taller than people and read beside the cars. */
+const CAMEL_SCALE = 1.25;
+/** Lane of a caravan, just right of the road axis. */
+const CAMEL_LANE = 0.1;
 const OVERLAY_ALPHA = 0.45;
 const POPULATE_INTERVAL = 0.25;
 const VENT_REFRESH = 0.5;
@@ -50,6 +61,8 @@ export interface AnimationStats {
   boats: number;
   planes: number;
   drones: number;
+  walkers: number;
+  camels: number;
 }
 
 /** Boats are too small to read below this zoom. */
@@ -68,7 +81,7 @@ export interface VehicleSample {
 
 export interface HubSample {
   id: number;
-  kind: 'boat' | 'plane' | 'drone';
+  kind: 'boat' | 'plane' | 'drone' | 'camel';
   x: number;
   y: number;
   visible: boolean;
@@ -110,6 +123,9 @@ export class AnimationLayer {
   private puffs = new SmokeSim(createRandom(2));
   private hubs: HubTraffic;
   private aerial: DroneTraffic;
+  private walkers = new WalkerSim(createRandom(5));
+  private caravans = new CaravanSim(createRandom(6));
+  private streetLife: StreetLife | null = null;
   private vents: VentPosition[] = [];
   private stations: StationFootprint[] = [];
   private buildingsDirty = true;
@@ -119,6 +135,8 @@ export class AnimationLayer {
   private enabled = true;
   private speed: Speed = 1;
   private readonly vehicleSprites = new Map<number, Sprite>();
+  private readonly walkerSprites = new Map<number, Sprite>();
+  private readonly camelSprites = new Map<string, Sprite>();
   private readonly puffSprites: Sprite[] = [];
   private readonly boatSprites = new Map<number, Sprite>();
   private readonly planeSprites = new Map<number, { plane: Sprite; shadow: Sprite }>();
@@ -151,6 +169,8 @@ export class AnimationLayer {
     };
     // The previous chunks were destroyed with their children, including vehicle sprites.
     this.vehicleSprites.clear();
+    this.walkerSprites.clear();
+    this.camelSprites.clear();
     this.boatSprites.clear();
     this.clearPlanes();
     this.clearDrones();
@@ -160,6 +180,9 @@ export class AnimationLayer {
     this.puffs = new SmokeSim(createRandom(world.size * 7919 + 2));
     this.hubs = new HubTraffic(createRandom(world.size * 7919 + 3), this.theme);
     this.aerial = new DroneTraffic(createRandom(world.size * 7919 + 4));
+    this.walkers = new WalkerSim(createRandom(world.size * 7919 + 5));
+    this.caravans = new CaravanSim(createRandom(world.size * 7919 + 6));
+    this.streetLife = null;
     this.buildingsDirty = true;
     this.sinceVents = VENT_REFRESH;
     this.sincePopulate = POPULATE_INTERVAL;
@@ -231,10 +254,17 @@ export class AnimationLayer {
         this.sincePopulate += realDt;
         if (this.sincePopulate >= POPULATE_INTERVAL) {
           this.sincePopulate = 0;
-          this.cars.populate(roads, this.visibleRoadTiles(roads));
+          const tiles = this.visibleRoadTiles(roads);
+          this.cars.populate(roads, tiles);
+          if (this.streetLife && frame.zoom >= WALKER_MIN_ZOOM)
+            this.walkers.populate(this.streetLife, tiles);
         }
       }
     }
+    const life = this.streetLife;
+    if (!life || frame.underground || frame.zoom < WALKER_MIN_ZOOM) this.walkers.clear();
+    else this.walkers.step(life, dt, (tile) => this.isTileVisible(tile));
+    if (life) this.caravans.step(dt);
 
     this.sinceVents += realDt;
     if (this.buildingsDirty && this.sinceVents >= VENT_REFRESH) this.refreshBuildings(world);
@@ -250,6 +280,8 @@ export class AnimationLayer {
 
     const alpha = frame.overlay ? OVERLAY_ALPHA : 1;
     this.syncVehicles(world, !frame.underground, alpha);
+    this.syncWalkers(world, !frame.underground, alpha);
+    this.syncCamels(world, !frame.underground && frame.zoom >= CAMEL_MIN_ZOOM, alpha);
     this.syncPuffs(!frame.underground, alpha, frame.zoom);
     this.syncBoats(world, !frame.underground && frame.zoom >= BOAT_MIN_ZOOM, alpha);
     this.syncPlanes(world, !frame.underground, alpha);
@@ -275,6 +307,8 @@ export class AnimationLayer {
       boats: this.hubs.boats.length,
       planes: this.hubs.planes.length,
       drones: this.aerial.drones.length,
+      walkers: this.walkers.walkers.length,
+      camels: this.caravans.poses().length,
     };
   }
 
@@ -313,6 +347,19 @@ export class AnimationLayer {
     for (const [id, s] of this.planeSprites) {
       list.push({ id, kind: 'plane', x: s.plane.x, y: s.plane.y, visible: s.plane.visible });
     }
+    for (const camel of this.caravans.poses()) {
+      const sprite = this.camelSprites.get(`${camel.caravan}:${camel.index}`);
+      if (!sprite) continue;
+      list.push({
+        id: camel.caravan * 100 + camel.index,
+        kind: 'camel',
+        x: sprite.x,
+        y: sprite.y,
+        visible: sprite.visible,
+        tileX: camel.tile % Math.max(1, size),
+        tileY: Math.floor(camel.tile / Math.max(1, size)),
+      });
+    }
     for (const [id, s] of this.droneSprites) {
       list.push({ id, kind: 'drone', x: s.drone.x, y: s.drone.y, visible: s.drone.visible });
     }
@@ -325,8 +372,14 @@ export class AnimationLayer {
     this.puffs.clear();
     this.hubs.clear();
     this.aerial.clear();
+    this.walkers.clear();
+    this.caravans.clear();
     for (const sprite of this.vehicleSprites.values()) sprite.destroy();
     this.vehicleSprites.clear();
+    for (const sprite of this.walkerSprites.values()) sprite.destroy();
+    this.walkerSprites.clear();
+    for (const sprite of this.camelSprites.values()) sprite.destroy();
+    this.camelSprites.clear();
     for (const sprite of this.boatSprites.values()) sprite.destroy();
     this.boatSprites.clear();
     this.clearPlanes();
@@ -386,6 +439,80 @@ export class AnimationLayer {
       if (b.kind === 'fireStation') this.stations.push({ x: b.x, y: b.y, w: b.w, h: b.h });
     }
     this.hubs.setSites(world, this.buildings.values());
+    if (this.theme.style === 'adobe' && this.roads) {
+      this.streetLife = streetLife(world, this.roads, this.buildings);
+      this.caravans.setRoutes(caravanRoutes(world, this.roads, this.buildings));
+    } else {
+      this.streetLife = null;
+      this.caravans.setRoutes([]);
+    }
+  }
+
+  private syncWalkers(world: World, show: boolean, alpha: number): void {
+    const live = new Set<number>();
+    for (const w of this.walkers.walkers) {
+      live.add(w.id);
+      const x = w.tile % world.size;
+      const y = Math.floor(w.tile / world.size);
+      const chunk = this.chunkAt(x, y);
+      if (!chunk) continue;
+      const frame = w.pause > 0 ? 0 : Math.floor(w.t * 6 + w.id) % 2;
+      const tex = this.factory.walker(w.robe, frame);
+      let sprite = this.walkerSprites.get(w.id);
+      if (!sprite) {
+        sprite = new Sprite(tex.texture);
+        this.walkerSprites.set(w.id, sprite);
+      } else sprite.texture = tex.texture;
+      sprite.anchor.set(tex.anchorX, tex.anchorY);
+      if (sprite.parent !== chunk.vehicles) chunk.vehicles.addChild(sprite);
+      const { u, v } = lanePoint(w.travelIn, w.travelOut, w.t, SIDEWALK_OFFSET * w.side);
+      const p = tileLocalToScreen(tileQuad(world, x, y), u, v);
+      sprite.position.set(p.x, p.y - roadSurfaceLift(world, x, y, u, v));
+      sprite.scale.set(WALKER_SCALE);
+      sprite.zIndex = x + u + y + v;
+      sprite.alpha = alpha;
+      sprite.visible = show;
+    }
+    for (const [id, sprite] of this.walkerSprites) {
+      if (live.has(id)) continue;
+      sprite.destroy();
+      this.walkerSprites.delete(id);
+    }
+  }
+
+  private syncCamels(world: World, show: boolean, alpha: number): void {
+    const live = new Set<string>();
+    for (const camel of this.caravans.poses()) {
+      const key = `${camel.caravan}:${camel.index}`;
+      live.add(key);
+      const x = camel.tile % world.size;
+      const y = Math.floor(camel.tile / world.size);
+      const chunk = this.chunkAt(x, y);
+      if (!chunk) continue;
+      const frame = Math.floor(camel.t * 4 + camel.index) % 2;
+      const tex = this.factory.camel(camel.index, frame);
+      let sprite = this.camelSprites.get(key);
+      if (!sprite) {
+        sprite = new Sprite(tex.texture);
+        this.camelSprites.set(key, sprite);
+      } else sprite.texture = tex.texture;
+      sprite.anchor.set(tex.anchorX, tex.anchorY);
+      if (sprite.parent !== chunk.vehicles) chunk.vehicles.addChild(sprite);
+      const { u, v } = lanePoint(camel.travelIn, camel.travelOut, camel.t, CAMEL_LANE);
+      const p = tileLocalToScreen(tileQuad(world, x, y), u, v);
+      sprite.position.set(p.x, p.y - roadSurfaceLift(world, x, y, u, v));
+      // North and east read as walking right on screen; south and west as walking left.
+      const heading = headingAt(camel.travelIn, camel.travelOut, camel.t);
+      sprite.scale.set((heading === 0 || heading === 1 ? 1 : -1) * CAMEL_SCALE, CAMEL_SCALE);
+      sprite.zIndex = x + u + y + v;
+      sprite.alpha = alpha * camel.alpha;
+      sprite.visible = show && camel.alpha > 0;
+    }
+    for (const [key, sprite] of this.camelSprites) {
+      if (live.has(key)) continue;
+      sprite.destroy();
+      this.camelSprites.delete(key);
+    }
   }
 
   private ventsInView(view: AnimationFrame['view']): VentPosition[] {
@@ -602,4 +729,76 @@ function spriteKey(v: Vehicle): number {
 function underSpan(world: World, x: number, y: number): boolean {
   const i = world.index(x, y);
   return world.isWater(i) && world.hasInfra(i, Infra.Road);
+}
+
+/** Footfall a lot adds to each street beside it, by what it is. */
+function footfallOf(b: BuildingRecord): number {
+  if (b.abandoned || b.occupancy <= 0) return 0;
+  if (b.kind === 'residential') return 0.14;
+  if (b.kind === 'commercial') return 0.4;
+  if (b.kind === 'industrial') return 0.05;
+  if (b.kind === 'caravanserai') return 0.6;
+  return PLACEABLE_SPECS[b.kind].jobs > 0 ? 0.2 : 0;
+}
+
+function isStall(b: BuildingRecord): boolean {
+  return (
+    !b.abandoned &&
+    b.occupancy > 0 &&
+    (b.kind === 'commercial' || b.kind === 'caravanserai' || b.kind === 'arcade')
+  );
+}
+
+/** Road tiles beside a building's footprint, each once, in N, E, S, W scan order. */
+function frontage(world: World, roads: RoadView, b: BuildingRecord): number[] {
+  const out: number[] = [];
+  const add = (x: number, y: number) => {
+    if (!world.inBounds(x, y)) return;
+    const i = world.index(x, y);
+    if (roads.hasRoad(i) && !out.includes(i)) out.push(i);
+  };
+  for (let x = b.x; x < b.x + b.w; x++) {
+    add(x, b.y - 1);
+    add(x, b.y + b.h);
+  }
+  for (let y = b.y; y < b.y + b.h; y++) {
+    add(b.x - 1, y);
+    add(b.x + b.w, y);
+  }
+  return out;
+}
+
+/** Footfall and stalls per road tile, from the occupied lots that front each street. */
+export function streetLife(
+  world: World,
+  roads: RoadView,
+  buildings: Map<number, BuildingRecord>,
+): StreetLife {
+  const footfall = new Float32Array(world.tileCount);
+  const stalls = new Uint8Array(world.tileCount);
+  for (const b of buildings.values()) {
+    const people = footfallOf(b);
+    if (people <= 0) continue;
+    const stall = isStall(b);
+    for (const i of frontage(world, roads, b)) {
+      footfall[i] = (footfall[i] as number) + people;
+      if (stall) stalls[i] = 1;
+    }
+  }
+  return { ...roads, footfall, stalls };
+}
+
+/** One route per staffed caravanserai with a road door, in building order. */
+export function caravanRoutes(
+  world: World,
+  roads: RoadView,
+  buildings: Map<number, BuildingRecord>,
+): CaravanRoute[] {
+  const routes: CaravanRoute[] = [];
+  for (const b of buildings.values()) {
+    if (b.kind !== 'caravanserai' || b.occupancy <= 0 || b.abandoned) continue;
+    const route = caravanRoute(roads, frontage(world, roads, b));
+    if (route) routes.push(route);
+  }
+  return routes;
 }

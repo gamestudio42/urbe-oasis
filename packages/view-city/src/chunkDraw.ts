@@ -606,6 +606,7 @@ export function buildObjects(
     return;
   }
   const alpha = ctx.overlay === 'none' ? 1 : 0.45;
+  const adobe = factory.style === 'adobe';
   forEachTile(area, (x, y) => {
     const i = y * size + x;
     const id = w.buildingId[i] as number;
@@ -621,13 +622,17 @@ export function buildObjects(
         sprite.alpha = alpha;
         container.addChild(sprite);
       }
-    } else if ((w.trees[i] as number) > 0) {
-      const tex = factory.trees(w.trees[i] as number, Math.floor(tileHash(x, y) * 4));
+    } else if ((w.trees[i] as number) > 0 || (adobe && canalPalm(w, x, y))) {
+      const density = Math.max(1, w.trees[i] as number);
+      const tex = factory.trees(density, Math.floor(tileHash(x, y) * 4));
+      // A canal palm stands on the bank, off the channel's centre line.
+      const bank = (w.trees[i] as number) > 0 ? 0 : 0.22;
       const sprite = new Sprite(tex.texture);
       sprite.anchor.set(tex.anchorX, tex.anchorY);
       const q = tileQuad(w, x, y);
-      const c = tileLocalToScreen(q, 0.5, 0.5);
-      sprite.position.set(c.x, c.y + 8);
+      const c = tileLocalToScreen(q, 0.5 + bank, 0.5 - bank);
+      sprite.position.set(c.x, c.y + (bank > 0 ? 4 : 8));
+      if (bank > 0) sprite.scale.set(0.7);
       sprite.alpha = alpha;
       container.addChild(sprite);
     }
@@ -715,4 +720,22 @@ export function drawOverlay(g: Graphics, theme: Theme, ctx: DrawContext, area: C
     const fill = overlayColor(w, y * size + x, mode, theme);
     if (fill !== null) fillQuad(g, tileQuad(w, x, y), fill, alpha);
   });
+}
+
+/** Share of shaded canal tiles lined with a palm, chosen by tile hash so it never flickers. */
+const CANAL_PALM_SHARE = 0.4;
+
+/**
+ * Adobe decoration: a date palm on a canal tile that carries shade, so the network reads as a
+ * palm-lined channel. Like wild palms, it supplies nothing to the simulation.
+ */
+export function canalPalm(w: World, x: number, y: number): boolean {
+  const i = w.index(x, y);
+  return (
+    w.hasInfra(i, Infra.Canal) &&
+    w.linked[i] === 1 &&
+    !w.hasInfra(i, Infra.Road) &&
+    (w.buildingId[i] as number) === 0 &&
+    tileHash(x * 3 + 1, y * 5 + 2) < CANAL_PALM_SHARE
+  );
 }

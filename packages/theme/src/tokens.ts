@@ -194,6 +194,17 @@ export const COLOR_TOKENS = [
   'vehicle.fireLightDark',
   'vehicle.fireLightGlow',
 
+  // Street life: pedestrians and pack camels.
+  'walker.robeA',
+  'walker.robeB',
+  'walker.robeC',
+  'walker.robeD',
+  'walker.head',
+  'camel.body',
+  'camel.shade',
+  'camel.load',
+  'camel.loadAlt',
+
   // Cosmetic effects.
   'fx.smokeDark',
   'fx.smokeLight',

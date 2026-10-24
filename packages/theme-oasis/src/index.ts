@@ -89,6 +89,15 @@ const OASIS_OVERRIDES: Record<string, number> = {
   'vehicle.fireLightOff': 0x1f8a86,
   'vehicle.fireLightDark': 0x3a1020,
   'vehicle.fireLightGlow': 0xc4512c,
+  'walker.robeA': 0xf3e6d0,
+  'walker.robeB': 0x1a6e78,
+  'walker.robeC': 0xc4512c,
+  'walker.robeD': 0xd4a24a,
+  'walker.head': 0x8d5a3c,
+  'camel.body': 0x8f5f3a,
+  'camel.shade': 0x553823,
+  'camel.load': 0x1a6e78,
+  'camel.loadAlt': 0xc4512c,
 
   // Aircraft and a sand-coloured field.
   'plane.body': 0xe4d2a8,
