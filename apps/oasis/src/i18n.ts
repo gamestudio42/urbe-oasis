@@ -18,7 +18,46 @@ const SURVIVAL_EN = {
   parched: 'Water-stressed districts',
 };
 
+const CHRONICLE_EN = {
+  title: 'OASIS CHRONICLE',
+  history: 'Recent events',
+  close: 'Collapse report',
+  locate: 'Show on map',
+  lots: 'Lots in this report',
+  empty: 'The desert is quiet. Events will be recorded here.',
+  storm: {
+    title: 'Sand over the city',
+    body: 'A storm struck this service and temporarily interrupted its operation. Powered windbreaks reduce the risk of future impacts.',
+  },
+  blocked: {
+    title: 'The windbreak held',
+    body: 'The storm was repelled at this location. Keep the windbreak powered to protect nearby services.',
+  },
+  spring: {
+    title: 'The spring has moved',
+    body: 'The spring changed location. Review nearby spring houses: their shade output depends on access to water, power and the spring.',
+  },
+  trade: {
+    title: 'Caravans have arrived',
+    body: 'Caravans purchased serviced lots and paid the treasury. This report points to one of the traded lots.',
+  },
+  leave: {
+    title: 'A caravan has withdrawn',
+    body: 'A caravan abandoned a dry, unshaded lot. Review water and shade coverage before expanding.',
+  },
+  stress: {
+    title: 'Water under pressure',
+    body: 'A water network reached its stress threshold. Inspect supply and storage before adding more demand.',
+  },
+  collapse: {
+    title: 'The qanat went offline',
+    body: 'Overload interrupted a qanat in this district. Review the water network, expand supply and connect powered cisterns.',
+  },
+};
+
 type Copy = {
+  hubIdle: string;
+  chronicle: typeof CHRONICLE_EN;
   survival: typeof SURVIVAL_EN;
   tutorial: { title: string; steps: { title: string; text: string }[] };
   pageTitle: string;
@@ -44,6 +83,8 @@ type Copy = {
 };
 
 const EN: Copy = {
+  hubIdle: 'Not operating',
+  chronicle: CHRONICLE_EN,
   survival: SURVIVAL_EN,
   tutorial: {
     title: 'Found an oasis',
@@ -113,6 +154,43 @@ const EN: Copy = {
 };
 
 const PT: Copy = {
+  hubIdle: 'Sem operação',
+  chronicle: {
+    title: 'CRÔNICA DO OÁSIS',
+    history: 'Acontecimentos recentes',
+    close: 'Recolher relato',
+    locate: 'Ver no mapa',
+    lots: 'Lotes neste relato',
+    empty: 'O deserto está tranquilo. Os acontecimentos aparecerão aqui.',
+    storm: {
+      title: 'Areia sobre a cidade',
+      body: 'Uma tempestade atingiu este serviço e interrompeu sua operação temporariamente. Quebra-ventos com energia reduzem o risco de novos impactos.',
+    },
+    blocked: {
+      title: 'O quebra-vento resistiu',
+      body: 'A tempestade foi repelida neste local. Mantenha o quebra-vento energizado para proteger os serviços próximos.',
+    },
+    spring: {
+      title: 'A nascente mudou de lugar',
+      body: 'A nascente se deslocou. Revise as casas da nascente próximas: a produção de sombra depende do acesso à água, energia e nascente.',
+    },
+    trade: {
+      title: 'As caravanas chegaram',
+      body: 'Caravanas compraram lotes atendidos e pagaram ao caixa da cidade. Este relato aponta para um dos lotes negociados.',
+    },
+    leave: {
+      title: 'Uma caravana partiu',
+      body: 'Uma caravana abandonou um lote seco e sem sombra. Revise a cobertura de água e sombra antes de expandir.',
+    },
+    stress: {
+      title: 'Água sob pressão',
+      body: 'Uma rede de água atingiu seu limite de estresse. Confira a oferta e as reservas antes de aumentar o consumo.',
+    },
+    collapse: {
+      title: 'O qanat parou',
+      body: 'A sobrecarga interrompeu um qanat neste bairro. Revise a rede de água, amplie a oferta e conecte cisternas com energia.',
+    },
+  },
   survival: {
     title: 'VIDA NO OÁSIS',
     water: 'Cobertura de água',
@@ -195,6 +273,43 @@ const PT: Copy = {
 };
 
 const ES: Copy = {
+  hubIdle: 'Sin actividad',
+  chronicle: {
+    title: 'CRÓNICA DEL OASIS',
+    history: 'Sucesos recientes',
+    close: 'Contraer relato',
+    locate: 'Ver en el mapa',
+    lots: 'Parcelas en este relato',
+    empty: 'El desierto está tranquilo. Los sucesos aparecerán aquí.',
+    storm: {
+      title: 'Arena sobre la ciudad',
+      body: 'Una tormenta alcanzó este servicio e interrumpió temporalmente su operación. Los cortavientos con energía reducen el riesgo de nuevos impactos.',
+    },
+    blocked: {
+      title: 'El cortavientos resistió',
+      body: 'La tormenta fue repelida aquí. Mantén el cortavientos con energía para proteger los servicios cercanos.',
+    },
+    spring: {
+      title: 'El manantial se ha movido',
+      body: 'El manantial cambió de lugar. Revisa sus casas cercanas: la sombra depende del acceso al agua, la energía y el manantial.',
+    },
+    trade: {
+      title: 'Llegaron las caravanas',
+      body: 'Las caravanas compraron parcelas atendidas y pagaron a la tesorería. El relato señala una de las parcelas negociadas.',
+    },
+    leave: {
+      title: 'Una caravana se retiró',
+      body: 'Una caravana abandonó una parcela seca y sin sombra. Revisa la cobertura antes de expandir.',
+    },
+    stress: {
+      title: 'Agua bajo presión',
+      body: 'Una red de agua alcanzó su umbral de estrés. Revisa el suministro y las reservas antes de aumentar la demanda.',
+    },
+    collapse: {
+      title: 'El qanat se detuvo',
+      body: 'La sobrecarga interrumpió un qanat en este distrito. Revisa la red, amplía el suministro y conecta cisternas con energía.',
+    },
+  },
   survival: {
     title: 'VIDA EN EL OASIS',
     water: 'Cobertura de agua',
@@ -277,6 +392,43 @@ const ES: Copy = {
 };
 
 const FR: Copy = {
+  hubIdle: 'À l’arrêt',
+  chronicle: {
+    title: 'CHRONIQUE DE L’OASIS',
+    history: 'Événements récents',
+    close: 'Réduire le récit',
+    locate: 'Voir sur la carte',
+    lots: 'Parcelles dans ce récit',
+    empty: 'Le désert est calme. Les événements seront consignés ici.',
+    storm: {
+      title: 'Du sable sur la ville',
+      body: 'Une tempête a frappé ce service et interrompu temporairement son activité. Les brise-vent alimentés réduisent le risque de nouveaux impacts.',
+    },
+    blocked: {
+      title: 'Le brise-vent a tenu',
+      body: 'La tempête a été repoussée ici. Maintenez le brise-vent alimenté pour protéger les services voisins.',
+    },
+    spring: {
+      title: 'La source s’est déplacée',
+      body: 'La source a changé de place. Vérifiez ses maisons voisines : leur ombre dépend de l’accès à l’eau, au courant et à la source.',
+    },
+    trade: {
+      title: 'Les caravanes sont arrivées',
+      body: 'Les caravanes ont acheté des parcelles desservies et payé la ville. Ce récit indique l’une des parcelles échangées.',
+    },
+    leave: {
+      title: 'Une caravane est partie',
+      body: 'Une caravane a abandonné une parcelle sèche et sans ombre. Vérifiez la couverture avant de vous étendre.',
+    },
+    stress: {
+      title: 'L’eau sous pression',
+      body: 'Un réseau d’eau a atteint son seuil de tension. Vérifiez l’offre et les réserves avant d’accroître la demande.',
+    },
+    collapse: {
+      title: 'Le qanat s’est arrêté',
+      body: 'Une surcharge a interrompu un qanat dans ce quartier. Vérifiez le réseau, augmentez l’offre et raccordez des citernes alimentées.',
+    },
+  },
   survival: {
     title: 'LA VIE DANS L’OASIS',
     water: 'Couverture en eau',
@@ -360,6 +512,43 @@ const FR: Copy = {
 };
 
 const DE: Copy = {
+  hubIdle: 'Nicht in Betrieb',
+  chronicle: {
+    title: 'CHRONIK DER OASE',
+    history: 'Letzte Ereignisse',
+    close: 'Bericht einklappen',
+    locate: 'Auf der Karte zeigen',
+    lots: 'Grundstücke im Bericht',
+    empty: 'Die Wüste ist ruhig. Ereignisse werden hier festgehalten.',
+    storm: {
+      title: 'Sand über der Stadt',
+      body: 'Ein Sturm traf diesen Dienst und unterbrach vorübergehend seinen Betrieb. Windschutzanlagen mit Strom senken das Risiko weiterer Schäden.',
+    },
+    blocked: {
+      title: 'Der Windschutz hielt stand',
+      body: 'Der Sturm wurde hier abgewehrt. Versorge den Windschutz weiter mit Strom, um nahe Dienste zu schützen.',
+    },
+    spring: {
+      title: 'Die Quelle ist gewandert',
+      body: 'Die Quelle hat ihren Standort geändert. Prüfe nahe Quellhäuser: Ihr Schatten hängt von Wasser, Strom und der Quelle ab.',
+    },
+    trade: {
+      title: 'Karawanen sind angekommen',
+      body: 'Karawanen kauften versorgte Grundstücke und zahlten an die Stadt. Der Bericht zeigt eines der gehandelten Grundstücke.',
+    },
+    leave: {
+      title: 'Eine Karawane zog weiter',
+      body: 'Eine Karawane gab ein trockenes, schattenloses Grundstück auf. Prüfe die Versorgung vor der Erweiterung.',
+    },
+    stress: {
+      title: 'Wasser unter Druck',
+      body: 'Ein Wassernetz erreichte seine Belastungsgrenze. Prüfe Angebot und Speicher, bevor die Nachfrage steigt.',
+    },
+    collapse: {
+      title: 'Der Qanat fiel aus',
+      body: 'Überlastung unterbrach einen Qanat in diesem Viertel. Prüfe das Netz, erhöhe das Angebot und verbinde Zisternen mit Strom.',
+    },
+  },
   survival: {
     title: 'LEBEN IN DER OASE',
     water: 'Wasserversorgung',
@@ -489,6 +678,7 @@ export function applyOasisCopy(locale: Locale): void {
       springHouse: copy.springHouseHint,
       palm: copy.palmHint,
     },
+    inspector: { hub: { idle: copy.hubIdle } },
     overlays: { data: copy.shadeMap },
   });
 }

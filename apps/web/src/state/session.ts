@@ -47,6 +47,8 @@ import { CityClient } from './client';
 import { installDebugApi } from './debug';
 import { Store } from './store';
 import { markTutorialDone, tutorialChecks, tutorialDone } from './tutorial';
+import { appendOasisDispatches, type OasisDispatch } from './oasisDispatches';
+import { isOasisMoment } from '@view/city';
 
 export interface Toast {
   id: number;
@@ -84,6 +86,8 @@ export interface UiState {
   /** Client position of the pointer over the map, for the tool tooltip. */
   pointer: Point | null;
   toasts: Toast[];
+  oasisDispatches: OasisDispatch[];
+  cityRevision: number;
   /** Saved cities in IndexedDB, most recent first. */
   saves: SaveSlot[];
   /** A save or load is in progress. */
@@ -116,6 +120,8 @@ const initialUi: UiState = {
   preview: null,
   pointer: null,
   toasts: [],
+  oasisDispatches: [],
+  cityRevision: 0,
   saves: [],
   busy: false,
   muted: false,
@@ -270,7 +276,13 @@ export class GameSession {
         const world = this.client.world;
         if (world) this.renderer.setWorld(world, this.client.buildings);
         this.tools.cancel();
-        this.ui.set({ ready: true, selected: null, hover: null });
+        this.ui.set({
+          ready: true,
+          selected: null,
+          hover: null,
+          oasisDispatches: [],
+          cityRevision: this.ui.get().cityRevision + 1,
+        });
       },
       onTiles: (indices, all) => {
         this.renderer.invalidateTiles(all ? null : indices);
@@ -293,7 +305,19 @@ export class GameSession {
       onHistory: (history) => this.ui.set({ history }),
       onEvents: (events) => {
         const inGame = this.ui.get().screen === 'game';
+        if (inGame && this.client.stats?.ruleset === 'oasis') {
+          this.ui.set({
+            oasisDispatches: appendOasisDispatches(
+              this.ui.get().oasisDispatches,
+              events,
+              this.client.stats.tick,
+            ),
+          });
+        }
         for (const event of events) {
+          if (inGame && this.client.stats?.ruleset === 'oasis' && isOasisMoment(event)) {
+            this.renderer.reportOasisMoment(event);
+          }
           if (inGame) this.announce(event);
           if (event.type === 'fireStarted') this.renderer.reportFire(event.x, event.y);
         }
@@ -688,6 +712,18 @@ export class GameSession {
   }
 
   private announce(event: SimEvent): void {
+    if (
+      this.renderer.theme.style === 'adobe' &&
+      this.client.stats?.ruleset === 'oasis' &&
+      isOasisMoment(event)
+    ) {
+      // The Oasis journal keeps these actionable notices available after their effects fade.
+      if (event.type === 'sandstorm') this.sound.play('sandstorm');
+      else if (event.type === 'springMoved') this.sound.play('spring');
+      else if (event.type === 'waterStress' || event.type === 'canalCollapse')
+        this.sound.play('warning');
+      return;
+    }
     const sound = EVENT_SOUNDS[event.type];
     if (sound) this.sound.play(sound);
     const t = this.strings();

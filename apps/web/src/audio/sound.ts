@@ -8,7 +8,16 @@ import { MusicPlayer, type MusicState } from './music';
  * Effects and music have their own buses into one master gain, so mute silences both.
  */
 export type SoundName =
-  'build' | 'zone' | 'demolish' | 'error' | 'warning' | 'fire' | 'disaster' | 'milestone';
+  | 'build'
+  | 'zone'
+  | 'demolish'
+  | 'error'
+  | 'warning'
+  | 'fire'
+  | 'disaster'
+  | 'milestone'
+  | 'sandstorm'
+  | 'spring';
 
 const STORAGE_KEY = 'cityBuilder.muted';
 const MUSIC_KEY = 'cityBuilder.music';
@@ -17,6 +26,16 @@ const MUSIC_VOLUME = 0.85;
 const MIN_INTERVAL_MS = 120;
 
 const RECIPES: Record<SoundName, (v: Voice) => void> = {
+  sandstorm: (v) => {
+    // The shared noise buffer is one second long; layer short gusts rather than truncate it.
+    v.noise({ filter: 'bandpass', freq: 380, q: 0.45, duration: 0.8, gain: 0.28 });
+    v.noise({ filter: 'lowpass', freq: 950, start: 0.35, duration: 0.9, gain: 0.18 });
+    v.noise({ filter: 'bandpass', freq: 620, q: 0.6, start: 0.8, duration: 0.85, gain: 0.12 });
+  },
+  spring: (v) => {
+    v.tone({ type: 'sine', freq: 784, to: 523, duration: 0.5, gain: 0.12 });
+    v.tone({ type: 'sine', freq: 1047, to: 784, start: 0.16, duration: 0.7, gain: 0.09 });
+  },
   build: (v) => {
     v.tone({ type: 'triangle', freq: 220, to: 110, duration: 0.12, gain: 0.5 });
     v.noise({ filter: 'lowpass', freq: 900, duration: 0.08, gain: 0.25 });
@@ -74,11 +93,7 @@ export interface MusicEngine {
 }
 
 /** Builds a music engine on the shared audio graph (the Urbe lo-fi player by default). */
-export type MusicFactory = (
-  ctx: AudioContext,
-  bus: GainNode,
-  noise: AudioBuffer,
-) => MusicEngine;
+export type MusicFactory = (ctx: AudioContext, bus: GainNode, noise: AudioBuffer) => MusicEngine;
 
 export class SoundBoard {
   private readonly graph = new AudioGraph({ mutedKey: STORAGE_KEY });
@@ -86,9 +101,7 @@ export class SoundBoard {
   private readonly musicFactory: MusicFactory;
 
   constructor(options: { music?: MusicFactory } = {}) {
-    this.musicFactory =
-      options.music ??
-      ((ctx, bus, noise) => new MusicPlayer(ctx, bus, noise));
+    this.musicFactory = options.music ?? ((ctx, bus, noise) => new MusicPlayer(ctx, bus, noise));
   }
   private musicOn = readFlag(MUSIC_KEY, true);
   private musicTrack: TrackId = 'menu';

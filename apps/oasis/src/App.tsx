@@ -5,6 +5,7 @@ import { oasisMusicFactory } from './audio/adapter';
 import { applyOasisCopy } from './i18n';
 import { StudioMark } from './StudioMark';
 import { OasisStatus } from './OasisStatus';
+import { OasisChronicle } from './OasisChronicle';
 
 /** Desert music on the shared sound bus. */
 const music: MusicFactory = (ctx, bus, noise) => oasisMusicFactory(ctx, bus, noise);
@@ -26,7 +27,12 @@ export function App() {
       ruleset="oasis"
       music={music}
       credit={(placement) => <StudioMark placement={placement} />}
-      status={(session) => <OasisStatus session={session} />}
+      status={(session) => (
+        <>
+          <OasisStatus session={session} />
+          <OasisChronicle session={session} />
+        </>
+      )}
     />
   );
 }

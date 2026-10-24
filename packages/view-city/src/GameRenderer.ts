@@ -36,6 +36,8 @@ import {
 import { prefersReducedMotion } from '@shell/chrome';
 import { SpriteFactory } from './sprites';
 import { drawSpringLandmark } from './oasisLandscape';
+import { OasisEffects } from './OasisEffects';
+import type { OasisMoment } from './oasisPresentation';
 
 export { CHUNK_SIZE };
 /** Menu background camera: zoom, seconds per loop and loop radius as a fraction of the map. */
@@ -105,6 +107,8 @@ export class GameRenderer {
   private readonly chunkGrid = new ChunkGrid<Chunk>();
   private factory: SpriteFactory | null = null;
   private animation: AnimationLayer | null = null;
+  private oasisEffects: OasisEffects | null = null;
+  private reducedMotion = prefersReducedMotion();
   private animationsEnabled = true;
   private simSpeed: Speed = 1;
   private world: World | null = null;
@@ -157,7 +161,20 @@ export class GameRenderer {
       this.springMark,
     );
     this.app.stage.addChild(this.root);
+    if (this.theme.style === 'adobe') {
+      this.oasisEffects = new OasisEffects(this.theme);
+      this.root.addChild(this.oasisEffects.markers);
+      this.app.stage.addChild(this.oasisEffects.weather);
+    }
     this.attachInput(this.app.canvas);
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').addEventListener(
+      'change',
+      (event) => {
+        this.reducedMotion = event.matches;
+        if (event.matches) this.oasisEffects?.reset();
+      },
+      { signal: this.listeners.signal },
+    );
     this.app.ticker.add(() => this.frame());
     this.app.canvas.addEventListener('webglcontextlost', (e) => {
       e.preventDefault();
@@ -218,6 +235,19 @@ export class GameRenderer {
     this.animation?.reportFire(x, y);
   }
 
+  reportOasisMoment(event: OasisMoment): void {
+    if (this.animationsEnabled && !this.reducedMotion) this.oasisEffects?.state.report(event);
+  }
+
+  oasisEffectStats(): { signals: number; intensity: number; age: number } {
+    const state = this.oasisEffects?.state;
+    return {
+      signals: state?.signals.length ?? 0,
+      intensity: state?.intensity ?? 0,
+      age: state?.stormAge ?? 0,
+    };
+  }
+
   /**
    * Menu background mode: keyboard panning is ignored and the camera drifts slowly around the
    * map centre (held still when the system asks for reduced motion).
@@ -240,6 +270,7 @@ export class GameRenderer {
   }
 
   setWorld(world: World, buildings: Map<number, BuildingRecord>): void {
+    this.oasisEffects?.reset();
     this.world = world;
     this.buildings = buildings;
     if (!this.initialized) return;
@@ -485,6 +516,16 @@ export class GameRenderer {
       zoom: this.camera.zoom,
       underground: this.underground,
       overlay: this.overlay !== 'none',
+    });
+    this.oasisEffects?.update({
+      // elapsedMS avoids stretching a brief weather effect on a low-frame-rate device.
+      deltaMS: this.app.ticker.elapsedMS,
+      width: this.app.screen.width,
+      height: this.app.screen.height,
+      paused: this.simSpeed === 0,
+      enabled: this.animationsEnabled && !this.reducedMotion,
+      hidden: this.underground || this.overlay !== 'none' || this.attract !== null,
+      project: (x, y) => tileCenter(ctx.world, x, y),
     });
     if (this.highlightDirty) this.drawHighlight();
   }

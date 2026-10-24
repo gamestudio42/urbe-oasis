@@ -73,6 +73,34 @@ Once a month a service with jobs may be buried. A windbreak in radius lowers the
 while it is powered and online; shade is not required. A buried service goes offline.
 Sand does not take money. A storm that lands nudges the spring.
 
+### Event presentation
+
+The adobe renderer presents real Oasis events with bounded, cosmetic signals: sandstorms
+produce a twelve-second dust front and a marker at the targeted service; successfully blocked
+storms use a lighter front and a confirmation marker. Spring movement, caravan transactions
+and water incidents also mark their reported locations. These effects do not forecast storms,
+change the engine RNG, alter network flags or extend a service's outage. Their duration is in
+presentation seconds, independent of simulation speed, and freezes when the game is paused.
+
+Dust uses a fixed pool of 72 streaks and nine veils; at most eight map signals are retained.
+The graphics update at most 30 times per second, without full-map scans or post-processing
+filters. Underground and network overlays hide the effects to preserve inspection readability.
+Disabling animations or requesting reduced motion clears the effects; the report remains usable.
+Wind and spring cues use the existing sound bus and honour mute.
+
+The Oasis chronicle retains twelve reports during the current city session, with localized
+descriptions, observation dates, map locations and relevant tool shortcuts. Caravan bursts in
+one worker update are grouped. A storm report takes precedence over its accompanying spring
+movement. Reports describe past events, not a claim that a service is still offline. Opening a
+report never moves the camera automatically; the player chooses “Show on map”. Loading or
+founding a city clears the journal and visual effects. The journal is not part of saved state.
+
+Validation includes replaying a saved city through a naturally generated storm, locating the
+affected service, selecting a windbreak, freezing and disabling effects, reloading a city and
+using the same actions under reduced motion. Presentation actions preserve the simulation hash.
+The 120-month `oasis-balanced` rerun also retains the reference hashes for seeds 1–3:
+`6dda1252`, `6a82429f`, `2967728c` (reports in `reports/events/`).
+
 ## Arcades
 
 An arcade eases traffic on the streets beside it while it is powered and online. The

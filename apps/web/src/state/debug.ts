@@ -10,11 +10,7 @@ import {
 } from '@city/shared';
 import type { MusicStatus } from '../audio/sound';
 import type { SaveSlot } from '../persistence/saves';
-import type {
-  AnimationStats,
-  HubSample,
-  VehicleSample,
-} from '@view/city';
+import type { AnimationStats, HubSample, VehicleSample } from '@view/city';
 import type { Point } from '@view/city';
 import type { BootState, GameSession } from './session';
 
@@ -58,6 +54,8 @@ export interface CityDebugApi {
   triggerDisaster(disaster: DisasterKind, x?: number, y?: number): Promise<CommandResult>;
   /** Queues a cosmetic fire engine even if the `fireStarted` event was already drained. */
   reportFire(x: number, y: number): void;
+  /** Read-only cosmetic telemetry; events still originate in the simulation. */
+  oasisEffectStats(): { signals: number; intensity: number; age: number };
 }
 
 declare global {
@@ -122,6 +120,7 @@ export function installDebugApi(session: GameSession): void {
           : { type: 'triggerDisaster', disaster, x, y },
       ),
     reportFire: (x, y) => session.renderer.reportFire(x, y),
+    oasisEffectStats: () => session.renderer.oasisEffectStats(),
   };
   window.__cityDebug = api;
 }

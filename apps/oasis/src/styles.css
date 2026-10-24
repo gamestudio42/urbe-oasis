@@ -276,3 +276,149 @@ body,
     background: rgba(28, 20, 16, 0.72);
   }
 }
+
+/* A persistent, actionable city chronicle. It never blocks the map with a modal. */
+.oasis-chronicle {
+  position: absolute;
+  top: 216px;
+  right: 16px;
+  width: 310px;
+  max-height: calc(100% - 280px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  z-index: 11;
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 8px 24px var(--panel);
+}
+.chronicle-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+}
+.chronicle-art {
+  height: 74px;
+  color: var(--warn);
+  overflow: hidden;
+  background: linear-gradient(145deg, var(--panel-border), transparent);
+}
+.chronicle-art svg {
+  width: 100%;
+  height: 100%;
+}
+.chronicle-spring .chronicle-art,
+.chronicle-trade .chronicle-art,
+.chronicle-blocked .chronicle-art {
+  color: var(--accent);
+}
+.chronicle-copy {
+  padding: 14px 16px 18px;
+}
+.chronicle-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+  font-size: 11px;
+}
+.chronicle-meta button {
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+.chronicle-report h3 {
+  font-size: 21px;
+  line-height: 1.2;
+  margin: 8px 0 10px;
+  letter-spacing: -0.02em;
+}
+.chronicle-report p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+.chronicle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chronicle-actions .button {
+  padding: 8px 10px;
+}
+.chronicle-actions .button:first-child {
+  border-color: var(--accent);
+}
+.chronicle-history {
+  border-top: 1px solid var(--panel-border);
+  padding: 10px;
+}
+.chronicle-history > p {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 4px 6px 10px;
+}
+.chronicle-history > button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  padding: 10px 6px;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.chronicle-history > button[aria-pressed='true'],
+.chronicle-history > button:hover {
+  background: var(--panel-border);
+}
+.chronicle-history small {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.oasis-chronicle button:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: -2px;
+}
+/* Locating a report opens the inspector on the right; keep both readable. */
+.app:has(.inspector) .oasis-chronicle {
+  left: 120px;
+  right: auto;
+  top: 252px;
+  max-height: calc(100% - 430px);
+}
+@media (max-width: 1100px) {
+  .oasis-chronicle {
+    width: 270px;
+  }
+}
+@media (max-width: 900px) {
+  .oasis-chronicle {
+    top: 202px;
+    width: 240px;
+  }
+  .app:has(.tutorial) .oasis-chronicle {
+    display: none;
+  }
+}

@@ -43,10 +43,6 @@ export {
 export { CAR_COLORS, VehicleSim, carDensity, congestionSpeed } from './animation/vehicles';
 export { createRandom, pickWeighted, type Random } from './animation/random';
 export { RUNWAY, HEADINGS, headingIndex, type BoatKind } from './hubSprites';
-export {
-  ZONE_HEIGHTS,
-  zoneFloors,
-  zoneHeight,
-  type ZonedKind,
-} from './zoneSprites';
+export { ZONE_HEIGHTS, zoneFloors, zoneHeight, type ZonedKind } from './zoneSprites';
 export { INDUSTRIAL_HEIGHTS } from './chimneys';
+export { isOasisMoment, type OasisMoment } from './oasisPresentation';
