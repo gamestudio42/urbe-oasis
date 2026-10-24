@@ -117,6 +117,7 @@ export class GameRenderer {
   private overlay: OverlayMode = 'none';
   private underground = false;
   private grid = false;
+  private planning = false;
   private animationFrame = 0;
   private animationTimer = 0;
   private highlightTiles: HighlightTile[] = [];
@@ -151,6 +152,7 @@ export class GameRenderer {
     }
     host.appendChild(this.app.canvas);
     this.app.canvas.classList.add('game-canvas');
+    this.syncZoneDetail();
     this.factory = new SpriteFactory(this.app.renderer, this.theme);
     this.animation = new AnimationLayer(this.factory, this.theme);
     this.animation.setEnabled(this.animationsEnabled);
@@ -257,6 +259,7 @@ export class GameRenderer {
   setAttract(on: boolean): void {
     if (on === (this.attract !== null)) return;
     if (on) {
+      this.setPlanning(false);
       this.attract = { time: 0, still: prefersReducedMotion() };
       this.keys.clear();
       this.panning = null;
@@ -342,7 +345,7 @@ export class GameRenderer {
       for (const c of this.chunkGrid.chunks) this.computeBounds(c);
       return;
     }
-    this.chunkGrid.invalidateTiles(indices, this.world.size);
+    this.chunkGrid.invalidateTiles(indices, this.world.size, this.theme.style === 'adobe');
   }
 
   invalidateBuildings(changed: BuildingRecord[]): void {
@@ -385,6 +388,7 @@ export class GameRenderer {
   setOverlay(mode: OverlayMode): void {
     if (mode === this.overlay) return;
     this.overlay = mode;
+    this.syncZoneDetail();
     for (const c of this.chunkGrid.chunks) {
       c.overlayDirty = true;
       c.dirty = true;
@@ -400,7 +404,23 @@ export class GameRenderer {
   setGrid(on: boolean): void {
     if (on === this.grid) return;
     this.grid = on;
+    this.syncZoneDetail();
     for (const c of this.chunkGrid.chunks) c.dirty = true;
+  }
+
+  setPlanning(on: boolean): void {
+    if (this.theme.style !== 'adobe' || on === this.planning) return;
+    this.planning = on;
+    this.syncZoneDetail();
+    for (const c of this.chunkGrid.chunks) c.dirty = true;
+  }
+
+  private syncZoneDetail(): void {
+    if (this.app.renderer)
+      this.app.canvas.dataset.zoneDetail =
+        this.theme.style !== 'adobe' || this.planning || this.grid || this.overlay !== 'none'
+          ? 'full'
+          : 'quiet';
   }
 
   setHighlight(tiles: HighlightTile[]): void {
@@ -475,6 +495,7 @@ export class GameRenderer {
       buildings: this.buildings,
       underground: this.underground,
       grid: this.grid,
+      planning: this.planning,
       overlay: this.overlay,
       animationFrame: this.animationFrame,
     };

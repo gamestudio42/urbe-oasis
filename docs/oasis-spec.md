@@ -52,6 +52,27 @@ eight appearances per zone kind, level and abandonment state. Classic and cyber 
 their original variant selection. Industrial smoke follows the visible adobe vent; timber and
 masonry yards have no decorative smoke. This does not affect simulated pollution.
 
+### Streets and planning
+
+Adobe streets use their actual road connections and existing lane width. Near zoned lots or
+buildings, including diagonal corners at intersections, pale paving fills the shoulders.
+Curbs follow the connected road outline, leaving joins open. Urban junctions receive stone
+crossings; straight roads have subtle wheel wear. Sparse benches occupy paved corners only.
+Road tiles carrying canals retain exposed shoulders, and raised bridges keep their existing
+geometry. These details are cosmetic: they add no services, capacity or pedestrian simulation.
+
+Inspection mode uses neutral occupied lots and faint, merged vacant-zone boundaries to reduce
+visual clutter. Survey pegs still distinguish light and dense zoning. Selecting any construction
+tool restores the complete colored plan; returning to inspection quiets it again. The grid and
+diagnostic overlays always reveal the complete plan. Opening a category alone does not change
+the active tool or plan. The menu clears construction mode. Classic rendering is unchanged.
+
+All details use theme colors and cached chunk graphics. Changing a parcel at a chunk corner
+also redraws the diagonal chunk so neighboring street paving cannot become stale. Validation
+covers all sixteen road connection masks against actual vehicle paths, canal and bridge
+preservation, chunk boundaries, classic isolation and simulation hash stability. Browser checks
+exercise construction shortcuts and the grid toggle alongside the responsive dock.
+
 ## Shade
 
 Canals (`Infra.Canal`) and buildings conduct shade, the same way pipes conduct water.

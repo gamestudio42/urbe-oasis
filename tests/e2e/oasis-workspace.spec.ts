@@ -34,6 +34,17 @@ test('construction categories expose names and costs, preserve tools on Escape, 
     window.__cityDebug!.setZoom(1.7);
   });
   const before = await page.evaluate(() => window.__cityDebug!.hash());
+  const canvas = page.locator('canvas.game-canvas');
+  await expect(canvas).toHaveAttribute('data-zone-detail', 'quiet');
+  await page.keyboard.press('r');
+  await expect(canvas).toHaveAttribute('data-zone-detail', 'full');
+  await page.screenshot({ path: 'test-results/oasis-street-planning.png' });
+  await page.keyboard.press('q');
+  await expect(canvas).toHaveAttribute('data-zone-detail', 'quiet');
+  await page.keyboard.press('g');
+  await expect(canvas).toHaveAttribute('data-zone-detail', 'full');
+  await page.keyboard.press('g');
+  await expect(canvas).toHaveAttribute('data-zone-detail', 'quiet');
   await expect(page.getByTestId('tool-category-utilities')).toBeVisible();
   await expect(page.getByTestId('tool-canal')).toBeHidden();
   await page.screenshot({ path: 'test-results/oasis-district-workspace.png' });

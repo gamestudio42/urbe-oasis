@@ -13,6 +13,7 @@ import { HEIGHT_STEP, tileLocalToScreen, tileQuad, vertexToScreen, type Point } 
 import { HEADINGS, drawBoat } from './hubSprites';
 import { drawOasisLotDetails } from './oasisLotDetails';
 import { desertTone, drawDesertSurface } from './desertSurface';
+import { drawOasisParcel, drawOasisStreet } from './oasisStreets';
 import type { SpriteFactory } from './sprites';
 
 export type OverlayMode =
@@ -35,6 +36,8 @@ export interface DrawContext {
   buildings: Map<number, BuildingRecord>;
   underground: boolean;
   grid: boolean;
+  /** Construction tools reveal the complete adobe zoning plan. */
+  planning?: boolean;
   overlay: OverlayMode;
   animationFrame: number;
 }
@@ -140,12 +143,17 @@ export function drawGround(g: Graphics, theme: Theme, ctx: DrawContext, area: Ch
     const zone = world.zone[i] as number;
     const id = world.buildingId[i] as number;
     if (zone !== 0) {
-      if (id !== 0) {
-        fillQuad(g, rect(q, 0.04, 0.04, 0.96, 0.96), theme.lot[zone] ?? 0x999999);
-        if (theme.style === 'adobe' && ctx.overlay === 'none') {
+      if (theme.style === 'adobe') {
+        drawOasisParcel(
+          g, theme, world, x, y, q,
+          Boolean(ctx.planning || ctx.grid || ctx.overlay !== 'none'),
+        );
+        if (id !== 0 && ctx.overlay === 'none') {
           const b = ctx.buildings.get(id);
           if (b) drawOasisLotDetails(g, theme, q, b);
         }
+      } else if (id !== 0) {
+        fillQuad(g, rect(q, 0.04, 0.04, 0.96, 0.96), theme.lot[zone] ?? 0x999999);
       } else {
         const zc = theme.zone[zone] ?? 0xffffff;
         fillQuad(g, rect(q, 0.1, 0.1, 0.9, 0.9), zc, 0.32);
@@ -327,6 +335,10 @@ function drawRoad(
   bridge: boolean,
 ): void {
   const mask = connectionMask(ctx.world, x, y, Infra.Road);
+  if (theme.style === 'adobe' && !bridge) {
+    drawOasisStreet(g, theme, ctx.world, x, y, q, mask, ctx.overlay === 'none');
+    return;
+  }
   const north = (mask & Connection.North) !== 0;
   const east = (mask & Connection.East) !== 0;
   const south = (mask & Connection.South) !== 0;

@@ -594,6 +594,7 @@ export class GameSession {
 
   setTool(id: ToolId): void {
     this.tools.setTool(id);
+    this.renderer.setPlanning(id !== 'select');
   }
 
   select(tile: Point | null): void {

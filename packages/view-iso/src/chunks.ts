@@ -88,8 +88,8 @@ export class ChunkGrid<T extends ChunkRecord> {
     }
   }
 
-  /** Marks the chunk and its neighbours when a tile sits on a join. */
-  invalidateTiles(indices: ArrayLike<number> | null, mapSize: number): void {
+  /** Marks joined chunks; opt into corners when drawing also reads diagonal neighbours. */
+  invalidateTiles(indices: ArrayLike<number> | null, mapSize: number, diagonals = false): void {
     if (indices === null) {
       for (const chunk of this.chunks) {
         chunk.dirty = true;
@@ -107,6 +107,11 @@ export class ChunkGrid<T extends ChunkRecord> {
       if (x % size === size - 1) this.markAt(x + 1, y, mapSize);
       if (y % size === 0) this.markAt(x, y - 1, mapSize);
       if (y % size === size - 1) this.markAt(x, y + 1, mapSize);
+      if (diagonals) {
+        const dx = x % size === 0 ? -1 : x % size === size - 1 ? 1 : 0;
+        const dy = y % size === 0 ? -1 : y % size === size - 1 ? 1 : 0;
+        if (dx && dy) this.markAt(x + dx, y + dy, mapSize);
+      }
     }
   }
 
