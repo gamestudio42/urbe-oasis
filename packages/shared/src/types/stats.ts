@@ -116,6 +116,19 @@ export interface CityStats {
     data: { supply: number; demand: number; served: number };
     /** Tile of the wandering spring. */
     spring: { x: number; y: number };
+    /** Post-tutorial journey; absent for cities that were not founded by the Oasis app. */
+    journey?: {
+      /** Chapters completed, 0..5. */
+      chapter: number;
+      /** Months until the drought starts (0 when it starts at the next close); -1 otherwise. */
+      droughtIn: number;
+      /** Month closes left in an active drought; 0 when none is running. */
+      droughtMonthsLeft: number;
+      /** Mean water service over the drought closes so far, 0..1; -1 before the first. */
+      droughtServed: number;
+      /** -1 before the drought ends, 1 when the city held on, 0 when it fell short. */
+      droughtOutcome: number;
+    };
   };
 }
 
@@ -153,6 +166,9 @@ export type SimEvent =
   | { type: 'caravanLeave'; caravan: number; x: number; y: number }
   | { type: 'sandstorm'; x: number; y: number; kind: string; blocked: boolean }
   | { type: 'springMoved'; x: number; y: number }
+  | { type: 'journeyChapter'; chapter: number; reward: number }
+  | { type: 'droughtStarted'; months: number }
+  | { type: 'droughtEnded'; held: boolean; served: number }
   | { type: 'arcadeOpen'; x: number; y: number };
 
 export type ProblemCode =

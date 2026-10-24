@@ -9,10 +9,10 @@ import {
   type SaveMigration,
 } from '@shell/kernel';
 import { BALANCE, DEPARTMENTS, TICKS_PER_MONTH } from '../balance/balance';
-import { OASIS_SAVE_MAX_LEVEL } from '../balance/oasis';
+import { JOURNEY_CHAPTERS, OASIS_JOURNEY, OASIS_SAVE_MAX_LEVEL } from '../balance/oasis';
 import type { DisasterKind } from '../commands/commands';
 import { PLACEABLE_KINDS, ZONE_BUILDING_KINDS, type BuildingRecord } from '../types/buildings';
-import type { OasisState } from '../types/oasis';
+import type { JourneyState, OasisState } from '../types/oasis';
 import { isRuleset } from '../types/ruleset';
 import { EXPENSE_CATEGORIES } from '../types/stats';
 import { INFLUENCE_LAYERS, STRUCTURE_LAYERS } from '../types/tiles';
@@ -405,6 +405,8 @@ class Validator {
         kind: this.str(i.kind, `state.oasis.storms[${k}].kind`),
       };
     });
+    const journey =
+      n.journey === undefined ? undefined : this.journey(n.journey, 'state.oasis.journey');
     const policy =
       n.waterPolicy === undefined
         ? undefined
@@ -423,6 +425,7 @@ class Validator {
             },
           }
         : {}),
+      ...(journey ? { journey } : {}),
       caravans,
       cisterns,
       storms,
@@ -441,6 +444,35 @@ class Validator {
         n.lastSpringMonth === undefined
           ? -1
           : this.int(n.lastSpringMonth, 'state.oasis.lastSpringMonth', -1),
+    };
+  }
+
+  journey(value: unknown, path: string): JourneyState {
+    const j = this.record(value, path);
+    const chapter = this.int(j.chapter, `${path}.chapter`, 0, JOURNEY_CHAPTERS);
+    const completedMonths = this.array(j.completedMonths, `${path}.completedMonths`).map(
+      (month, k) => this.int(month, `${path}.completedMonths[${k}]`, 0),
+    );
+    if (completedMonths.length !== chapter)
+      this.error(`${path}.completedMonths`, 'expected one month per completed chapter');
+    const droughtMonthsLeft = this.int(
+      j.droughtMonthsLeft,
+      `${path}.droughtMonthsLeft`,
+      0,
+      OASIS_JOURNEY.droughtMonths,
+    );
+    return {
+      chapter,
+      completedMonths,
+      droughtStart: this.int(j.droughtStart, `${path}.droughtStart`, -1),
+      droughtMonthsLeft,
+      droughtServed: this.int(
+        j.droughtServed,
+        `${path}.droughtServed`,
+        0,
+        1000 * OASIS_JOURNEY.droughtMonths,
+      ),
+      droughtOutcome: this.int(j.droughtOutcome, `${path}.droughtOutcome`, -1, 1),
     };
   }
 

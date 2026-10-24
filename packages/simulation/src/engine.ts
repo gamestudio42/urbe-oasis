@@ -1,5 +1,6 @@
 import {
   BALANCE,
+  defaultJourneyState,
   defaultOasisState,
   Infra,
   isToolCommand,
@@ -48,6 +49,7 @@ import { refreshGrid, tickGrid, updateGrid, type GridResult } from './systems/oa
 import { updateCaravans, type CaravanResult } from './systems/oasis/caravans';
 import { ensureSpring, updateSpring } from './systems/oasis/spring';
 import { rationingSummary } from './systems/oasis/rationing';
+import { journeySummary, updateJourney } from './systems/oasis/journey';
 import { cisternSummary } from './systems/oasis/grid';
 import { shelterCoverage } from './systems/oasis/intrusion';
 import { arcadeCount } from './systems/oasis/airTraffic';
@@ -70,6 +72,8 @@ export interface EngineOptions {
   funds?: number;
   /** Rules of the simulation; defaults to `classic` (Urbe). */
   ruleset?: Ruleset;
+  /** Oasis only: follow the post-tutorial journey. */
+  journey?: boolean;
 }
 
 export function createEngine(options: NewCityOptions | EngineOptions): SimulationEngine {
@@ -134,6 +138,14 @@ export class SimulationEngine {
   private layerStats: LayerStats | null = null;
   private lastShortageMonth = -1;
 
+  /** Served shares from the last utility solve (1 when nothing has been solved yet). */
+  servedShares(): { water: number; shade: number } {
+    return {
+      water: this.utilities?.water.served ?? 1,
+      shade: this.utilities?.data?.served ?? 1,
+    };
+  }
+
   readonly commandLog: LoggedCommand[] = [];
   private readonly queue = new CommandQueue<Command>();
   private pendingEvents: SimEvent[] = [];
@@ -168,6 +180,7 @@ export class SimulationEngine {
         ? BALANCE.startingFundsByDifficulty[options.difficulty]
         : BALANCE.startingFunds);
     if (engine.ruleset === 'oasis') ensureSpring(engine);
+    if (engine.ruleset === 'oasis' && options.journey) engine.oasis.journey = defaultJourneyState();
     return engine;
   }
 
@@ -433,6 +446,7 @@ export class SimulationEngine {
 
   /** Neon telemetry for the HUD and the report. */
   private oasisStats(): NonNullable<CityStats['oasis']> {
+    const journey = journeySummary(this);
     let holdings = 0;
     for (const c of this.oasis.caravans) holdings += c.holdings;
     return {
@@ -449,6 +463,7 @@ export class SimulationEngine {
         served: this.utilities?.data ? round4(this.utilities.data.served) : 1,
       },
       spring: { x: this.oasis.springX, y: this.oasis.springY },
+      ...(journey ? { journey } : {}),
     };
   }
 
@@ -511,6 +526,8 @@ export class SimulationEngine {
     applyMonthlyBudget(this, report);
     if (this.ruleset === 'oasis' && this.oasis.waterPolicy)
       this.oasis.waterPolicy.rationedTicks = 0;
+    // After the budget, so a grant reads as its own line rather than as monthly revenue.
+    if (this.ruleset === 'oasis') updateJourney(this);
     this.layerStats = computeLayerStats(this);
     this.recordHistory(cityTotals(this));
     const date = dateOf(this.tick);

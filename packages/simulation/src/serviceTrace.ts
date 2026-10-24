@@ -1,6 +1,7 @@
 import {
   Infra,
   OASIS_SHADE,
+  OASIS_JOURNEY,
   OASIS_WATER,
   PLACEABLE_SPECS,
   ZoneType,
@@ -68,6 +69,8 @@ export interface ServiceContext {
   /** Mean cistern charge 0..1 from the city statistics. */
   cisternCharge?: number;
   rationing?: boolean;
+  /** The journey's drought cuts well and pump output. */
+  drought?: boolean;
 }
 
 /** What a tool command would add to a network. */
@@ -155,7 +158,7 @@ function existingSource(
       return { supply, reserve: true, issue: supply > 0 ? null : 'EMPTY' };
     }
     if (!b.powered) return { supply: 0, reserve: false, issue: 'NO_POWER' };
-    const supply = waterSupply(ctx.world, b, true);
+    const supply = droughtCut(ctx, kind, waterSupply(ctx.world, b, true));
     const unshaded = (kind === 'well' || kind === 'waterPump') && b.linked !== true;
     return { supply, reserve: false, issue: unshaded ? 'UNSHADED' : null };
   }
@@ -214,10 +217,16 @@ function plannedSource(
   const rated = waterSupply(ctx.world, record, false);
   const shaded = kind === 'qanat' || reaches('shade');
   return {
-    supply: shaded ? rated : Math.round(rated * OASIS_WATER.evaporation),
+    supply: droughtCut(ctx, kind, shaded ? rated : Math.round(rated * OASIS_WATER.evaporation)),
     reserve: false,
     issue: shaded ? null : 'UNSHADED',
   };
+}
+
+/** Mirrors `droughtOutput` in the journey system. */
+function droughtCut(ctx: ServiceContext, kind: PlaceableKind, supply: number): number {
+  if (!ctx.drought || (kind !== 'well' && kind !== 'waterPump')) return supply;
+  return Math.round(supply * OASIS_JOURNEY.droughtFactor);
 }
 
 function hasOutput(trace: ServiceTrace): boolean {

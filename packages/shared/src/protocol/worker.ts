@@ -32,6 +32,8 @@ export interface NewCityOptions {
    * the two games never overwrite or import each other's files.
    */
   saveFormat?: string;
+  /** Oasis only: follow the post-tutorial journey. Saves and presets without it never gain one. */
+  journey?: boolean;
 }
 
 export type ToWorkerMessage =
@@ -56,7 +58,14 @@ export type ToWorkerMessage =
    * the envelope format travel with the message, because this city can be exported before any
    * `newCity` call teaches the worker which format the app uses.
    */
-  | { type: 'demoCity'; seed: string; size: number; months: number; ruleset?: 'classic' | 'oasis'; saveFormat?: string };
+  | {
+      type: 'demoCity';
+      seed: string;
+      size: number;
+      months: number;
+      ruleset?: 'classic' | 'oasis';
+      saveFormat?: string;
+    };
 
 export type LoadResult =
   | {

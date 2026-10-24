@@ -391,13 +391,18 @@ export class GameSession {
       spring: oasis.spring,
       cisternCharge: oasis.cisterns.charge,
       rationing: oasis.waterPolicy.enabled,
+      drought: (oasis.journey?.droughtMonthsLeft ?? 0) > 0,
     };
   }
 
   /** Creates a city from the main menu and switches to the game screen. */
   async startCity(options: NewCityOptions): Promise<void> {
     const ruleset = this.foundingRuleset;
-    await this.client.newCity({ ...options, ruleset });
+    await this.client.newCity({
+      ...options,
+      ruleset,
+      ...(ruleset === 'oasis' ? { journey: true } : {}),
+    });
     this.ruleset = ruleset;
     this.enterGame({ tutorial: true });
   }
