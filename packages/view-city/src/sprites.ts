@@ -1,4 +1,4 @@
-import type { BuildingRecord } from '@city/shared';
+import { isZoneKind, type BuildingRecord } from '@city/shared';
 import { color, shade, type Theme } from '@theme/core';
 import { Container, Graphics, type Renderer, type Texture } from 'pixi.js';
 import { footprint, lerp, up } from './chimneys';
@@ -6,7 +6,12 @@ import { drawCivic } from './civicSprites';
 import { drawCyberCivic, drawCyberMarina, drawCyberPole, drawCyberUtility } from './cyberSprites';
 import { drawCyberCommercial, drawCyberIndustrial, drawCyberResidential } from './cyberZoneSprites';
 import { drawAdobeCivic, drawAdobeUtility } from './adobeSprites';
-import { drawAdobeCommercial, drawAdobeIndustrial, drawAdobeResidential } from './oasisZoneSprites';
+import {
+  adobeVariant,
+  drawAdobeCommercial,
+  drawAdobeIndustrial,
+  drawAdobeResidential,
+} from './oasisArchitecture';
 import { drawUtility } from './utilitySprites';
 import { drawDesertPalm } from './oasisLandscape';
 import {
@@ -301,9 +306,17 @@ export class SpriteFactory {
   ) {}
 
   /** `side` turns buildings that face something (the marina faces its water, 0..3). */
-  building(b: Pick<BuildingRecord, 'kind' | 'level' | 'variant' | 'abandoned' | 'w'>, side = 0): SpriteTexture {
+  building(
+    b: Pick<BuildingRecord, 'kind' | 'level' | 'variant' | 'abandoned' | 'w'> &
+      Partial<Pick<BuildingRecord, 'x' | 'y'>>,
+    side = 0,
+  ): SpriteTexture {
     const level = Math.max(1, b.level);
-    const key = `b:${b.kind}:${level}:${b.variant & 3}:${b.abandoned ? 1 : 0}:${side}`;
+    const variant =
+      this.theme.style === 'adobe' && isZoneKind(b.kind)
+        ? adobeVariant(b.variant, b.x, b.y)
+        : b.variant & 3;
+    const key = `b:${b.kind}:${level}:${variant}:${b.abandoned ? 1 : 0}:${side}`;
     return this.get(key, (g) => {
       drawBuilding(
         g,
@@ -311,7 +324,7 @@ export class SpriteFactory {
         b.kind,
         b.w,
         level,
-        b.variant,
+        variant,
         b.abandoned,
         side,
       );

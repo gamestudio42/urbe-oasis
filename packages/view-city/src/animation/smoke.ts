@@ -1,6 +1,7 @@
 import type { BuildingRecord } from '@city/shared';
 import type { Theme } from '@theme/core';
 import { chimneys } from '../chimneys';
+import { adobeIndustrialVent, adobeVariant } from '../oasisArchitecture';
 import type { Random } from './random';
 
 export interface SmokeVent {
@@ -30,7 +31,8 @@ type VentSource = Pick<
   | 'powered'
   | 'occupancy'
   | 'offline'
->;
+> &
+  Partial<Pick<BuildingRecord, 'variant'>>;
 
 /** Whether a building's chimneys are smoking: plants while online, industry while working. */
 export function isSmoking(b: VentSource): boolean {
@@ -50,6 +52,20 @@ export function smokeVents(buildings: Iterable<VentSource>, theme: Theme): Smoke
   const vents: SmokeVent[] = [];
   for (const b of buildings) {
     if (!isSmoking(b)) continue;
+    if (theme.style === 'adobe' && b.kind === 'industrial') {
+      const tip = adobeIndustrialVent(b.level, adobeVariant(b.variant ?? 0, b.x, b.y));
+      if (tip)
+        vents.push({
+          key: b.id * 4,
+          buildingId: b.id,
+          frontX: b.x + b.w - 1,
+          frontY: b.y + b.h - 1,
+          offsetX: tip.x,
+          offsetY: tip.y,
+          strength: 0.5,
+        });
+      continue;
+    }
     chimneys(b.kind, Math.max(1, b.level), b.w, theme).forEach((c, k) => {
       if (c.smoke <= 0) return;
       vents.push({

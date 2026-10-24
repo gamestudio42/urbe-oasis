@@ -37,6 +37,21 @@ small stones. Undeveloped tiles adjacent to real water receive decorative banks 
 These details are baked into terrain chunks, use theme colors and do not mutate world state,
 consume simulation RNG, or supply water or shade. Diagnostic overlays omit surface details.
 
+### Neighborhood architecture
+
+Adobe zone buildings have eight cached appearances per use and level. The four original masses
+retain their roofs and gain restrained furnishings; four additional footprints introduce open
+house courts, exterior stairs, verandas, market stalls, galleries and workshop yards. Cloth,
+rugs and goods disappear from abandoned lots, while the underlying footprint remains recognizable.
+All colors come from the injected theme. These features are cosmetic and grant no shade or water.
+
+The renderer combines the saved four-way variant with a stable coordinate-derived bit. It does
+not modify the saved variant, consume engine RNG or change construction, growth or occupancy.
+Texture keys include the resulting appearance but not individual coordinates, bounding reuse to
+eight appearances per zone kind, level and abandonment state. Classic and cyber rendering keep
+their original variant selection. Industrial smoke follows the visible adobe vent; timber and
+masonry yards have no decorative smoke. This does not affect simulated pollution.
+
 ## Shade
 
 Canals (`Infra.Canal`) and buildings conduct shade, the same way pipes conduct water.
