@@ -101,6 +101,8 @@ Everything below only runs with `ruleset: 'oasis'`. Formulas live in
 | Storms       | A monthly sandstorm may bury a service                           | New        | Sand does not take money. A storm that lands nudges the spring.                               |
 | Storms       | A windbreak lowers the chance inside its radius                  | New        | It covers while powered and online. Shade is not required.                                    |
 | Traffic      | An arcade eases congestion on the streets beside it              | New        | It counts while powered and online. The adobe theme does not draw drones.                     |
+| Journey      | Five chapters with treasury grants, checked at the month close   | New        | Only cities founded by the Oasis app. Goals and grants are original balance choices.          |
+| Journey      | A three-month dry season cuts wells and pumps to 60%             | New        | Starts one close after the shelter chapter; no random draw. Qanats and cisterns are spared.   |
 
 ### Water-management decision
 

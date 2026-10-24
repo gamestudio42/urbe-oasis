@@ -22,6 +22,7 @@ import {
   applyDocumentLocale,
   bootLocale,
   catalog,
+  formatMoney,
   formatNumber,
   persistLocale,
   type Locale,
@@ -151,6 +152,8 @@ const EVENT_SOUNDS: Partial<Record<SimEvent['type'], SoundName>> = {
   disasterStarted: 'disaster',
   brownout: 'warning',
   waterShortage: 'warning',
+  journeyChapter: 'milestone',
+  droughtStarted: 'warning',
   debt: 'warning',
   bankrupt: 'error',
   milestone: 'milestone',
@@ -799,6 +802,18 @@ export class GameSession {
         );
       case 'springMoved':
         return this.toast('info', e.springMoved);
+      case 'journeyChapter':
+        return this.toast(
+          'info',
+          e.journeyChapter(event.chapter, formatMoney(event.reward, this.ui.get().locale)),
+        );
+      case 'droughtStarted':
+        return this.toast('warning', e.droughtStarted(event.months));
+      case 'droughtEnded':
+        return this.toast(
+          event.held ? 'info' : 'warning',
+          event.held ? e.droughtHeld : e.droughtShort,
+        );
       case 'debt':
         return this.toast('warning', e.debt(event.months));
       case 'bankrupt':

@@ -128,6 +128,10 @@ export interface CityStats {
       droughtServed: number;
       /** -1 before the drought ends, 1 when the city held on, 0 when it fell short. */
       droughtOutcome: number;
+      /** Powered cisterns holding water, for the reserves chapter. */
+      reserves: number;
+      /** Staffed caravanserais, for the caravan road chapter. */
+      caravanserais: number;
     };
   };
 }

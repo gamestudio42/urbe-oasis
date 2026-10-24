@@ -49,7 +49,7 @@ export function chapterGoalMet(engine: SimulationEngine, chapter: number): boole
     case 2:
       return shelterCoverage(engine) >= j.shelter;
     case 4:
-      return engine.buildings.ofKind('caravanserai').some((b) => b.occupancy > 0);
+      return operatingCaravanserais(engine) > 0;
     default:
       return false;
   }
@@ -63,6 +63,11 @@ export function storingBanks(engine: SimulationEngine): number {
     if (b && b.kind === 'cistern' && b.powered && b.offline === 0 && entry.charge > 0) count++;
   }
   return count;
+}
+
+/** Staffed caravanserais: powered, on a road and with workers. */
+function operatingCaravanserais(engine: SimulationEngine): number {
+  return engine.buildings.ofKind('caravanserai').filter((b) => b.occupancy > 0).length;
 }
 
 function complete(engine: SimulationEngine, reward: number, month: number): void {
@@ -128,5 +133,7 @@ export function journeySummary(
           ? Math.round(journey.droughtServed / OASIS_JOURNEY.droughtMonths) / 1000
           : -1,
     droughtOutcome: journey.droughtOutcome,
+    reserves: storingBanks(engine),
+    caravanserais: operatingCaravanserais(engine),
   };
 }

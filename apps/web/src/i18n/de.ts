@@ -466,6 +466,12 @@ export const de = {
     sandstorm: 'Ein Sandsturm hat einen Dienst verschüttet.',
     sandstormBlocked: 'Ein Windschutz hat den Sandsturm aufgehalten.',
     springMoved: 'Die Quelle ist weitergezogen. Der Schatten folgt dem Wasser.',
+    journeyChapter: (chapter: number, reward: string) =>
+      `Kapitel ${chapter} von 5 der Reise abgeschlossen. Der Rat gewährt ${reward}.`,
+    droughtStarted: (months: number) =>
+      `Die Trockenzeit beginnt: Brunnen und Pumpen liefern ${months} Monate lang weniger Wasser.`,
+    droughtHeld: 'Die Trockenzeit ist vorbei. Die Stadt hielt das Wasser am Fließen.',
+    droughtShort: 'Die Trockenzeit ist vorbei. Viele Häuser blieben ohne Wasser.',
     debt: (months: number) => `Die Kasse ist seit ${months} ${months === 1 ? 'Monat' : 'Monaten'} im Minus.`,
     bankrupt: 'Die Stadt ist bankrott! Passe Steuern und Ausgaben an, um die Kasse zu retten.',
     recovered: 'Die Stadtfinanzen haben sich erholt.',

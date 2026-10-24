@@ -10,6 +10,7 @@ import { Tutorial } from '@oasis/web/ui/Tutorial';
 import { ToolIcon } from '@oasis/web/ui/icons';
 import { AdobeIcon } from '@oasis/web/ui/adobeIcons';
 import { oasisCopy, oasisGuideCopy } from './i18n';
+import { OasisJourney, journeyHeading } from './OasisJourney';
 
 /** Presentation goals observe current telemetry; they grant no rewards or unlocks. */
 export function OasisGuide({ session }: { session: GameSession }) {
@@ -17,7 +18,11 @@ export function OasisGuide({ session }: { session: GameSession }) {
   const revision = useStore(session.ui, (s) => s.cityRevision);
   const ruleset = useStore(session.ui, (s) => s.stats?.ruleset);
   if (ruleset !== 'oasis') return <Tutorial session={session} />;
-  return <GuideCard key={`${revision}:${step ?? 'goals'}`} session={session} step={step} />;
+  const chapter = useStore(session.ui, (s) => s.stats?.oasis?.journey?.chapter ?? -1);
+  // A new chapter remounts the card so its heading is announced again.
+  return (
+    <GuideCard key={`${revision}:${step ?? 'goals'}:${chapter}`} session={session} step={step} />
+  );
 }
 
 function GuideCard({ session, step }: { session: GameSession; step: number | null }) {
@@ -79,12 +84,15 @@ function GuideCard({ session, step }: { session: GameSession; step: number | nul
       tool: 'caravanserai',
     },
   ] as const;
-  const title = content?.title ?? copy.title;
+  const journey = step === null ? stats.oasis.journey : undefined;
+  const heading = journey ? journeyHeading(journey, locale) : null;
+  const title = content?.title ?? heading?.title ?? copy.title;
 
   return (
     <aside
       className="oasis-guide"
       data-testid={step === null ? 'oasis-next-steps' : 'tutorial'}
+      data-journey={journey ? journey.chapter : undefined}
       data-expanded={expanded}
       data-step={step}
       aria-labelledby={titleId}
@@ -99,7 +107,7 @@ function GuideCard({ session, step }: { session: GameSession; step: number | nul
         <div aria-live="polite">
           <small>
             {step === null
-              ? oasis.survival.title
+              ? (heading?.small ?? oasis.survival.title)
               : `${oasis.tutorial.title} · ${step + 1}/${oasis.tutorial.steps.length}`}
           </small>
           <h3 id={titleId}>{title}</h3>
@@ -221,6 +229,18 @@ function GuideCard({ session, step }: { session: GameSession; step: number | nul
                 </button>
               )}
             </footer>
+          </>
+        ) : journey ? (
+          <>
+            <OasisJourney session={session} journey={journey} onTool={selectTool} />
+            <button
+              type="button"
+              className="button small"
+              data-testid="oasis-guide-review"
+              onClick={() => session.restartTutorial()}
+            >
+              {copy.review}
+            </button>
           </>
         ) : (
           <>

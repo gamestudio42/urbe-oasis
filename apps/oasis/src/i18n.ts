@@ -1282,3 +1282,294 @@ const SERVICE_COPY: Record<Locale, typeof SERVICE_EN> = {
 export function oasisServiceCopy(locale: Locale): typeof SERVICE_EN {
   return SERVICE_COPY[locale];
 }
+
+interface JourneyChapterCopy {
+  title: string;
+  action: string;
+  why: string;
+}
+
+const JOURNEY_EN = {
+  label: 'Oasis journey',
+  progress: (chapter: string) => `Chapter ${chapter} of 5`,
+  done: 'Journey complete',
+  doneText: 'The oasis stands on its own. Every rule you learned still applies as the city grows.',
+  reward: 'Reward',
+  droughtReward: (held: string, short: string) =>
+    `${held} if water service holds, otherwise ${short}`,
+  why: 'Why it matters',
+  chapters: [
+    {
+      title: 'First quarter',
+      action: 'Bring 100 residents to a quarter where water and shade reach 80% of homes.',
+      why: 'Water lets a lot grow; shade lets it grow past level 2. A pipe or canal has to connect each lot to a working source.',
+    },
+    {
+      title: 'Reserves',
+      action: 'Keep water at 80% and get two powered cisterns holding water.',
+      why: 'A cistern stores only spare water. Add a qanat or well first, then connect the cistern to power and pipes.',
+    },
+    {
+      title: 'Shelter',
+      action: 'Cover half of your services with powered windbreaks.',
+      why: 'Sandstorms bury services. A windbreak within 6 tiles slows them. The dry season arrives one month after this chapter.',
+    },
+    {
+      title: 'Dry season',
+      action: 'Keep water service at 75% through three months of drought.',
+      why: 'Wells and pumps give 60% of their water. Qanats and cisterns keep full output, and rationing lowers demand.',
+    },
+    {
+      title: 'Caravan road',
+      action: 'Open a caravanserai on a road and staff it.',
+      why: 'Caravans trade through the caravanserai and buy serviced lots, paying the treasury.',
+    },
+  ] as JourneyChapterCopy[],
+  rows: {
+    residents: 'Residents',
+    water: 'Water service',
+    shade: 'Shade service',
+    reserves: 'Cisterns holding water',
+    shelter: 'Services sheltered',
+    caravanserai: 'Caravanserai staffed',
+  },
+  yes: 'Yes',
+  no: 'Not yet',
+  droughtSoon: 'The dry season starts next month',
+  droughtNow: (months: string) => `Drought: ${months} months left`,
+  droughtServed: 'Water service so far',
+  droughtTarget: 'Target 75%',
+  droughtHeld: 'The city held on through the drought.',
+  droughtShort: 'The city fell short during the drought.',
+  rationOn: 'Ration water',
+  rationOff: 'End rationing',
+};
+
+const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
+  en: JOURNEY_EN,
+  'pt-BR': {
+    label: 'Jornada do oásis',
+    progress: (chapter) => `Capítulo ${chapter} de 5`,
+    done: 'Jornada concluída',
+    doneText:
+      'O oásis se sustenta sozinho. Tudo o que você aprendeu continua valendo enquanto a cidade cresce.',
+    reward: 'Recompensa',
+    droughtReward: (held, short) => `${held} se a água resistir, senão ${short}`,
+    why: 'Por que importa',
+    chapters: [
+      {
+        title: 'Primeiro bairro',
+        action: 'Leve 100 moradores a um bairro onde água e sombra cheguem a 80% das casas.',
+        why: 'A água deixa o lote crescer; a sombra deixa passar do nível 2. Um cano ou canal precisa ligar cada lote a uma fonte funcionando.',
+      },
+      {
+        title: 'Reservas',
+        action: 'Mantenha a água em 80% e tenha duas cisternas energizadas guardando água.',
+        why: 'A cisterna só guarda água que sobra. Construa um qanat ou poço antes, depois ligue a cisterna à energia e aos canos.',
+      },
+      {
+        title: 'Abrigo',
+        action: 'Proteja metade dos seus serviços com quebra-ventos energizados.',
+        why: 'Tempestades de areia soterram serviços. Um quebra-vento a até 6 lotes as enfraquece. A estação seca chega um mês depois deste capítulo.',
+      },
+      {
+        title: 'Estação seca',
+        action: 'Mantenha o abastecimento de água em 75% durante três meses de seca.',
+        why: 'Poços e bombas dão 60% da água. Qanats e cisternas mantêm a produção, e o racionamento reduz o consumo.',
+      },
+      {
+        title: 'Rota das caravanas',
+        action: 'Abra um caravançará junto a uma estrada e com trabalhadores.',
+        why: 'As caravanas negociam pelo caravançará e compram lotes atendidos, pagando ao tesouro.',
+      },
+    ],
+    rows: {
+      residents: 'Moradores',
+      water: 'Abastecimento de água',
+      shade: 'Cobertura de sombra',
+      reserves: 'Cisternas com água',
+      shelter: 'Serviços abrigados',
+      caravanserai: 'Caravançará funcionando',
+    },
+    yes: 'Sim',
+    no: 'Ainda não',
+    droughtSoon: 'A estação seca começa no próximo mês',
+    droughtNow: (months) => `Seca: faltam ${months} meses`,
+    droughtServed: 'Abastecimento até agora',
+    droughtTarget: 'Meta 75%',
+    droughtHeld: 'A cidade resistiu à seca.',
+    droughtShort: 'A cidade não resistiu bem à seca.',
+    rationOn: 'Racionar água',
+    rationOff: 'Encerrar racionamento',
+  },
+  es: {
+    label: 'Viaje del oasis',
+    progress: (chapter) => `Capítulo ${chapter} de 5`,
+    done: 'Viaje completado',
+    doneText:
+      'El oasis se sostiene solo. Todo lo que aprendiste sigue valiendo mientras la ciudad crece.',
+    reward: 'Recompensa',
+    droughtReward: (held, short) => `${held} si el agua resiste, si no ${short}`,
+    why: 'Por qué importa',
+    chapters: [
+      {
+        title: 'Primer barrio',
+        action: 'Lleva 100 habitantes a un barrio donde agua y sombra lleguen al 80% de las casas.',
+        why: 'El agua deja crecer la parcela; la sombra la deja pasar del nivel 2. Una tubería o canal debe unir cada parcela con una fuente activa.',
+      },
+      {
+        title: 'Reservas',
+        action: 'Mantén el agua al 80% y consigue dos cisternas con energía que guarden agua.',
+        why: 'La cisterna solo guarda agua sobrante. Construye antes un qanat o pozo y luego conecta la cisterna a la energía y las tuberías.',
+      },
+      {
+        title: 'Refugio',
+        action: 'Protege la mitad de tus servicios con cortavientos con energía.',
+        why: 'Las tormentas de arena entierran servicios. Un cortaviento a 6 parcelas las frena. La estación seca llega un mes después de este capítulo.',
+      },
+      {
+        title: 'Estación seca',
+        action: 'Mantén el servicio de agua al 75% durante tres meses de sequía.',
+        why: 'Pozos y bombas dan el 60% del agua. Qanats y cisternas mantienen su producción, y el racionamiento baja el consumo.',
+      },
+      {
+        title: 'Ruta de caravanas',
+        action: 'Abre un caravasar junto a una carretera y con trabajadores.',
+        why: 'Las caravanas comercian por el caravasar y compran parcelas atendidas, pagando al tesoro.',
+      },
+    ],
+    rows: {
+      residents: 'Habitantes',
+      water: 'Servicio de agua',
+      shade: 'Cobertura de sombra',
+      reserves: 'Cisternas con agua',
+      shelter: 'Servicios protegidos',
+      caravanserai: 'Caravasar en servicio',
+    },
+    yes: 'Sí',
+    no: 'Todavía no',
+    droughtSoon: 'La estación seca empieza el mes que viene',
+    droughtNow: (months) => `Sequía: faltan ${months} meses`,
+    droughtServed: 'Servicio de agua hasta ahora',
+    droughtTarget: 'Meta 75%',
+    droughtHeld: 'La ciudad resistió la sequía.',
+    droughtShort: 'La ciudad sufrió durante la sequía.',
+    rationOn: 'Racionar agua',
+    rationOff: 'Terminar racionamiento',
+  },
+  fr: {
+    label: 'Voyage de l’oasis',
+    progress: (chapter) => `Chapitre ${chapter} sur 5`,
+    done: 'Voyage terminé',
+    doneText:
+      'L’oasis tient debout seule. Tout ce que vous avez appris reste valable à mesure que la ville grandit.',
+    reward: 'Récompense',
+    droughtReward: (held, short) => `${held} si l’eau tient, sinon ${short}`,
+    why: 'Pourquoi c’est important',
+    chapters: [
+      {
+        title: 'Premier quartier',
+        action:
+          'Amenez 100 habitants dans un quartier où l’eau et l’ombre atteignent 80 % des maisons.',
+        why: 'L’eau fait grandir un terrain ; l’ombre lui permet de dépasser le niveau 2. Une canalisation ou un canal doit relier chaque terrain à une source active.',
+      },
+      {
+        title: 'Réserves',
+        action: 'Gardez l’eau à 80 % et ayez deux citernes alimentées qui stockent de l’eau.',
+        why: 'Une citerne ne stocke que l’eau en surplus. Construisez d’abord un qanat ou un puits, puis reliez la citerne à l’énergie et aux canalisations.',
+      },
+      {
+        title: 'Abri',
+        action: 'Protégez la moitié de vos services avec des brise-vent alimentés.',
+        why: 'Les tempêtes de sable ensevelissent les services. Un brise-vent à 6 terrains les ralentit. La saison sèche arrive un mois après ce chapitre.',
+      },
+      {
+        title: 'Saison sèche',
+        action: 'Gardez le service d’eau à 75 % pendant trois mois de sécheresse.',
+        why: 'Puits et pompes donnent 60 % de leur eau. Qanats et citernes gardent leur débit, et le rationnement réduit la demande.',
+      },
+      {
+        title: 'Route des caravanes',
+        action: 'Ouvrez un caravansérail au bord d’une route et dotez-le de travailleurs.',
+        why: 'Les caravanes commercent par le caravansérail et achètent des terrains desservis, en payant le trésor.',
+      },
+    ],
+    rows: {
+      residents: 'Habitants',
+      water: 'Service d’eau',
+      shade: 'Couverture d’ombre',
+      reserves: 'Citernes avec de l’eau',
+      shelter: 'Services abrités',
+      caravanserai: 'Caravansérail actif',
+    },
+    yes: 'Oui',
+    no: 'Pas encore',
+    droughtSoon: 'La saison sèche commence le mois prochain',
+    droughtNow: (months) => `Sécheresse : encore ${months} mois`,
+    droughtServed: 'Service d’eau jusqu’ici',
+    droughtTarget: 'Objectif 75 %',
+    droughtHeld: 'La ville a tenu pendant la sécheresse.',
+    droughtShort: 'La ville a souffert pendant la sécheresse.',
+    rationOn: 'Rationner l’eau',
+    rationOff: 'Arrêter le rationnement',
+  },
+  de: {
+    label: 'Oasenreise',
+    progress: (chapter) => `Kapitel ${chapter} von 5`,
+    done: 'Reise abgeschlossen',
+    doneText:
+      'Die Oase steht auf eigenen Füßen. Alles Gelernte gilt weiter, während die Stadt wächst.',
+    reward: 'Belohnung',
+    droughtReward: (held, short) => `${held}, wenn das Wasser hält, sonst ${short}`,
+    why: 'Warum das zählt',
+    chapters: [
+      {
+        title: 'Erstes Viertel',
+        action:
+          'Bring 100 Einwohner in ein Viertel, in dem Wasser und Schatten 80 % der Häuser erreichen.',
+        why: 'Wasser lässt ein Grundstück wachsen, Schatten über Stufe 2 hinaus. Ein Rohr oder Kanal muss jedes Grundstück mit einer laufenden Quelle verbinden.',
+      },
+      {
+        title: 'Reserven',
+        action: 'Halte die Wasserversorgung bei 80 % und fülle zwei versorgte Zisternen.',
+        why: 'Eine Zisterne speichert nur überschüssiges Wasser. Baue zuerst ein Qanat oder einen Brunnen und schließe die Zisterne dann an Strom und Rohre an.',
+      },
+      {
+        title: 'Schutz',
+        action: 'Schütze die Hälfte deiner Dienste mit versorgten Windschutzanlagen.',
+        why: 'Sandstürme begraben Dienste. Ein Windschutz im Umkreis von 6 Feldern bremst sie. Die Trockenzeit beginnt einen Monat nach diesem Kapitel.',
+      },
+      {
+        title: 'Trockenzeit',
+        action: 'Halte die Wasserversorgung drei Dürremonate lang bei 75 %.',
+        why: 'Brunnen und Pumpen liefern 60 % ihres Wassers. Qanats und Zisternen behalten ihre Leistung, und Rationierung senkt den Bedarf.',
+      },
+      {
+        title: 'Karawanenstraße',
+        action: 'Eröffne eine Karawanserei an einer Straße und besetze sie mit Arbeitern.',
+        why: 'Karawanen handeln über die Karawanserei und kaufen versorgte Grundstücke, die in die Stadtkasse zahlen.',
+      },
+    ],
+    rows: {
+      residents: 'Einwohner',
+      water: 'Wasserversorgung',
+      shade: 'Schattenabdeckung',
+      reserves: 'Zisternen mit Wasser',
+      shelter: 'Geschützte Dienste',
+      caravanserai: 'Karawanserei in Betrieb',
+    },
+    yes: 'Ja',
+    no: 'Noch nicht',
+    droughtSoon: 'Die Trockenzeit beginnt nächsten Monat',
+    droughtNow: (months) => `Dürre: noch ${months} Monate`,
+    droughtServed: 'Wasserversorgung bisher',
+    droughtTarget: 'Ziel 75 %',
+    droughtHeld: 'Die Stadt hat die Dürre überstanden.',
+    droughtShort: 'Die Stadt hat in der Dürre gelitten.',
+    rationOn: 'Wasser rationieren',
+    rationOff: 'Rationierung beenden',
+  },
+};
+export function oasisJourneyCopy(locale: Locale): typeof JOURNEY_EN {
+  return JOURNEY_COPY[locale];
+}
