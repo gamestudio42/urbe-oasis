@@ -5,6 +5,9 @@
  * Provenance of each formula lives in `docs/oasis-spec.md`; this file only holds constants.
  */
 
+/** Founding defaults only; saves and scripted simulation presets retain their own terrain. */
+export const OASIS_TERRAIN = { water: 0.04, hills: 0.15, forest: 0.04, rivers: 0 } as const;
+
 /** Water grid: qanats, cascading dry spells and cisterns. */
 export const OASIS_WATER = {
   /** Water a qanat adds while it is powered. Same near a river or in open sand. */

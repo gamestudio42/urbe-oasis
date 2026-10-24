@@ -105,6 +105,8 @@ export function setCatalogOverride(locale: Locale, strings: DeepPartial<Strings>
 
 function merge<T>(base: T, extra: DeepPartial<T> | undefined): T {
   if (!extra) return base;
+  // Ordered content such as tutorial steps is replaced, never merged into an object.
+  if (Array.isArray(extra)) return extra as T;
   const out = { ...base } as Record<string, unknown>;
   for (const [key, value] of Object.entries(extra as Record<string, unknown>)) {
     const current = out[key];

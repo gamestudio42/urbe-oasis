@@ -4,7 +4,7 @@ const PORT = Number(process.env.OASIS_PORT ?? 5180);
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  testMatch: 'oasis.spec.ts',
+  testMatch: ['oasis.spec.ts', 'oasis-*.spec.ts'],
   timeout: 60_000,
   expect: { timeout: 15_000 },
   fullyParallel: false,

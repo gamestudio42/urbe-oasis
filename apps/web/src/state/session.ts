@@ -46,7 +46,7 @@ import { toolByHotkey, type ToolId } from '../tools/tools';
 import { CityClient } from './client';
 import { installDebugApi } from './debug';
 import { Store } from './store';
-import { markTutorialDone, TUTORIAL_CHECKS, tutorialDone } from './tutorial';
+import { markTutorialDone, tutorialChecks, tutorialDone } from './tutorial';
 
 export interface Toast {
   id: number;
@@ -199,10 +199,13 @@ export class GameSession {
     });
     this.menuSeed = options.menuSeed ?? MENU_CITY.seed;
     this.ruleset = options.ruleset ?? 'classic';
+    this.foundingRuleset = this.ruleset;
   }
 
   /** Seed of the scripted city behind the main menu. */
   readonly menuSeed: string;
+  /** Importing a classic save must not change the kind of city founded by this app. */
+  readonly foundingRuleset: 'classic' | 'oasis';
   /**
    * Rules the current city runs under. It starts as the app's own ruleset and follows the file
    * when a save is loaded, so opening a classic city in Neo Urbe shows classic panels.
@@ -347,24 +350,35 @@ export class GameSession {
 
   /** Creates a city from the main menu and switches to the game screen. */
   async startCity(options: NewCityOptions): Promise<void> {
-    await this.client.newCity({ ...options, ruleset: options.ruleset ?? this.ruleset });
+    const ruleset = this.foundingRuleset;
+    await this.client.newCity({ ...options, ruleset });
+    this.ruleset = ruleset;
     this.enterGame({ tutorial: true });
   }
 
   /** Shows the game screen after a city was created or loaded (loaded cities start paused). */
   enterGame({ tutorial, paused = false }: { tutorial: boolean; paused?: boolean }): void {
+    const showTutorial = tutorial && !tutorialDone(this.ruleset);
     this.ui.set({
       screen: 'game',
       panel: null,
-      tutorial: tutorial && !tutorialDone() ? 0 : null,
+      tutorial: showTutorial ? 0 : null,
       selected: null,
     });
     this.lastAutosave = { time: Date.now(), tick: this.client.stats?.tick ?? -1 };
     this.renderer.setAttract(false);
     this.setTool('select');
-    this.setSpeed(paused ? 0 : 1);
+    this.setSpeed(paused || (showTutorial && this.ruleset === 'oasis') ? 0 : 1);
     const w = this.client.world;
     if (w) this.renderer.centerOnTile(Math.floor(w.size / 2), Math.floor(w.size / 2));
+    if (this.ruleset === 'oasis') this.focusSpring();
+  }
+
+  focusSpring(): void {
+    const spring = this.client.stats?.oasis?.spring;
+    if (!spring) return;
+    this.setUnderground(false);
+    this.renderer.centerOnTile(spring.x, spring.y);
   }
 
   /** Back to the menu: the player's city stays behind it, paused, with animations running. */
@@ -515,16 +529,17 @@ export class GameSession {
   advanceTutorial(): void {
     const step = this.ui.get().tutorial;
     if (step === null) return;
-    if (step + 1 >= TUTORIAL_CHECKS.length) {
+    if (step + 1 >= tutorialChecks(this.ruleset).length) {
       this.skipTutorial();
       return;
     }
     this.ui.set({ tutorial: step + 1 });
+    if (step === 0 && this.ruleset === 'oasis') this.setSpeed(1);
     this.checkTutorial();
   }
 
   skipTutorial(): void {
-    markTutorialDone();
+    markTutorialDone(this.ruleset);
     this.ui.set({ tutorial: null });
   }
 
@@ -668,7 +683,7 @@ export class GameSession {
   private checkTutorial(): void {
     const step = this.ui.get().tutorial;
     if (step === null) return;
-    const check = TUTORIAL_CHECKS[step];
+    const check = tutorialChecks(this.ruleset)[step];
     if (check?.(this)) this.advanceTutorial();
   }
 
@@ -699,7 +714,10 @@ export class GameSession {
       case 'caravanLeave':
         return this.toast('warning', e.caravanLeave);
       case 'sandstorm':
-        return this.toast(event.blocked ? 'info' : 'error', event.blocked ? e.sandstormBlocked : e.sandstorm);
+        return this.toast(
+          event.blocked ? 'info' : 'error',
+          event.blocked ? e.sandstormBlocked : e.sandstorm,
+        );
       case 'springMoved':
         return this.toast('info', e.springMoved);
       case 'debt':

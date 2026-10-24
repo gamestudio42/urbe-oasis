@@ -4,15 +4,16 @@ import { oasis } from '@theme/oasis';
 import { oasisMusicFactory } from './audio/adapter';
 import { applyOasisCopy } from './i18n';
 import { StudioMark } from './StudioMark';
+import { OasisStatus } from './OasisStatus';
 
-/** Synthwave instead of the Urbe lo-fi player; the shared board keeps mute and the bus. */
+/** Desert music on the shared sound bus. */
 const music: MusicFactory = (ctx, bus, noise) => oasisMusicFactory(ctx, bus, noise);
 
 // Applied when this module loads, before the first render, so the menu never flashes Urbe wording.
 for (const locale of ['en', 'pt-BR', 'es', 'fr', 'de'] as const) applyOasisCopy(locale);
 
 /**
- * Neo Urbe shell: the city UI with the neon theme, a neon ruleset and cyberpunk copy.
+ * Oasis shell: the city UI with desert art, survival telemetry and an oasis tutorial.
  *
  * The panels, the toolbar, the inspector and every `data-testid` stay the same, so the
  * end-to-end tests keep working. Only the art direction, the copy and the ruleset change.
@@ -25,6 +26,7 @@ export function App() {
       ruleset="oasis"
       music={music}
       credit={(placement) => <StudioMark placement={placement} />}
+      status={(session) => <OasisStatus session={session} />}
     />
   );
 }

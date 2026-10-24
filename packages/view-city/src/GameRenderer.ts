@@ -35,6 +35,7 @@ import {
 } from './chunkDraw';
 import { prefersReducedMotion } from '@shell/chrome';
 import { SpriteFactory } from './sprites';
+import { drawSpringLandmark } from './oasisLandscape';
 
 export { CHUNK_SIZE };
 /** Menu background camera: zoom, seconds per loop and loop radius as a fraction of the map. */
@@ -300,6 +301,8 @@ export class GameRenderer {
 
   /** Marks chunks containing the given tiles for redraw (and their neighbours, for road joins). */
   invalidateTiles(indices: ArrayLike<number> | null): void {
+    // A lot may be built over the landmark or the terrain beneath it may change height.
+    this.drawSpring();
     if (!this.world) return;
     if (indices === null) {
       this.chunkGrid.invalidateTiles(null, this.world.size);
@@ -337,6 +340,11 @@ export class GameRenderer {
     const water = color(this.theme, 'overlay.waterOn');
     g.visible = true;
     g.position.set(p.x, p.y);
+    if (this.theme.style === 'adobe') {
+      const i = this.world.index(this.springAt.x, this.springAt.y);
+      drawSpringLandmark(g, this.theme, this.world.buildingId[i] !== 0);
+      return;
+    }
     g.circle(0, -16, 8).fill({ color: water, alpha: 0.85 });
     g.circle(0, -16, 3).fill({ color: shade(water, 1.45), alpha: 0.95 });
   }
@@ -632,4 +640,3 @@ export class GameRenderer {
     }
   }
 }
-

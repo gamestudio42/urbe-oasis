@@ -13,6 +13,7 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('cityBuilder.locale', 'pt-BR');
     localStorage.setItem('cityBuilder.tutorialDone', '1');
+    localStorage.setItem('oasis.tutorial.founding.v1', '1');
   });
   await page.goto(`http://localhost:${NEON_PORT}/`);
   await page.getByTestId('main-menu').waitFor();
@@ -104,11 +105,15 @@ test('places a qanat, a cistern and a windbreak through the debug command API', 
   expect(area).not.toBeNull();
   if (!area) return;
 
-  const cistern = await page.evaluate(
-    (p) => window.__cityDebug?.command({ type: 'place', kind: 'cistern', x: p.x, y: p.y }),
-    area,
-  );
-  expect(cistern?.ok).toBe(true);
+  const built = await page.evaluate(async (p) => {
+    const d = window.__cityDebug!;
+    return [
+      await d.command({ type: 'place', kind: 'qanat', x: p.x, y: p.y }),
+      await d.command({ type: 'place', kind: 'cistern', x: p.x + 2, y: p.y }),
+      await d.command({ type: 'place', kind: 'windbreak', x: p.x + 2, y: p.y + 1 }),
+    ];
+  }, area);
+  for (const result of built) expect(result.ok).toBe(true);
 
   const stats = await page.evaluate(() => window.__cityDebug?.getStats() ?? null);
   expect(stats?.oasis).toBeDefined();
@@ -124,15 +129,22 @@ test('exports and imports a neon save', async ({ page }) => {
   expect(loaded?.ok).toBe(true);
 });
 
-test('is deterministic: the same seed and command log hash the same', async ({ page }) => {
-  await startNeonCity(page, 'neon-determinism');
-  const first = await page.evaluate(() => window.__cityDebug?.hash() ?? null);
-  await page.evaluate(() => window.__cityDebug?.runTicks(120));
-  const second = await page.evaluate(() => window.__cityDebug?.hash() ?? null);
-  expect(first).not.toBeNull();
-  expect(second).not.toBeNull();
-  // Running ticks is the only difference, so the hash must move forward, not reset.
-  expect(typeof first).toBe('string');
+test('replays the same command log and ticks to the same hash', async ({ page }) => {
+  await startNeonCity(page, 'oasis-determinism');
+  await page.getByTestId('speed-0').click();
+  const baseline = await page.evaluate(() => window.__cityDebug!.exportText());
+  const replay = async () =>
+    page.evaluate(async () => {
+      const d = window.__cityDebug!;
+      const changed = await d.command({ type: 'setTax', zone: 'residential', rate: 8 });
+      if (!changed.ok) throw new Error('Tax command was rejected');
+      await d.runTicks(120);
+      return d.hash();
+    });
+  const first = await replay();
+  const loaded = await page.evaluate((text) => window.__cityDebug!.importText(text), baseline);
+  expect(loaded.ok).toBe(true);
+  expect(await replay()).toBe(first);
 });
 
 test('an arcade eases the street and does not launch drones', async ({ page }) => {

@@ -35,9 +35,11 @@ export interface AppProps {
    * their own element. The classic shell leaves it unset.
    */
   credit?: (placement: 'boot' | 'menu' | 'play') => ReactNode;
+  /** Ruleset-specific telemetry, kept outside the shared city UI. */
+  status?: (session: GameSession) => ReactNode;
 }
 
-export function App({ theme, menuSeed, ruleset, music, credit }: AppProps = {}) {
+export function App({ theme, menuSeed, ruleset, music, credit, status }: AppProps = {}) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [session, setSession] = useState<GameSession | null>(null);
 
@@ -55,7 +57,7 @@ export function App({ theme, menuSeed, ruleset, music, credit }: AppProps = {}) 
       <div ref={hostRef} className="viewport" />
       {session ? (
         <>
-          <Screens session={session} credit={credit} />
+          <Screens session={session} credit={credit} status={status} />
           <BootScreen session={session} credit={credit?.('boot')} />
         </>
       ) : (
@@ -68,9 +70,11 @@ export function App({ theme, menuSeed, ruleset, music, credit }: AppProps = {}) 
 function Screens({
   session,
   credit,
+  status,
 }: {
   session: GameSession;
   credit?: AppProps['credit'];
+  status?: AppProps['status'];
 }) {
   const booted = useStore(session.ui, (s) => s.boot.step === 'done');
   const screen = useStore(session.ui, (s) => s.screen);
@@ -92,6 +96,7 @@ function Screens({
     <>
       <PauseOverlay session={session} />
       <Hud session={session} credit={credit?.('play')} />
+      {status?.(session)}
       <CityAudio session={session} />
       <Toolbar session={session} />
       <Minimap session={session} />

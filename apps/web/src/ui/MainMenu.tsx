@@ -1,4 +1,4 @@
-import { DIFFICULTIES, type Difficulty, type TerrainOptions } from '@city/shared';
+import { DIFFICULTIES, OASIS_TERRAIN, type Difficulty, type TerrainOptions } from '@city/shared';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { SoundToggle } from '@shell/chrome';
 import { useStrings } from '../i18n';
@@ -36,12 +36,16 @@ export function MainMenu({
   const [seed, setSeed] = useState(randomSeed);
   const [size, setSize] = useState<number>(128);
   const [difficulty, setDifficulty] = useState<Difficulty>('normal');
-  const [terrain, setTerrain] = useState<TerrainOptions>({
-    water: 0.14,
-    hills: 0.5,
-    forest: 0.35,
-    rivers: 1,
-  });
+  const [terrain, setTerrain] = useState<TerrainOptions>(
+    session.foundingRuleset === 'oasis'
+      ? { ...OASIS_TERRAIN }
+      : {
+          water: 0.14,
+          hills: 0.5,
+          forest: 0.35,
+          rivers: 1,
+        },
+  );
   const [busy, setBusy] = useState(false);
 
   const start = async () => {

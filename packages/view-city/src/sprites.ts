@@ -8,6 +8,7 @@ import { drawCyberCommercial, drawCyberIndustrial, drawCyberResidential } from '
 import { drawAdobeCivic, drawAdobeUtility } from './adobeSprites';
 import { drawAdobeCommercial, drawAdobeIndustrial, drawAdobeResidential } from './oasisZoneSprites';
 import { drawUtility } from './utilitySprites';
+import { drawDesertPalm } from './oasisLandscape';
 import {
   HEADINGS,
   drawAirport,
@@ -61,6 +62,10 @@ function drawPlaceable(g: Graphics, theme: Theme, kind: string, size: number): v
 }
 
 function tree(g: Graphics, theme: Theme, base: Point, scale: number): void {
+  if (theme.style === 'adobe') {
+    drawDesertPalm(g, theme, base, scale);
+    return;
+  }
   g.rect(base.x - 1.5 * scale, base.y - 8 * scale, 3 * scale, 8 * scale).fill(
     color(theme, 'tree.trunk'),
   );

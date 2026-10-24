@@ -140,3 +140,38 @@ GPU-backed Chromium ran at 59–60 FPS (p95 frame 16.8 ms) both with the animati
 `AnimationLayer.update` at about 0.3 ms per frame, mostly sprite placement; Pixi's own render
 dominates. Headless Playwright renders WebGL in software (about 3 FPS either way), so it cannot
 measure this.
+
+
+## Oasis founding presentation checkpoint (2026-10-23)
+
+The founding defaults, landscape and tutorial change the first-play experience; they do not
+change simulation rules or scripted presets. Reproduction commands (using Node's loader avoids
+`tsx` CLI IPC restrictions in sandboxed environments):
+
+```sh
+node --import tsx tools/headless-sim.ts --preset oasis-balanced --months 120 --seeds 1,2,3 --out reports/founding
+node --import tsx tools/benchmark.ts --out reports/bench/oasis-foundation.json
+```
+
+Compared with the pre-change run from the same session, every gameplay metric and final state
+hash is identical. Seed 1 ends at population 2538, funds 5027, hash `6dda1252`; seed 2 at
+population 2372, funds 1670, hash `6a82429f`; seed 3 at population 2587, funds 5495, hash
+`2967728c`. None is bankrupt at the end. These results describe the scripted towns, not a
+promise that every beginner city survives.
+
+The normal-budget founding test separately builds a small road-connected settlement with
+powered, watered and shaded homes, then charges a powered cistern. It retains positive funds
+with the existing 10000 starting budget. Browser coverage also checks that an unpowered cistern
+is counted in the HUD but remains empty, and that the tutorial waits for actual stored water.
+
+The grid benchmark (128 by 128, 96 warm-up plus 24 measured months, Node 22.23.3) reports
+32673 residents and 4312 buildings. Raw p95 timings in milliseconds: traffic 12.818, services
+1.703, influence 12.073, close 10.885, utility refresh 15.613. The average fast tick is 0.0008
+ms; a simulated month costs 39.901 ms. Calibration is 19.52 ns per tile. **The heavy-tick budget
+still fails**; these environment-dependent measurements do not establish a rendering frame rate
+or a performance improvement. Further performance work remains necessary.
+
+Validation: `pnpm check` passes (361 unit/integration tests and 13 scenario tests), and all 11
+Oasis Playwright tests pass. Unit-test concurrency is capped at two workers after the default
+35-worker execution repeatedly exceeded an existing seeded-storm test's five-second timeout.
+The assertions and timeout remain unchanged.
