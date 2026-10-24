@@ -42,16 +42,12 @@ import { updateGrowth, type GrowthResult } from './systems/growth';
 import { updateInfluence } from './systems/influence';
 import { RoadNetwork } from './systems/roads';
 import { updateServices } from './systems/services';
-import {
-  componentStats,
-  gatewayRoads,
-  updateTraffic,
-  type TrafficResult,
-} from './systems/traffic';
+import { componentStats, gatewayRoads, updateTraffic, type TrafficResult } from './systems/traffic';
 import { updateUtilities, type UtilityResult } from './systems/utilities';
 import { cascade, tickGrid, updateGrid, type GridResult } from './systems/oasis/grid';
 import { updateCaravans, type CaravanResult } from './systems/oasis/caravans';
 import { ensureSpring, updateSpring } from './systems/oasis/spring';
+import { rationingSummary } from './systems/oasis/rationing';
 import { cisternSummary } from './systems/oasis/grid';
 import { shelterCoverage } from './systems/oasis/intrusion';
 import { arcadeCount } from './systems/oasis/airTraffic';
@@ -282,6 +278,7 @@ export class SimulationEngine {
     updateFires(this);
     updateDisasters(this);
     if (this.ruleset === 'oasis') {
+      if (this.oasis.waterPolicy?.rationing) this.oasis.waterPolicy.rationedTicks++;
       tickGrid(this);
       tickStorms(this);
     }
@@ -434,6 +431,7 @@ export class SimulationEngine {
     let holdings = 0;
     for (const c of this.oasis.caravans) holdings += c.holdings;
     return {
+      waterPolicy: rationingSummary(this),
       parched: this.oasis.parched.length,
       cisterns: cisternSummary(this),
       windbreak: shelterCoverage(this),
@@ -509,6 +507,8 @@ export class SimulationEngine {
       epidemicCommercial: epidemic ? d.epidemicCommercialRevenue : 1,
     });
     applyMonthlyBudget(this, report);
+    if (this.ruleset === 'oasis' && this.oasis.waterPolicy)
+      this.oasis.waterPolicy.rationedTicks = 0;
     this.layerStats = computeLayerStats(this);
     this.recordHistory(cityTotals(this));
     const date = dateOf(this.tick);

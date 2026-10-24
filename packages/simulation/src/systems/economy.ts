@@ -10,6 +10,7 @@ import {
   type MonthlyReport,
 } from '@city/shared';
 import type { SimulationEngine } from '../engine';
+import { rationingPenalty } from './oasis/rationing';
 
 export function emptyReport(): MonthlyReport {
   return {
@@ -64,6 +65,7 @@ export function computeMonthlyReport(
     else indBase += b.occupancy;
   }
   const t = econ.taxes;
+  const businessFactor = 1 - rationingPenalty(engine);
   report.revenue.residential = Math.round(
     resBase * (t.residential / 100) * e.residentialTax * factors.crisisRevenue,
   );
@@ -72,10 +74,11 @@ export function computeMonthlyReport(
       (t.commercial / 100) *
       e.commercialTax *
       factors.crisisRevenue *
-      factors.epidemicCommercial,
+      factors.epidemicCommercial *
+      businessFactor,
   );
   report.revenue.industrial = Math.round(
-    indBase * (t.industrial / 100) * e.industrialTax * factors.crisisRevenue,
+    indBase * (t.industrial / 100) * e.industrialTax * factors.crisisRevenue * businessFactor,
   );
 
   let roads = 0;

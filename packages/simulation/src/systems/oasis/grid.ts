@@ -70,7 +70,7 @@ function waterComponents(engine: SimulationEngine): Component[] {
     const component: Component = { buildings, supply: 0, demand: 0 };
     for (const b of buildings) {
       component.supply += oasisWaterOutput(engine, b);
-      component.demand += waterDemand(b);
+      component.demand += waterDemand(b, engine.oasis.waterPolicy?.rationing);
     }
     components.push(component);
   }
@@ -83,7 +83,11 @@ function waterComponents(engine: SimulationEngine): Component[] {
  * and only the water-stress toast fires.
  */
 export function cascade(engine: SimulationEngine, utilities: UtilityResult): GridResult {
-  const result: GridResult = { parched: engine.oasis.parched.length, cascaded: 0, cisternOutput: 0 };
+  const result: GridResult = {
+    parched: engine.oasis.parched.length,
+    cascaded: 0,
+    cisternOutput: 0,
+  };
   if (!utilities.shortage) return result;
   const ticks = OASIS_WATER.cascadeOutageDays * 4;
   for (const component of waterComponents(engine)) {

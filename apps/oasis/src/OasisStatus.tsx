@@ -1,3 +1,4 @@
+import { OasisWaterPolicy } from './OasisWaterPolicy';
 import type { GameSession } from '@oasis/web/state/session';
 import { useStore } from '@oasis/web/state/store';
 import { formatNumber } from '@oasis/web/i18n';
@@ -70,6 +71,7 @@ export function OasisStatus({ session }: { session: GameSession }) {
           </small>
         </button>
       </div>
+      <OasisWaterPolicy session={session} />
       {oasis.parched > 0 && (
         <p className="oasis-stress" role="status" data-testid="oasis-stress">
           {t.parched}: {formatNumber(oasis.parched, locale)}

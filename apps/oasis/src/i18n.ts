@@ -55,7 +55,25 @@ const CHRONICLE_EN = {
   },
 };
 
+const POLICY_EN = {
+  title: 'Water management',
+  normal: 'Normal supply',
+  rationing: 'Rationing active',
+  description:
+    'Conserve water during shortages. Demand falls by up to 25% per lot; commercial and industrial tax revenue falls by 20% for a full month of rationing. Residential taxes stay unchanged.',
+  demand: 'Demand with current buildings',
+  standard: 'Normal',
+  restricted: 'Rationed',
+  cost: 'Business tax reduction accrued this month',
+  timing:
+    'Networks respond on the next daily update while time is running. The tax reduction is proportional to time used and remains due after switching off. Rationing cannot reconnect a broken pipe.',
+  enable: 'Start rationing',
+  disable: 'Restore normal supply',
+  close: 'Close water management',
+};
+
 type Copy = {
+  policy: typeof POLICY_EN;
   hubIdle: string;
   chronicle: typeof CHRONICLE_EN;
   survival: typeof SURVIVAL_EN;
@@ -83,6 +101,7 @@ type Copy = {
 };
 
 const EN: Copy = {
+  policy: POLICY_EN,
   hubIdle: 'Not operating',
   chronicle: CHRONICLE_EN,
   survival: SURVIVAL_EN,
@@ -154,6 +173,22 @@ const EN: Copy = {
 };
 
 const PT: Copy = {
+  policy: {
+    title: 'Gestão da água',
+    normal: 'Abastecimento normal',
+    rationing: 'Racionamento ativo',
+    description:
+      'Poupe água durante a escassez. O consumo cai até 25% por lote; a arrecadação comercial e industrial cai 20% por mês inteiro de racionamento. Os impostos residenciais não mudam.',
+    demand: 'Consumo dos edifícios atuais',
+    standard: 'Normal',
+    restricted: 'Racionado',
+    cost: 'Redução de impostos empresariais acumulada no mês',
+    timing:
+      'As redes respondem na próxima atualização diária com o tempo em andamento. A redução de impostos é proporcional ao tempo de uso e continua devida após desativar. Racionar não reconecta um cano rompido.',
+    enable: 'Iniciar racionamento',
+    disable: 'Restaurar abastecimento normal',
+    close: 'Fechar gestão da água',
+  },
   hubIdle: 'Sem operação',
   chronicle: {
     title: 'CRÔNICA DO OÁSIS',
@@ -273,6 +308,22 @@ const PT: Copy = {
 };
 
 const ES: Copy = {
+  policy: {
+    title: 'Gestión del agua',
+    normal: 'Suministro normal',
+    rationing: 'Racionamiento activo',
+    description:
+      'Ahorra agua durante la escasez. El consumo baja hasta un 25% por lote; la recaudación comercial e industrial baja un 20% por mes completo de racionamiento. Los impuestos residenciales no cambian.',
+    demand: 'Consumo de los edificios actuales',
+    standard: 'Normal',
+    restricted: 'Racionado',
+    cost: 'Reducción de impuestos empresariales acumulada este mes',
+    timing:
+      'Las redes responden en la próxima actualización diaria con el tiempo en marcha. La reducción fiscal es proporcional al tiempo de uso y sigue pendiente al desactivar. Racionar no reconecta una tubería rota.',
+    enable: 'Iniciar racionamiento',
+    disable: 'Restaurar suministro normal',
+    close: 'Cerrar gestión del agua',
+  },
   hubIdle: 'Sin actividad',
   chronicle: {
     title: 'CRÓNICA DEL OASIS',
@@ -392,6 +443,22 @@ const ES: Copy = {
 };
 
 const FR: Copy = {
+  policy: {
+    title: 'Gestion de l’eau',
+    normal: 'Distribution normale',
+    rationing: 'Rationnement actif',
+    description:
+      'Économisez l’eau en période de pénurie. La consommation baisse jusqu’à 25% par lot ; les recettes fiscales commerciales et industrielles baissent de 20% pour un mois entier de rationnement. Les impôts résidentiels restent inchangés.',
+    demand: 'Consommation des bâtiments actuels',
+    standard: 'Normale',
+    restricted: 'Rationnée',
+    cost: 'Baisse des impôts des entreprises cumulée ce mois-ci',
+    timing:
+      'Les réseaux réagissent à la prochaine mise à jour quotidienne lorsque le temps avance. La baisse fiscale est proportionnelle à la durée et reste due après désactivation. Le rationnement ne répare pas une conduite rompue.',
+    enable: 'Activer le rationnement',
+    disable: 'Rétablir la distribution normale',
+    close: 'Fermer la gestion de l’eau',
+  },
   hubIdle: 'À l’arrêt',
   chronicle: {
     title: 'CHRONIQUE DE L’OASIS',
@@ -512,6 +579,22 @@ const FR: Copy = {
 };
 
 const DE: Copy = {
+  policy: {
+    title: 'Wasserverwaltung',
+    normal: 'Normale Versorgung',
+    rationing: 'Rationierung aktiv',
+    description:
+      'Spare Wasser bei Knappheit. Der Verbrauch sinkt pro Grundstück um bis zu 25%; die Gewerbe- und Industriesteuereinnahmen sinken bei einem vollen Monat Rationierung um 20%. Wohnsteuern bleiben unverändert.',
+    demand: 'Verbrauch der aktuellen Gebäude',
+    standard: 'Normal',
+    restricted: 'Rationiert',
+    cost: 'Aufgelaufener Gewerbesteuerabschlag in diesem Monat',
+    timing:
+      'Die Netze reagieren beim nächsten täglichen Update bei laufender Zeit. Der Steuerabschlag gilt anteilig für die Nutzungsdauer und bleibt nach dem Abschalten fällig. Rationierung verbindet keine unterbrochene Leitung.',
+    enable: 'Rationierung starten',
+    disable: 'Normale Versorgung wiederherstellen',
+    close: 'Wasserverwaltung schließen',
+  },
   hubIdle: 'Nicht in Betrieb',
   chronicle: {
     title: 'CHRONIK DER OASE',

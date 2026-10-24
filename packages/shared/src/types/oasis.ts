@@ -33,6 +33,9 @@ export interface Storm {
 
 /** Persisted state of every neon system. */
 export interface OasisState {
+  /** Optional for legacy saves. Accrued ticks survive a toggle and a mid-month reload. */
+  waterPolicy?: { rationing: boolean; rationedTicks: number };
+
   caravans: Caravan[];
   cisterns: BatteryState[];
   storms: Storm[];

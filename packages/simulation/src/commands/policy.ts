@@ -16,6 +16,17 @@ export function applyPolicyCommand(
     reason: RejectReason.Invalid,
   };
   switch (command.type) {
+    case 'setWaterRationing': {
+      if (engine.ruleset !== 'oasis' || typeof command.enabled !== 'boolean') return invalid;
+      if ((engine.oasis.waterPolicy?.rationing ?? false) === command.enabled) return ok;
+      engine.oasis.waterPolicy = {
+        rationing: command.enabled,
+        rationedTicks: engine.oasis.waterPolicy?.rationedTicks ?? 0,
+      };
+      // The next daily solve applies this choice. Toggling never settles cisterns or rolls RNG.
+      engine.networksDirty = true;
+      return ok;
+    }
     case 'setTax': {
       if (!Number.isFinite(command.rate)) return invalid;
       engine.economy.taxes[command.zone] = clampInt(command.rate, 0, BALANCE.economy.taxMax);

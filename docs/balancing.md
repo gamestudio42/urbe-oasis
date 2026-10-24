@@ -175,3 +175,41 @@ Validation: `pnpm check` passes (361 unit/integration tests and 13 scenario test
 Oasis Playwright tests pass. Unit-test concurrency is capped at two workers after the default
 35-worker execution repeatedly exceeded an existing seeded-storm test's five-second timeout.
 The assertions and timeout remain unchanged.
+
+## Oasis water-management checkpoint (2026-10-24)
+
+Rationing is an emergency choice, with demand multiplier 0.75 (rounded up per lot) and a
+20% business-tax reduction for a full month, prorated by enabled ticks. Neither constant is
+an empirical real-world estimate. The normal-supply control must remain unchanged.
+
+```sh
+node --import tsx tools/headless-sim.ts --preset oasis-balanced --months 120 --seeds 1,2,3 --out reports/rationing-control
+node --import tsx tools/headless-sim.ts --preset oasis-rationing --months 120 --seeds 1,2,3 --out reports/rationing
+node --import tsx tools/benchmark.ts --out reports/bench/oasis-rationing.json
+```
+
+All gameplay metrics and hashes in the control are identical to `reports/events/`: populations
+2538 / 2372 / 2587, funds 5027 / 1670 / 5495, hashes `6dda1252` / `6a82429f` / `2967728c`.
+The same automated player with continuous rationing ends at populations 2313 / 2264 / 2339
+and funds 1062 / -702 / 1497. Seed 2 ends bankrupt; seeds 1 and 3 do not. Final water-service
+shares are 0.9292 / 0.9259 / 0.9182. Different growth, tax income and affordable utility
+expansions compound over time: reduced per-lot consumption does not guarantee better final
+service coverage or a healthier treasury. This supports the policy's emergency role and is
+not evidence that indefinite rationing is an optimal strategy.
+
+A controlled near-capacity fixture separately demonstrates the immediate effect: an unshaded
+well supplies 22 units to homes demanding 24; rationing reduces demand to 19, restores the
+last home's water and removes network stress. A reserve fixture spends 32 units instead of
+50. Half-month use retains its 10% business-tax reduction after switching off and after a
+save/load; monthly closing clears the counter only after applying the budget.
+
+The 128 by 128 grid benchmark again ends at 32673 residents and 4312 buildings. Raw p95 in
+milliseconds: traffic 11.780, services 1.215, influence 11.011, close 9.053, utility refresh
+14.163. The simulated month averages 35.658 ms and `stats()` 1.089 ms. **The heavy-tick budget
+still fails.** These timings are from the shared development machine and are not an isolated
+performance comparison or a renderer frame-rate measurement.
+
+Validation: `pnpm check` passes with 374 unit/integration tests, 14 simulation scenarios and the
+production build. The complete 14-test Oasis Playwright suite passes; the water-management
+flow is also repeated against the final build after the save-counter validation and fractional
+percentage display adjustments.

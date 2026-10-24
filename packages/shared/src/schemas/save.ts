@@ -8,7 +8,7 @@ import {
   type SaveError,
   type SaveMigration,
 } from '@shell/kernel';
-import { BALANCE, DEPARTMENTS } from '../balance/balance';
+import { BALANCE, DEPARTMENTS, TICKS_PER_MONTH } from '../balance/balance';
 import { OASIS_SAVE_MAX_LEVEL } from '../balance/oasis';
 import type { DisasterKind } from '../commands/commands';
 import { PLACEABLE_KINDS, ZONE_BUILDING_KINDS, type BuildingRecord } from '../types/buildings';
@@ -120,13 +120,18 @@ export function encodeSave(
     lastMilestone: snapshot.lastMilestone,
     ...(snapshot.oasis ? { oasis: JSON.parse(JSON.stringify(snapshot.oasis)) as OasisState } : {}),
   };
-  return encodeEnvelope(options.format ?? SAVE_FORMAT, SAVE_VERSION, {
-    name: snapshot.name,
-    seed: snapshot.seed,
-    size: snapshot.size,
-    tick: snapshot.tick,
-    ...extra,
-  }, state);
+  return encodeEnvelope(
+    options.format ?? SAVE_FORMAT,
+    SAVE_VERSION,
+    {
+      name: snapshot.name,
+      seed: snapshot.seed,
+      size: snapshot.size,
+      tick: snapshot.tick,
+      ...extra,
+    },
+    state,
+  );
 }
 
 /**
@@ -362,6 +367,12 @@ class Validator {
       lastMilestone: this.int(s.lastMilestone, 'state.lastMilestone', 0),
       ...(s.oasis === undefined ? {} : { oasis: this.oasisState(s.oasis, size) }),
     };
+    if ((snapshot.oasis?.waterPolicy?.rationedTicks ?? 0) > snapshot.tick % TICKS_PER_MONTH) {
+      this.error(
+        'state.oasis.waterPolicy.rationedTicks',
+        'cannot exceed elapsed ticks in the current month',
+      );
+    }
     return this.errors.length > 0 ? null : snapshot;
   }
 
@@ -394,7 +405,24 @@ class Validator {
         kind: this.str(i.kind, `state.oasis.storms[${k}].kind`),
       };
     });
+    const policy =
+      n.waterPolicy === undefined
+        ? undefined
+        : this.record(n.waterPolicy, 'state.oasis.waterPolicy');
     return {
+      ...(policy
+        ? {
+            waterPolicy: {
+              rationing: this.bool(policy.rationing, 'state.oasis.waterPolicy.rationing'),
+              rationedTicks: this.int(
+                policy.rationedTicks,
+                'state.oasis.waterPolicy.rationedTicks',
+                0,
+                TICKS_PER_MONTH,
+              ),
+            },
+          }
+        : {}),
       caravans,
       cisterns,
       storms,
@@ -406,13 +434,9 @@ class Validator {
       trade: this.num(n.trade, 'state.oasis.trade', 0),
       blocked: this.int(n.blocked, 'state.oasis.blocked', 0),
       springX:
-        n.springX === undefined
-          ? -1
-          : this.int(n.springX, 'state.oasis.springX', -1, size - 1),
+        n.springX === undefined ? -1 : this.int(n.springX, 'state.oasis.springX', -1, size - 1),
       springY:
-        n.springY === undefined
-          ? -1
-          : this.int(n.springY, 'state.oasis.springY', -1, size - 1),
+        n.springY === undefined ? -1 : this.int(n.springY, 'state.oasis.springY', -1, size - 1),
       lastSpringMonth:
         n.lastSpringMonth === undefined
           ? -1
@@ -462,9 +486,7 @@ class Validator {
         ...(b.linked === undefined ? {} : { linked: this.bool(b.linked, `${path}.linked`) }),
         offline: this.int(b.offline, `${path}.offline`, 0),
         attractiveness: this.num(b.attractiveness, `${path}.attractiveness`, 0, 1),
-        ...(b.owner === undefined
-          ? {}
-          : { owner: this.int(b.owner, `${path}.owner`, 1) }),
+        ...(b.owner === undefined ? {} : { owner: this.int(b.owner, `${path}.owner`, 1) }),
       };
     });
   }

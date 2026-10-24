@@ -1,5 +1,6 @@
 import {
   Infra,
+  OASIS_RATIONING,
   OASIS_SHADE,
   OASIS_WATER,
   PLACEABLE_SPECS,
@@ -38,10 +39,11 @@ export function powerDemand(b: BuildingRecord): number {
   return (table[b.level] ?? oasisPower(b.kind, b.level)) as number;
 }
 
-export function waterDemand(b: BuildingRecord): number {
+export function waterDemand(b: BuildingRecord, rationing = false): number {
   if (!isZoneKind(b.kind) || b.abandoned) return 0;
   const table = ZONE_SPECS[b.kind].water;
-  return (table[b.level] ?? oasisWater(b.kind, b.level)) as number;
+  const demand = (table[b.level] ?? oasisWater(b.kind, b.level)) as number;
+  return rationing ? Math.ceil(demand * OASIS_RATIONING.demandMultiplier) : demand;
 }
 
 export function powerSupply(b: BuildingRecord): number {
@@ -111,7 +113,7 @@ function settleCisterns(engine: SimulationEngine): void {
     const banks: BuildingRecord[] = [];
     for (const b of buildings) {
       base += waterSupply(engine.world, b, true);
-      demand += waterDemand(b);
+      demand += waterDemand(b, engine.oasis.waterPolicy?.rationing);
       if (b.kind === 'cistern' && b.powered && b.offline === 0) banks.push(b);
     }
     if (banks.length === 0) continue;
@@ -220,7 +222,8 @@ export function updateUtilities(
     {
       conductors: waterConductors,
       supply: (b) => oasisWaterOutput(engine, b),
-      demand: waterDemand,
+      demand: (b) =>
+        waterDemand(b, engine.ruleset === 'oasis' && engine.oasis.waterPolicy?.rationing),
       postProcess: (next) => spreadWaterToEmptyZones(w, next),
     },
   );
@@ -273,7 +276,11 @@ export function powerComponents(engine: SimulationEngine): PowerComponent[] {
   const conductors = new Uint8Array(count);
   for (let i = 0; i < count; i++) {
     const flags = infra[i] as number;
-    if ((buildingId[i] as number) !== 0 || (flags & Infra.PowerLine) !== 0 || (w.zone[i] as number) !== ZoneType.None)
+    if (
+      (buildingId[i] as number) !== 0 ||
+      (flags & Infra.PowerLine) !== 0 ||
+      (w.zone[i] as number) !== ZoneType.None
+    )
       conductors[i] = 1;
   }
   const visited = new Uint8Array(count);
@@ -308,11 +315,27 @@ export function powerComponents(engine: SimulationEngine): PowerComponent[] {
       }
       const tx = t % size;
       if (t >= size)
-        tail = enqueue(conductors, infra, visited, queue, tail, t - size, t >= 2 * size ? t - 2 * size : -1);
+        tail = enqueue(
+          conductors,
+          infra,
+          visited,
+          queue,
+          tail,
+          t - size,
+          t >= 2 * size ? t - 2 * size : -1,
+        );
       if (tx < size - 1)
         tail = enqueue(conductors, infra, visited, queue, tail, t + 1, tx < size - 2 ? t + 2 : -1);
       if (t < count - size)
-        tail = enqueue(conductors, infra, visited, queue, tail, t + size, t < count - 2 * size ? t + 2 * size : -1);
+        tail = enqueue(
+          conductors,
+          infra,
+          visited,
+          queue,
+          tail,
+          t + size,
+          t < count - 2 * size ? t + 2 * size : -1,
+        );
       if (tx > 0)
         tail = enqueue(conductors, infra, visited, queue, tail, t - 1, tx > 1 ? t - 2 : -1);
     }
@@ -521,11 +544,7 @@ export function waterNetworkComponents(
     if ((buildingId[i] as number) !== 0 || ((infra[i] as number) & Infra.Pipe) !== 0)
       conductors[i] = 1;
   }
-  return walkComponents(
-    engine,
-    conductors,
-    isSource ?? ((b) => oasisWaterOutput(engine, b) > 0),
-  );
+  return walkComponents(engine, conductors, isSource ?? ((b) => oasisWaterOutput(engine, b) > 0));
 }
 
 function walkComponents(

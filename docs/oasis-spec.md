@@ -51,6 +51,51 @@ reaches `overloadThreshold` (0.9) of its supply is parched. If that component ha
 qanat goes offline for `cascadeOutageDays` and the collapse notice fires. With no qanat, a share
 of the other buildings goes offline and only the water-stress notice fires.
 
+### Emergency water rationing
+
+`setWaterRationing` is an Oasis-only, reversible policy. Normal supply is the default.
+With rationing selected, each occupied or vacant non-abandoned zone building asks for
+`ceil(baseWaterDemand * OASIS_RATIONING.demandMultiplier)` (0.75). Placeables still ask for
+zero. Integer rounding means the saving is **up to** 25%; small lots may save less.
+Disconnected buildings remain disconnected. The water solve, cistern settlement and stress
+calculation all use the same reduced demand. Power and shade demand are unchanged.
+
+The command marks networks dirty; the next daily update applies the choice while the clock
+runs. It does not run a solve, charge a cistern or consume RNG on its own. Repeated toggles
+therefore cannot fill reserves. A paused city keeps its current network solution until time
+advances (or another construction command causes the usual refresh).
+
+Each simulated tick with the policy enabled increments `waterPolicy.rationedTicks`. At the
+monthly close, commercial and industrial tax receipts use the multiplier
+`1 - 0.20 * rationedTicks / TICKS_PER_MONTH`, before the usual rounding, in addition to crisis
+and epidemic factors. Residential tax and maintenance stay unchanged. The counter resets only
+after the budget is applied. Switching off does not erase the accrued reduction; half a month
+costs 10%, a full month costs 20%. This is a citywide abstraction of reduced business activity,
+not a per-lot production model. Water service improvements can offset part of the cost through
+growth, so the policy is a tradeoff rather than a guaranteed loss in final treasury balance.
+
+The optional `oasis.waterPolicy` record persists the choice and counter. Saves without it use
+normal supply and retain their previous state shape and hashes. The decoder validates the
+boolean and an integer counter no greater than elapsed ticks in the current month. Classic cities reject the
+command, omit this state and do not apply the revenue multiplier.
+
+The survival panel opens a keyboard-accessible water-management dialog with exact demand
+alternatives for the current building mix and the accrued monthly business-tax reduction.
+All figures come from engine statistics; the dialog neither forecasts final revenue nor
+changes speed. Opening it is cosmetic. Escape closes it without triggering map shortcuts.
+
+Adobe residential and commercial frontages show a filled trough while watered and green
+planters only while both watered and shaded. Empty troughs and dry planters indicate the
+missing conditions. These details are cosmetic, use theme tokens and redraw with dirty chunks;
+they disappear under network overlays, underground and on abandoned lots. No new simulated
+vegetation or shade source is created.
+
+Validation covers near-capacity recovery, stress relief, disconnected lots, reserve spending,
+repeated toggles, proportional business taxes, mid-month save/replay, legacy and malformed saves,
+and classic isolation. A long scenario and the `oasis-rationing` preset exercise a growing city;
+Playwright covers the actual worker command, dialog, changed consumption, save/import,
+deactivation with accrued cost retained, and a smaller viewport.
+
 ## Spring
 
 The spring starts at the map centre (the first open tile on a ring around it).

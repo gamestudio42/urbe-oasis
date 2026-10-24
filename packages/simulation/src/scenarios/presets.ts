@@ -61,6 +61,15 @@ export const SIM_PRESETS: Record<string, SimPreset> = {
       return { engine, onMonth: (e) => void maintainTown(e) };
     },
   },
+  'oasis-rationing': {
+    description: 'Oasis balanced town with continuous rationing and its business-tax tradeoff',
+    defaultSize: 64,
+    create(seed, size) {
+      const run = SIM_PRESETS['oasis-balanced']!.create(seed, size);
+      run.engine.execute({ type: 'setWaterRationing', enabled: true });
+      return run;
+    },
+  },
   'no-power': {
     description: 'The town without power plants',
     defaultSize: 64,

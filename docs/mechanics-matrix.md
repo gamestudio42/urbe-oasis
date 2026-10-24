@@ -101,3 +101,13 @@ Everything below only runs with `ruleset: 'oasis'`. Formulas live in
 | Storms       | A monthly sandstorm may bury a service                           | New        | Sand does not take money. A storm that lands nudges the spring.                               |
 | Storms       | A windbreak lowers the chance inside its radius                  | New        | It covers while powered and online. Shade is not required.                                    |
 | Traffic      | An arcade eases congestion on the streets beside it              | New        | It counts while powered and online. The adobe theme does not draw drones.                     |
+
+### Water-management decision
+
+- **New:** optional Oasis rationing, per-lot demand `ceil(base * 0.75)`, shared by the water,
+  storage and stress passes. The multiplier is an original balance choice.
+- **New:** business tax multiplier `1 - 0.20 * rationedTicks / TICKS_PER_MONTH`, accumulated
+  through the month and saved; residential receipts are unchanged. The 20% cost is an original
+  tradeoff parameter, not a real-world consumption or economic estimate.
+- **New presentation:** service-driven troughs and planters on adobe residential/commercial
+  frontages. They read water and shade flags without supplying either resource.

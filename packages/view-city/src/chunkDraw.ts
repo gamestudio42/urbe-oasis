@@ -11,6 +11,7 @@ import { Container, Sprite, type Graphics } from 'pixi.js';
 import { BRIDGE_DECK, BRIDGE_INSET, ROAD_INSET, isLandRoad } from './bridge';
 import { HEIGHT_STEP, tileLocalToScreen, tileQuad, vertexToScreen, type Point } from './iso';
 import { HEADINGS, drawBoat } from './hubSprites';
+import { drawOasisLotDetails } from './oasisLotDetails';
 import type { SpriteFactory } from './sprites';
 
 export type OverlayMode =
@@ -138,6 +139,10 @@ export function drawGround(g: Graphics, theme: Theme, ctx: DrawContext, area: Ch
     if (zone !== 0) {
       if (id !== 0) {
         fillQuad(g, rect(q, 0.04, 0.04, 0.96, 0.96), theme.lot[zone] ?? 0x999999);
+        if (theme.style === 'adobe' && ctx.overlay === 'none') {
+          const b = ctx.buildings.get(id);
+          if (b) drawOasisLotDetails(g, theme, q, b);
+        }
       } else {
         const zc = theme.zone[zone] ?? 0xffffff;
         fillQuad(g, rect(q, 0.1, 0.1, 0.9, 0.9), zc, 0.32);

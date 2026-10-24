@@ -176,3 +176,9 @@ export const OASIS_BALANCE = {
 } as const;
 
 export type OasisBalance = typeof OASIS_BALANCE;
+
+/** Emergency conservation trades water demand for business tax receipts. */
+export const OASIS_RATIONING = {
+  demandMultiplier: 0.75,
+  businessRevenuePenalty: 0.2,
+} as const;

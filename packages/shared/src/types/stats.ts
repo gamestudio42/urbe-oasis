@@ -92,6 +92,14 @@ export interface CityStats {
   edgeConnected: boolean;
   /** Neon-only telemetry; absent in a classic city. */
   oasis?: {
+    waterPolicy: {
+      enabled: boolean;
+      normalDemand: number;
+      rationedDemand: number;
+      fullMonthPenalty: number;
+      accruedPenalty: number;
+    };
+
     /** Districts above the grid overload threshold. */
     parched: number;
     /** Battery banks and their mean charge 0..1. */

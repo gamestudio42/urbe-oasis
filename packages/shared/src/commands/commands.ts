@@ -25,6 +25,7 @@ export type ToolCommand =
   | { type: 'place'; kind: PlaceableKind; x: number; y: number };
 
 export type PolicyCommand =
+  | { type: 'setWaterRationing'; enabled: boolean }
   | { type: 'setTax'; zone: ZoneBuildingKind; rate: number }
   | { type: 'setFunding'; department: Department; value: number }
   | { type: 'setDisasters'; enabled: boolean }
