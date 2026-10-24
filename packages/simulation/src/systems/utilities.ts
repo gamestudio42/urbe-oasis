@@ -372,8 +372,13 @@ function updateHubJobs(engine: SimulationEngine): void {
   }
   for (const b of hubs) {
     const spec = PLACEABLE_SPECS[b.kind as PlaceableKind];
-    b.capacity = hubJobs(spec, residents, operating.get(b.kind) ?? 0);
-    b.occupancy = b.powered && b.offline === 0 ? b.capacity : 0;
+    const capacity = hubJobs(spec, residents, operating.get(b.kind) ?? 0);
+    const occupancy = b.powered && b.offline === 0 ? capacity : 0;
+    if (b.capacity === capacity && b.occupancy === occupancy) continue;
+    b.capacity = capacity;
+    b.occupancy = occupancy;
+    // The UI mirror only hears about touched records; a staffed hub must not read as idle.
+    engine.buildings.touch(b);
   }
 }
 
