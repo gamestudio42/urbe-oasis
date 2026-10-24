@@ -72,6 +72,20 @@ eight appearances per zone kind, level and abandonment state. Classic and cyber 
 their original variant selection. Industrial smoke follows the visible adobe vent; timber and
 masonry yards have no decorative smoke. This does not affect simulated pollution.
 
+### Service landmarks
+
+The adobe fire station and water pump keep their existing 2×2 footprints. The station has
+two recessed engine bays, a lookout/drying tower, a paved exit apron and hose-service equipment.
+The pump has a stone race, a wheel projected into the isometric vertical plane with separate
+rims, spokes and lifting paddles, a shaft, a receiving basin and delivery fittings. Masonry,
+roof edges and contact shading use the injected theme's existing material tokens.
+
+These are cached, static architectural details. Decorative water, equipment and paving do not
+create network tiles, storage, service capacity or vehicle spawns. The existing operating rules,
+selection footprints and fire response remain unchanged. Classic and cyber retain their own
+drawings. Browser checks inspect both footprints at native and enlarged zoom, capture the
+landmarks among actual city lots, and verify that camera/inspection do not change the paused hash.
+
 ### Streets and planning
 
 Adobe streets use their actual road connections and existing lane width. Near zoned lots or

@@ -1,6 +1,7 @@
 import type { Graphics } from 'pixi.js';
 import { color, shade, type Theme } from '@theme/core';
 import { Frame, poly } from './isoFrame';
+import { drawAdobeFire, drawAdobePump } from './oasisServiceSprites';
 
 /**
  * Adobe civic and utility silhouettes for Urbe Oasis.
@@ -40,21 +41,6 @@ function drawAdobePolice(g: Graphics, theme: Theme): void {
   f.post(g, 0.42, 0.5, 18, color(theme, 'school.pole'), 1.6);
   const cloth = f.p(0.42, 0.5, 16);
   g.rect(cloth.x, cloth.y, 8, 4).fill(banner);
-}
-
-/** Fire: a low shed, two dark bays and a water trough in the yard. */
-function drawAdobeFire(g: Graphics, theme: Theme): void {
-  const f = new Frame(2);
-  const wall = color(theme, 'fire.wall');
-  const roof = color(theme, 'fire.roof');
-  const door = color(theme, 'fire.door');
-  const water = color(theme, 'pump.glow');
-  f.box(g, [0.12, 0.55, 1.88, 1.82], 0, 12, wall, roof);
-  opening(f, g, 0.28, 0.72, 1.82, 0, 8, door);
-  opening(f, g, 1.05, 1.5, 1.82, 0, 8, shade(door, 0.8));
-  f.box(g, [0.2, 0.16, 0.7, 0.48], 0, 6, shade(wall, 0.9), shade(roof, 1.05));
-  const trough = f.p(1.35, 0.36, 2);
-  g.ellipse(trough.x, trough.y, 10, 4).fill(water);
 }
 
 /** School: three rooms around an open court and a small flag. */
@@ -131,19 +117,6 @@ function drawAdobeWind(g: Graphics, theme: Theme): void {
   );
   const hub = f.p(0.5, 0.5, 16);
   g.circle(hub.x, hub.y, 2.2).fill(color(theme, 'wind.hub'));
-}
-
-/** Pump: a shaded housing and a water wheel. */
-function drawAdobePump(g: Graphics, theme: Theme, size: number): void {
-  const f = new Frame(size);
-  const wall = color(theme, 'pump.wall');
-  const roof = color(theme, 'pump.roof');
-  const s = size;
-  f.box(g, [0.15, 0.2, s * 0.62, s - 0.2], 0, 10, wall, roof);
-  f.post(g, s * 0.78, s * 0.55, 14, color(theme, 'pump.frame'), 1.8);
-  const wheel = f.p(s * 0.78, s * 0.55, 7);
-  g.circle(wheel.x, wheel.y, 7).fill(color(theme, 'pump.tank'));
-  g.circle(wheel.x, wheel.y, 3).fill(color(theme, 'pump.glow'));
 }
 
 /** Well: a stone ring, a beam and a bucket. */
