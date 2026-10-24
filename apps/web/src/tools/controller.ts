@@ -17,6 +17,8 @@ export class ToolController {
   private start: Point | null = null;
   private end: Point | null = null;
   private dragging = false;
+  private previewFrame: number | null = null;
+  private previewTile: Point | null = null;
 
   constructor(private readonly session: GameSession) {}
 
@@ -35,6 +37,9 @@ export class ToolController {
   }
 
   cancel(): void {
+    if (this.previewFrame !== null) cancelAnimationFrame(this.previewFrame);
+    this.previewFrame = null;
+    this.previewTile = null;
     this.dragging = false;
     this.start = null;
     this.end = null;
@@ -66,11 +71,18 @@ export class ToolController {
       this.end = tile;
       this.refresh(tile);
     } else if (kind === 'up' && this.dragging) {
+      if (!tile) {
+        this.cancel();
+        return;
+      }
+      // The release can arrive before another move event (or before the preview frame).
+      this.end = tile;
       const area = this.area();
       this.dragging = false;
       this.start = null;
       this.end = null;
       if (area) void this.commit(area);
+      this.refresh(tile);
     }
   }
 
@@ -103,12 +115,23 @@ export class ToolController {
         funds: stats.funds,
         bankrupt: stats.bankrupt,
         population: stats.population,
+        ruleset: stats.ruleset,
       },
       command,
     );
   }
 
   private refresh(tile: Point | null): void {
+    this.previewTile = tile;
+    if (this.previewFrame !== null) return;
+    this.previewFrame = requestAnimationFrame(() => {
+      this.previewFrame = null;
+      this.drawPreview(this.previewTile);
+    });
+  }
+
+  /** Only the latest cursor position and mirror state matter for the next rendered frame. */
+  private drawPreview(tile: Point | null): void {
     const tool = this.tool;
     const renderer = this.session.renderer;
     if (tool.shape === 'none' || !tile) {
@@ -122,6 +145,7 @@ export class ToolController {
     const world = this.session.client.world;
     if (!plan || !world) {
       renderer.setHighlight([]);
+      this.session.ui.set({ preview: null });
       return;
     }
     const highlight: HighlightTile[] = [];

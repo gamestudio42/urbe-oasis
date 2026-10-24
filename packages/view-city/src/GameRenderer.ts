@@ -91,6 +91,7 @@ export interface RendererInput {
   /** Called with tile coordinates (or null) on left-button events. */
   onPointer?(kind: 'down' | 'move' | 'up', tile: Point | null, event: PointerEvent): void;
   onHover?(tile: Point | null): void;
+  onCancel?(): void;
   onCamera?(): void;
 }
 
@@ -123,6 +124,7 @@ export class GameRenderer {
   private highlightDirty = false;
   private input: RendererInput = {};
   private panning: { x: number; y: number } | null = null;
+  private activePointer: number | null = null;
   private readonly listeners = new AbortController();
   private readonly keys = new Set<string>();
   /** Seconds into the menu camera loop, or null outside the menu. */
@@ -589,6 +591,8 @@ export class GameRenderer {
   private attachInput(canvas: HTMLCanvasElement): void {
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
     canvas.addEventListener('pointerdown', (e) => {
+      if (this.activePointer !== null) return;
+      this.activePointer = e.pointerId;
       canvas.setPointerCapture(e.pointerId);
       if (e.button === 1 || e.button === 2 || (e.button === 0 && this.keys.has(' '))) {
         this.panning = { x: e.clientX, y: e.clientY };
@@ -597,6 +601,7 @@ export class GameRenderer {
       if (e.button === 0) this.input.onPointer?.('down', this.pick(e.clientX, e.clientY), e);
     });
     canvas.addEventListener('pointermove', (e) => {
+      if (this.activePointer !== null && e.pointerId !== this.activePointer) return;
       if (this.panning) {
         this.camera.pan(e.clientX - this.panning.x, e.clientY - this.panning.y);
         this.panning = { x: e.clientX, y: e.clientY };
@@ -608,14 +613,29 @@ export class GameRenderer {
       this.input.onPointer?.('move', tile, e);
     });
     const end = (e: PointerEvent) => {
+      if (this.activePointer !== e.pointerId) return;
+      this.activePointer = null;
       if (this.panning) {
         this.panning = null;
         return;
       }
-      if (e.button === 0) this.input.onPointer?.('up', this.pick(e.clientX, e.clientY), e);
+      if (e.button === 0) {
+        const tile = this.pick(e.clientX, e.clientY);
+        this.setHover(tile);
+        this.input.onPointer?.('up', tile, e);
+      }
     };
     canvas.addEventListener('pointerup', end);
-    canvas.addEventListener('pointercancel', () => (this.panning = null));
+    const cancel = () => {
+      this.activePointer = null;
+      this.panning = null;
+      this.input.onCancel?.();
+    };
+    for (const type of ['pointercancel', 'lostpointercapture'] as const) {
+      canvas.addEventListener(type, (e) => {
+        if (e.pointerId === this.activePointer) cancel();
+      });
+    }
     canvas.addEventListener('pointerleave', () => this.setHover(null));
     canvas.addEventListener(
       'wheel',
@@ -647,7 +667,14 @@ export class GameRenderer {
         signal,
       },
     );
-    window.addEventListener('blur', () => this.keys.clear(), { signal });
+    window.addEventListener(
+      'blur',
+      () => {
+        this.keys.clear();
+        cancel();
+      },
+      { signal },
+    );
   }
 
   private driftCamera(attract: { time: number; still: boolean }, world: World): void {

@@ -101,6 +101,21 @@ flowchart LR
 Only one floating panel is open at a time; the inspector stacks above it in the right column.
 `Esc` closes the panel first, then cancels the tool and clears the selection.
 
+**Construction feedback.** `ToolController` schedules at most one preview per animation frame,
+using the latest tile/drag endpoint and the fully applied mirror delta. `onStats` refreshes the
+preview after tile/building updates, including changes to funds, bankruptcy and population
+without cursor movement. Planning passes the mirror's ruleset, so Oasis canals use the same
+validation as the worker. Previewing never sends a command or changes the simulation.
+
+Pointer release commits its actual tile even if a move or preview frame has not arrived yet.
+Releasing outside the map cancels the drag. Pointer cancellation, unexpected capture loss and
+window blur clear the gesture and queued preview; ordinary capture loss after pointer-up does
+not undo a completed command. The renderer tracks one active pointer, so another pointer cannot
+finish that gesture. Tool switches, city replacement and disposal also discard pending previews.
+Unit tests cover coalescing, ruleset parity, affordability, release endpoints and cancellation;
+browser tests exercise actual canal placement, stationary affordability updates and recovery
+after interrupted gestures. This bounds preview work; it is not a renderer frame-rate guarantee.
+
 **Boot and menu background.** `index.html` carries a static splash (logo and "Carregando…")
 inside `#root`, so something shows before the bundle runs; React replaces it with the boot
 screen, which looks the same plus a step label and a progress bar. `GameSession.boot()` goes

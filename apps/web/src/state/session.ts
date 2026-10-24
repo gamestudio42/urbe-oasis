@@ -286,7 +286,6 @@ export class GameSession {
       },
       onTiles: (indices, all) => {
         this.renderer.invalidateTiles(all ? null : indices);
-        this.tools.refreshCurrent();
         this.notifyTiles();
       },
       onBuildings: (changed) => {
@@ -299,6 +298,8 @@ export class GameSession {
       },
       onStats: (stats) => {
         this.ui.set({ stats });
+        // Stats are emitted after the complete mirror delta, including its current funds.
+        this.tools.refreshCurrent();
         this.renderer.setSpring(stats.oasis?.spring ?? null);
         this.checkTutorial();
       },
@@ -334,6 +335,7 @@ export class GameSession {
         if (kind === 'move') this.ui.set({ pointer: { x: event.clientX, y: event.clientY } });
         this.tools.onPointer(kind, tile);
       },
+      onCancel: () => this.tools.cancel(),
       onCamera: () => {
         for (const listener of this.cameraListeners) listener();
       },
@@ -693,6 +695,7 @@ export class GameSession {
 
   dispose(): void {
     this.disposed = true;
+    this.tools.cancel();
     if (this.autosaveTimer) clearInterval(this.autosaveTimer);
     this.sound.dispose();
     this.listeners.abort();
