@@ -40,6 +40,7 @@ function setup(ruleset: Ruleset = 'oasis') {
       | 'constructionFeedback'
       | 'cityRevision'
       | 'screen'
+      | 'overlay'
     >
   >({
     tool: 'canal',
@@ -49,6 +50,7 @@ function setup(ruleset: Ruleset = 'oasis') {
     constructionFeedback: null,
     cityRevision: 1,
     screen: 'game',
+    overlay: 'none',
   });
   const client = {
     world: engine.world,
@@ -56,7 +58,11 @@ function setup(ruleset: Ruleset = 'oasis') {
     stats: engine.stats(),
     command: vi.fn(async (command: Command) => engine.execute(command)),
   };
-  const renderer = { setHighlight: vi.fn(), setPlacementPreview: vi.fn() };
+  const renderer = {
+    setHighlight: vi.fn(),
+    setPlacementPreview: vi.fn(),
+    setServiceTrace: vi.fn(),
+  };
   const onBuilt = vi.fn();
   const notifyReason = vi.fn();
   const tools = new ToolController({
@@ -67,6 +73,15 @@ function setup(ruleset: Ruleset = 'oasis') {
     onBuilt,
     select: vi.fn(),
     setUnderground: (underground: boolean) => ui.set({ underground }),
+    setOverlay: (overlay: UiState['overlay']) => ui.set({ overlay }),
+    serviceContext: () =>
+      client.stats.oasis
+        ? {
+            world: client.world,
+            building: (id: number) => client.buildings.get(id),
+            spring: client.stats.oasis.spring,
+          }
+        : null,
   } as unknown as GameSession);
   return { engine, ui, client, renderer, tools, onBuilt, notifyReason };
 }
@@ -286,5 +301,54 @@ describe('construction input', () => {
     tools.refreshCurrent();
     frame();
     expect(ui.get().preview).toBeNull();
+  });
+
+  it('shows the network a canal joins and opens its overlay only while the tool is active', () => {
+    const { tools, ui, engine, client, renderer } = setup();
+    expect(engine.execute({ type: 'place', kind: 'palm', x: 8, y: 4 }).ok).toBe(true);
+    client.stats = engine.stats();
+    tools.setTool('canal');
+    expect(ui.get().overlay).toBe('data');
+    tools.onPointer('down', { x: 5, y: 4 });
+    tools.onPointer('move', { x: 7, y: 4 });
+    frame();
+    expect(ui.get().preview?.network).toMatchObject({
+      network: 'shade',
+      sources: 1,
+      active: 1,
+      plannedSupply: null,
+    });
+    expect(renderer.setServiceTrace).toHaveBeenLastCalledWith(
+      expect.objectContaining({ sources: [expect.objectContaining({ x: 8, y: 4, ok: true })] }),
+    );
+    tools.setTool('select');
+    expect(ui.get().overlay).toBe('none');
+    expect(renderer.setServiceTrace).toHaveBeenLastCalledWith(null);
+  });
+
+  it('keeps an overlay the player chose and warns about an isolated spring house', () => {
+    const { tools, ui } = setup();
+    ui.set({ overlay: 'pollution' });
+    tools.setTool('springHouse');
+    expect(ui.get().overlay).toBe('pollution');
+    tools.onHover({ x: 10, y: 10 });
+    frame();
+    expect(ui.get().preview?.network).toMatchObject({
+      network: 'shade',
+      plannedIssue: 'NO_POWER',
+      plannedSupply: 0,
+    });
+    tools.setTool('select');
+    expect(ui.get().overlay).toBe('pollution');
+  });
+
+  it('adds no network explanation in a classic city', () => {
+    const { tools, ui } = setup('classic');
+    tools.setTool('pipe');
+    expect(ui.get().overlay).toBe('none');
+    tools.onHover({ x: 6, y: 6 });
+    frame();
+    expect(ui.get().preview).not.toBeNull();
+    expect(ui.get().preview?.network).toBeUndefined();
   });
 });

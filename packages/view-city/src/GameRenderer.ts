@@ -83,6 +83,16 @@ export interface HighlightTile {
   state: 'ok' | 'bad' | 'neutral';
 }
 
+/** Part of a network shown while planning or inspecting. Read-only; drawn under highlights. */
+export interface ServiceTraceView {
+  /** Conducting tile indices. */
+  tiles: readonly number[];
+  sources: readonly { x: number; y: number; w: number; h: number; ok: boolean }[];
+}
+
+/** Larger networks still show their sources; only the conductor outline is capped. */
+const TRACE_TILE_LIMIT = 6000;
+
 export interface PlacementPreview {
   kind: PlaceableKind;
   x: number;
@@ -117,6 +127,9 @@ export class GameRenderer {
   private readonly root = new Container();
   private readonly chunkLayer = new Container();
   private readonly highlight = new Graphics();
+  private readonly serviceTraceLayer = new Graphics();
+  private serviceTrace: ServiceTraceView | null = null;
+  private serviceTraceDirty = false;
   private readonly placementGhost = new Sprite();
   private placement: PlacementPreview | null = null;
   private readonly springMark = new Graphics();
@@ -177,6 +190,7 @@ export class GameRenderer {
       this.chunkLayer,
       this.animation.smoke,
       this.animation.sky,
+      this.serviceTraceLayer,
       this.highlight,
       this.placementGhost,
       this.springMark,
@@ -293,6 +307,7 @@ export class GameRenderer {
 
   setWorld(world: World, buildings: Map<number, BuildingRecord>): void {
     this.setPlacementPreview(null);
+    this.setServiceTrace(null);
     this.oasisEffects?.reset();
     this.world = world;
     this.buildings = buildings;
@@ -487,6 +502,23 @@ export class GameRenderer {
     this.placement = { ...placement };
   }
 
+  /** Outlines a network's conductors and rings its sources; never touches the mirror. */
+  setServiceTrace(trace: ServiceTraceView | null): void {
+    this.serviceTrace = trace;
+    this.serviceTraceDirty = true;
+  }
+
+  /** Read-only copy of the drawn trace, used by browser checks. */
+  serviceTraceState(): { tiles: number; sources: number; idle: number } | null {
+    const trace = this.serviceTrace;
+    if (!trace) return null;
+    return {
+      tiles: trace.tiles.length,
+      sources: trace.sources.length,
+      idle: trace.sources.filter((s) => !s.ok).length,
+    };
+  }
+
   /** Read-only inspection of the actual preview sprite, used by browser checks. */
   placementPreview(): (PlacementPreview & { visible: boolean }) | null {
     return this.placement ? { ...this.placement, visible: this.placementGhost.visible } : null;
@@ -615,6 +647,7 @@ export class GameRenderer {
       project: (x, y) => tileCenter(ctx.world, x, y),
     });
     if (this.highlightDirty) this.drawHighlight();
+    if (this.serviceTraceDirty) this.drawServiceTrace();
   }
 
   private redrawChunk(c: Chunk, ctx: DrawContext): void {
@@ -659,6 +692,35 @@ export class GameRenderer {
         color: color(this.theme, 'highlight.hover'),
         alpha: 0.95,
       });
+    }
+  }
+
+  private drawServiceTrace(): void {
+    this.serviceTraceDirty = false;
+    const g = this.serviceTraceLayer;
+    g.clear();
+    const world = this.world;
+    const trace = this.serviceTrace;
+    if (!world || !trace) return;
+    const neutral = color(this.theme, 'highlight.neutralStroke');
+    const limit = Math.min(trace.tiles.length, TRACE_TILE_LIMIT);
+    for (let k = 0; k < limit; k++) {
+      const i = trace.tiles[k] as number;
+      const q = tileQuad(world, world.xOf(i), world.yOf(i)).flatMap((p) => [p.x, p.y]);
+      g.poly(q).fill({ color: neutral, alpha: 0.12 });
+      g.poly(q).stroke({ width: 1, color: neutral, alpha: 0.55 });
+    }
+    for (const s of trace.sources) {
+      const stroke = color(this.theme, s.ok ? 'highlight.okStroke' : 'highlight.badStroke');
+      const fill = color(this.theme, s.ok ? 'highlight.okFill' : 'highlight.badFill');
+      for (let y = s.y; y < s.y + s.h; y++) {
+        for (let x = s.x; x < s.x + s.w; x++) {
+          if (!world.inBounds(x, y)) continue;
+          const q = tileQuad(world, x, y).flatMap((p) => [p.x, p.y]);
+          g.poly(q).fill({ color: fill, alpha: 0.4 });
+          g.poly(q).stroke({ width: 3, color: stroke, alpha: 0.95 });
+        }
+      }
     }
   }
 

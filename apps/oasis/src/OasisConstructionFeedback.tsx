@@ -1,13 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { PLACEABLE_SPECS, type PlaceableKind } from '@city/shared';
-import { formatMoney, formatNumber, useStrings } from '@oasis/web/i18n';
+import { formatMoney, formatNumber, useStrings, type Locale } from '@oasis/web/i18n';
 import type { GameSession } from '@oasis/web/state/session';
 import { useStore } from '@oasis/web/state/store';
 import { toolById } from '@oasis/web/tools/tools';
 import { ToolTooltip } from '@oasis/web/ui/ToolTooltip';
 import { ToolIcon } from '@oasis/web/ui/icons';
 import { AdobeIcon } from '@oasis/web/ui/adobeIcons';
-import { oasisConstructionCopy } from './i18n';
+import type { NetworkPreview } from '@oasis/web/tools/controller';
+import { oasisConstructionCopy, oasisServiceCopy } from './i18n';
 
 /** The shared planner owns validity and cost; this card only explains its result. */
 export function OasisToolPreview({ session }: { session: GameSession }) {
@@ -122,6 +123,7 @@ export function OasisToolPreview({ session }: { session: GameSession }) {
           </div>
         )}
       </dl>
+      {preview.network && <NetworkSummary network={preview.network} locale={locale} />}
       {showReason && preview.reason && (
         <p className="tool-tooltip-reason">
           {t.reasons[preview.reason]}
@@ -140,6 +142,49 @@ export function OasisToolPreview({ session }: { session: GameSession }) {
               : copy.drag}
       </footer>
     </div>
+  );
+}
+
+/** Where the planned piece connects: sources in reach, their balance and why any are idle. */
+function NetworkSummary({ network: n, locale }: { network: NetworkPreview; locale: Locale }) {
+  const copy = oasisServiceCopy(locale);
+  const num = (v: number) => formatNumber(v, locale);
+  const connected = n.sources > 0;
+  return (
+    <section
+      className={`construction-network${connected ? '' : ' warn'}`}
+      data-testid="construction-network"
+      data-network={n.network}
+      data-sources={n.sources}
+      data-active={n.active}
+    >
+      <strong>{copy.network(copy.networks[n.network])}</strong>
+      <p>
+        <AdobeIcon id={connected && n.active > 0 ? 'check' : 'warning'} size={14} />{' '}
+        {connected ? copy.sources(num(n.active), num(n.sources)) : copy.noSource}
+      </p>
+      {connected && (
+        <p data-testid="construction-network-balance">
+          {copy.balance(num(n.supply + n.reserve), num(n.demand))}
+        </p>
+      )}
+      {n.plannedSupply !== null && (
+        <p data-testid="construction-network-planned">
+          {copy.thisBuilding}{' '}
+          {n.plannedIssue
+            ? `${copy.issues[n.plannedIssue]}${n.plannedSupply > 0 ? ` · ${copy.adds(num(n.plannedSupply))}` : ''}`
+            : copy.adds(num(n.plannedSupply))}
+        </p>
+      )}
+      {n.issues.length > 0 && (
+        <p data-testid="construction-network-issues">
+          {copy.reduced} {n.issues.map((i) => copy.issues[i]).join(', ')}
+        </p>
+      )}
+      {!connected && n.plannedSupply === null && (
+        <p className="construction-network-hint">{copy.disconnected[n.network]}</p>
+      )}
+    </section>
   );
 }
 

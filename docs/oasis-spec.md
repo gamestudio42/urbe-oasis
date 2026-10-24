@@ -76,6 +76,27 @@ target, and are excluded from saves. Phone layouts temporarily hide secondary st
 while planning, and show the receipt instead of a second preview until the next target.
 Classic cities retain their shared tooltip and rejection toasts.
 
+Network tools (power line, pipe, canal and every power, water or shade source) explain where the
+planned piece connects. While such a tool is active, the matching coverage overlay opens unless
+the player already chose another overlay; it closes when the tool changes. The preview traces the
+network the planned tiles or footprint would join, with the solver's conduction rule (including
+the hop over a plain road tile), outlines its conductors and rings each source: themed valid
+colour when it adds supply, rejected colour when it adds nothing. The card names the network,
+counts active sources, shows supply and demand in reach, and lists why sources are idle or
+reduced (offline, no power, no water, far from the spring, unshaded, empty reserve). A planned
+source reports its expected output and its own missing input; for example, a spring house that
+no power line reaches warns before placement. With no source in reach, the card states which
+source the network needs and that wild palms and the spring itself supply nothing.
+
+The inspector replaces the classic power and water rows in Oasis cities with a services list.
+Zoned lots show power, water and shade; placeables show the networks they draw from or feed.
+Each row reads served, not connected, source stopped or not enough, with a sentence naming the
+cause and the fix. Empty zoned lots borrow water and shade from an orthogonal neighbour, as the
+solver does. A Show button opens the overlay and draws that tile's reach; closing the inspector
+clears it. Traces and explanations come from `explainService` and `traceService`, which read
+the mirror world only: supply follows the last solve's flags, cistern output uses the mean
+charge, and nothing is written to the world, saves or hashes.
+
 ### Management panels
 
 Management panels use a wider, responsive layout with fixed headers and scrollable bodies.

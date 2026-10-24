@@ -15,6 +15,20 @@ export {
   type System,
 } from './engine';
 export { diagnoseTile, type DiagnoseContext } from './diagnostics';
+export {
+  explainService,
+  isServiceSource,
+  serviceNetworkOf,
+  traceService,
+  type ServiceContext,
+  type ServiceExplanation,
+  type ServiceNetwork,
+  type ServicePlan,
+  type ServiceStatus,
+  type ServiceTrace,
+  type SourceIssue,
+  type TracedSource,
+} from './serviceTrace';
 export { hashSnapshot, hashState, hashTerrain } from './persistence/hash';
 export { collectMetrics, type MonthMetrics } from './report';
 export {
@@ -47,7 +61,12 @@ export {
   updateGrid,
   type GridResult,
 } from './systems/oasis/grid';
-export { initCaravans, ownerOf, updateCaravans, type CaravanResult } from './systems/oasis/caravans';
+export {
+  initCaravans,
+  ownerOf,
+  updateCaravans,
+  type CaravanResult,
+} from './systems/oasis/caravans';
 export {
   shelterCoverage,
   windbreakCoverage,

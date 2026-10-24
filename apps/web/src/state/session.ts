@@ -14,7 +14,7 @@ import {
   type Speed,
   type ToolCommand,
 } from '@city/shared';
-import { RoadNetwork, type World } from '@city/simulation';
+import { RoadNetwork, type ServiceContext, type World } from '@city/simulation';
 import type { Theme } from '@theme/core';
 import { urbe } from '@theme/urbe';
 import { SoundBoard, type MusicFactory, type SoundName } from '../audio/sound';
@@ -378,6 +378,20 @@ export class GameSession {
     }
     this.roadCache.roads.update();
     return this.roadCache.roads;
+  }
+
+  /** Mirror-world inputs for network explanations; Oasis cities only. */
+  serviceContext(): ServiceContext | null {
+    const world = this.client.world;
+    const oasis = this.client.stats?.oasis;
+    if (!world || !oasis || this.client.stats?.ruleset !== 'oasis') return null;
+    return {
+      world,
+      building: (id) => this.client.buildings.get(id),
+      spring: oasis.spring,
+      cisternCharge: oasis.cisterns.charge,
+      rationing: oasis.waterPolicy.enabled,
+    };
   }
 
   /** Creates a city from the main menu and switches to the game screen. */

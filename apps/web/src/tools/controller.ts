@@ -1,6 +1,13 @@
 import { RejectReason, type Area, type CommandResult, type ToolCommand } from '@city/shared';
-import { planToolCommand, type ToolPlan } from '@city/simulation';
-import type { HighlightTile } from '@view/city';
+import {
+  planToolCommand,
+  serviceNetworkOf,
+  traceService,
+  type ServiceNetwork,
+  type SourceIssue,
+  type ToolPlan,
+} from '@city/simulation';
+import type { HighlightTile, OverlayMode } from '@view/city';
 import type { Point } from '@view/city';
 import type { GameSession } from '../state/session';
 import { toolById, type ToolDef, type ToolId } from './tools';
@@ -13,7 +20,33 @@ export interface ToolPreview {
   unchanged: number;
   dragging: boolean;
   reason?: RejectReason;
+  /** Oasis only: the network this command would extend, with today's sources in reach. */
+  network?: NetworkPreview;
 }
+
+export interface NetworkPreview {
+  network: ServiceNetwork;
+  /** Sources in reach, including a planned one. */
+  sources: number;
+  /** Sources adding water, power or shade right now. */
+  active: number;
+  /** Distinct reasons the other sources are idle or reduced. */
+  issues: SourceIssue[];
+  /** The planned building's own problem, if it is a source. */
+  plannedIssue: SourceIssue | null;
+  /** Expected output of a planned source. */
+  plannedSupply: number | null;
+  supply: number;
+  reserve: number;
+  demand: number;
+  consumers: number;
+}
+
+const NETWORK_OVERLAY: Record<ServiceNetwork, OverlayMode> = {
+  power: 'power',
+  water: 'water',
+  shade: 'data',
+};
 
 /** A receipt belongs to the submitted tool, even if another tool is selected before it returns. */
 export type ConstructionFeedback = { id: number; tool: ToolId } & (
@@ -29,6 +62,8 @@ export class ToolController {
   private previewTile: Point | null = null;
   private feedbackId = 0;
   private settledPlacement: Point | null = null;
+  /** Overlay this controller opened for a network tool, closed again when the tool changes. */
+  private autoOverlay: OverlayMode | null = null;
 
   constructor(private readonly session: GameSession) {}
 
@@ -43,6 +78,7 @@ export class ToolController {
     this.session.ui.set({ tool: id });
     if (next.underground) this.session.setUnderground(true);
     else if (previous.underground) this.session.setUnderground(false);
+    this.followNetworkOverlay(id);
     this.refresh(this.session.ui.get().hover);
   }
 
@@ -56,7 +92,19 @@ export class ToolController {
     this.end = null;
     this.session.renderer.setHighlight([]);
     this.session.renderer.setPlacementPreview(null);
+    this.session.renderer.setServiceTrace(null);
     this.session.ui.set({ preview: null });
+  }
+
+  /** Network tools show the served area; the player's own overlay choice always wins. */
+  private followNetworkOverlay(id: ToolId): void {
+    const overlay = this.session.ui.get().overlay;
+    if (this.autoOverlay && overlay === this.autoOverlay) this.session.setOverlay('none');
+    this.autoOverlay = null;
+    const network = this.session.client.stats?.ruleset === 'oasis' ? serviceNetworkOf(id) : null;
+    if (!network || this.session.ui.get().overlay !== 'none') return;
+    this.autoOverlay = NETWORK_OVERLAY[network];
+    this.session.setOverlay(this.autoOverlay);
   }
 
   onHover(tile: Point | null): void {
@@ -159,6 +207,7 @@ export class ToolController {
     ) {
       renderer.setHighlight([]);
       renderer.setPlacementPreview(null);
+      renderer.setServiceTrace(null);
       this.session.ui.set({ preview: null });
       return;
     }
@@ -169,6 +218,7 @@ export class ToolController {
     if (!plan || !world) {
       renderer.setHighlight([]);
       renderer.setPlacementPreview(null);
+      renderer.setServiceTrace(null);
       this.session.ui.set({ preview: null });
       return;
     }
@@ -196,7 +246,48 @@ export class ToolController {
       dragging: this.dragging,
     };
     if (plan.reason) preview.reason = plan.reason;
+    const network = command ? this.networkPreview(command, plan) : null;
+    if (network) preview.network = network;
     this.session.ui.set({ preview });
+  }
+
+  /** Traces the network the planned tiles would join and draws it under the plan. */
+  private networkPreview(command: ToolCommand, plan: ToolPlan): NetworkPreview | null {
+    const renderer = this.session.renderer;
+    const network = serviceNetworkOf(this.tool.id);
+    const ctx = network ? this.session.serviceContext() : null;
+    if (!network || !ctx) {
+      renderer.setServiceTrace(null);
+      return null;
+    }
+    const tiles = [
+      ...plan.valid,
+      ...plan.invalid.filter((r) => r.reason === RejectReason.AlreadyBuilt).map((r) => r.index),
+    ];
+    const building =
+      command.type === 'place' ? { kind: command.kind, x: command.x, y: command.y } : undefined;
+    const start = building ? [ctx.world.index(building.x, building.y)] : tiles;
+    const trace = traceService(ctx, network, start, building ? { tiles, building } : { tiles });
+    renderer.setServiceTrace({
+      tiles: trace.tiles,
+      sources: trace.sources.map((s) => ({ x: s.x, y: s.y, w: s.w, h: s.h, ok: s.supply > 0 })),
+    });
+    const planned = trace.sources.find((s) => s.planned) ?? null;
+    const issues: SourceIssue[] = [];
+    for (const s of trace.sources)
+      if (!s.planned && s.issue && !issues.includes(s.issue)) issues.push(s.issue);
+    return {
+      network,
+      sources: trace.sources.length,
+      active: trace.sources.filter((s) => s.supply > 0).length,
+      issues,
+      plannedIssue: planned?.issue ?? null,
+      plannedSupply: planned ? planned.supply : null,
+      supply: trace.supply,
+      reserve: trace.reserve,
+      demand: trace.demand,
+      consumers: trace.consumers,
+    };
   }
 
   private async commit(area: Area): Promise<void> {

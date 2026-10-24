@@ -9,6 +9,7 @@ import { OasisChronicle } from './OasisChronicle';
 import { OasisToolbar } from './OasisToolbar';
 import { OasisGuide } from './OasisGuide';
 import { OasisToolPreview } from './OasisConstructionFeedback';
+import { OasisServices } from './OasisServices';
 
 /** Desert music on the shared sound bus. */
 const music: MusicFactory = (ctx, bus, noise) => oasisMusicFactory(ctx, bus, noise);
@@ -34,6 +35,11 @@ export function App() {
       toolbar={(session) => <OasisToolbar session={session} />}
       guide={(session) => <OasisGuide session={session} />}
       toolPreview={(session) => <OasisToolPreview session={session} />}
+      inspectorDetails={(session, tile) =>
+        session.client.stats?.ruleset === 'oasis' ? (
+          <OasisServices session={session} {...tile} />
+        ) : null
+      }
       status={(session) => (
         <>
           <OasisStatus session={session} />

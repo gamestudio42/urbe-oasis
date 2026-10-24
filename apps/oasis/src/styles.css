@@ -903,6 +903,66 @@ body,
 .oasis-tool-preview .tool-tooltip-reason {
   margin: 8px 0;
 }
+.construction-network {
+  margin: 8px 0;
+  padding: 6px 8px;
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  font-size: 12px;
+}
+.construction-network.warn {
+  border-left-color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 10%, transparent);
+}
+.construction-network p {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 4px 0 0;
+}
+.construction-network p svg {
+  flex: none;
+  margin-top: 1px;
+}
+.construction-network-hint {
+  color: var(--muted);
+}
+.oasis-services {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.oasis-services li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--panel-border);
+}
+.oasis-services li:first-child {
+  border-top: 0;
+}
+.oasis-services .service-state {
+  font-weight: 600;
+}
+.oasis-services li[data-status='served'] .service-state {
+  color: var(--accent);
+}
+.oasis-services li:not([data-status='served']) .service-state {
+  color: var(--bad);
+}
+.oasis-services p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.oasis-services button {
+  font-size: 11px;
+  padding: 2px 8px;
+}
 .construction-receipt {
   display: flex;
   align-items: flex-start;
