@@ -12,6 +12,9 @@ defaults are `OASIS_TERRAIN`: water 0.04, hills 0.15, forest 0.04 and no rivers.
 still adjust each control. These defaults do not rewrite existing saves or scenario presets.
 The adobe renderer uses dry ground, wild date palms and a spring landmark. Wild palms and
 the landmark are cosmetic: they do not supply shade or water to a network.
+The inspector calls the engine's grass terrain "Desert ground" in the Oasis catalogs,
+matching its dry appearance. This naming does not change terrain IDs, saves or city rules;
+water, shoreline sand, dirt and rock retain distinct names. Classic catalogs remain unchanged.
 
 The first founding starts paused, centred on the spring. A ten-step tutorial guides the player
 through an edge-connected road, homes, jobs, power, water, shade, the first residents and a
@@ -25,6 +28,11 @@ The survival panel shows served shares and supply/demand from engine statistics,
 charge and the number of placed cisterns. Empty cities display “No consumers”; unpowered
 cisterns still count as placed buildings. Water and shade buttons toggle their overlays, the
 reserve button selects the cistern tool, and the spring button recentres the surface view.
+The three resource indicators share label, value and detail rows. Wrapped translations or
+empty-state values expand their shared row, keeping adjacent indicators aligned without
+truncating telemetry. On phone widths, the indicators stack with labels on the left and
+values and details on the right. Browser checks cover empty and populated cities at narrow
+and wide sizes.
 
 The Oasis construction dock groups tools into six named categories. Opening a category shows
 tool names, costs and population requirements from the shared catalog. Selecting a tool closes

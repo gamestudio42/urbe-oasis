@@ -3,6 +3,23 @@ import { createEngine } from '@city/simulation';
 import { expect, test, type Page } from '@playwright/test';
 import { addWater } from '../helpers/engine';
 
+async function inspectTile(page: Page, x: number, y: number) {
+  const point = await page.evaluate(
+    ({ x, y }) => {
+      // Move the camera until the lot is visible below the responsive HUD cards.
+      for (let offset = 0; offset <= 10; offset++) {
+        window.__cityDebug!.centerOnTile(x - offset, y - offset);
+        const p = window.__cityDebug!.tileToClient(x, y);
+        if (p && document.elementFromPoint(p.x, p.y)?.tagName === 'CANVAS') return p;
+      }
+      return null;
+    },
+    { x, y },
+  );
+  expect(point, 'the inspected lot must be exposed on the map').not.toBeNull();
+  await page.mouse.click(point!.x, point!.y);
+}
+
 async function expectClearPanel(page: Page, id: string, width: number) {
   const panel = page.getByTestId(id);
   const close = page.getByTestId(`${id}-close`);
@@ -64,23 +81,16 @@ for (const [width, height] of [
     await page.waitForFunction(() => window.__cityDebug?.isReady());
     const hash = await page.evaluate(() => window.__cityDebug!.hash());
     for (const [x, y, label] of [
-      [14, 14, 'Grama'],
+      [14, 14, 'Solo desértico'],
       [19, 19, 'Água'],
     ] as const) {
-      const point = await page.evaluate(
-        ({ x, y }) => {
-          // Keep the inspected lot below the resource card on narrow screens.
-          window.__cityDebug!.centerOnTile(x - 4, y - 4);
-          return window.__cityDebug!.tileToClient(x, y);
-        },
-        { x, y },
-      );
-      await page.mouse.click(point!.x, point!.y);
+      await inspectTile(page, x, y);
       await expect(
         page.getByTestId('inspector').getByRole('heading', { name: label, exact: true }),
       ).toBeVisible();
+      await expect(page.getByTestId('inspector').locator('dl').first()).toContainText(label);
       await expectClearPanel(page, 'inspector', width);
-      if (label === 'Grama')
+      if (label === 'Solo desértico')
         await page.screenshot({ path: `test-results/oasis-audio-inspector-${width}.png` });
       await page.getByTestId('inspector-close').click();
       await expect(page.getByTestId('inspector')).toBeHidden();
@@ -106,11 +116,7 @@ for (const [width, height] of [
       await expect(page.getByTestId(panelId)).toBeHidden();
     }
     // Inspection and a HUD panel can remain open together, including on short screens.
-    const point = await page.evaluate(() => {
-      window.__cityDebug!.centerOnTile(10, 10);
-      return window.__cityDebug!.tileToClient(14, 14);
-    });
-    await page.mouse.click(point!.x, point!.y);
+    await inspectTile(page, 14, 14);
     await expect(page.getByTestId('inspector')).toBeVisible();
     await page.getByTestId('open-system').click();
     await expectClearPanel(page, 'inspector', width);

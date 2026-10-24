@@ -170,13 +170,15 @@ body,
 .oasis-resources {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, auto);
   margin-top: 8px;
 }
 
 .oasis-resource {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  align-items: start;
   gap: 5px;
   padding: 8px 12px;
   border: 0;
@@ -186,6 +188,7 @@ body,
   text-align: left;
   cursor: pointer;
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .oasis-resource:first-child {
@@ -194,6 +197,7 @@ body,
 }
 .oasis-resource > span {
   font-size: 12px;
+  line-height: 20px;
   color: var(--muted);
 }
 .oasis-resource > strong {
@@ -735,6 +739,9 @@ body,
 .icon-button:has(> .oasis-icon) {
   justify-content: center;
 }
+.oasis-resource > span {
+  align-items: flex-start;
+}
 .tutorial-tools .oasis-icon {
   width: 20px;
   height: 20px;
@@ -843,6 +850,33 @@ body,
     max-height: calc(100% - var(--oasis-status-bottom, 258px) - 188px);
   }
 }
+@media (max-width: 480px) {
+  .oasis-resources {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+  .oasis-resource {
+    grid-row: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto auto;
+    padding: 8px 0;
+    column-gap: 8px;
+    border-left: 0;
+    border-top: 1px solid var(--panel-border);
+  }
+  .oasis-resource:first-child {
+    border-top: 0;
+  }
+  .oasis-resource > span {
+    grid-row: span 2;
+    align-self: center;
+  }
+  .oasis-resource > strong,
+  .oasis-resource > small {
+    grid-column: 2;
+  }
+}
+
 @media (min-width: 721px) and (max-width: 1180px) {
   .app:has(.oasis-construction) .minimap,
   .app:has(.oasis-construction) .minimap canvas {

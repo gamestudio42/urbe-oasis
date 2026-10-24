@@ -1,4 +1,4 @@
-import { setCatalogOverride, type Locale } from '@oasis/web/i18n';
+import { setCatalogOverride, type Locale, type Strings } from '@oasis/web/i18n';
 
 /**
  * Urbe Oasis copy. The five catalogs stay the Urbe wording for roads, zones and budget.
@@ -73,6 +73,7 @@ const POLICY_EN = {
 };
 
 type Copy = {
+  terrains: Strings['inspector']['terrains'];
   policy: typeof POLICY_EN;
   hubIdle: string;
   chronicle: typeof CHRONICLE_EN;
@@ -101,6 +102,7 @@ type Copy = {
 };
 
 const EN: Copy = {
+  terrains: ['Water', 'Sand', 'Desert ground', 'Dirt', 'Rock'],
   policy: POLICY_EN,
   hubIdle: 'Not operating',
   chronicle: CHRONICLE_EN,
@@ -173,6 +175,7 @@ const EN: Copy = {
 };
 
 const PT: Copy = {
+  terrains: ['Água', 'Areia', 'Solo desértico', 'Terra', 'Rocha'],
   policy: {
     title: 'Gestão da água',
     normal: 'Abastecimento normal',
@@ -308,6 +311,7 @@ const PT: Copy = {
 };
 
 const ES: Copy = {
+  terrains: ['Agua', 'Arena', 'Suelo desértico', 'Tierra', 'Roca'],
   policy: {
     title: 'Gestión del agua',
     normal: 'Suministro normal',
@@ -443,6 +447,7 @@ const ES: Copy = {
 };
 
 const FR: Copy = {
+  terrains: ['Eau', 'Sable', 'Sol désertique', 'Terre', 'Roche'],
   policy: {
     title: 'Gestion de l’eau',
     normal: 'Distribution normale',
@@ -579,6 +584,7 @@ const FR: Copy = {
 };
 
 const DE: Copy = {
+  terrains: ['Wasser', 'Sand', 'Wüstenboden', 'Erde', 'Fels'],
   policy: {
     title: 'Wasserverwaltung',
     normal: 'Normale Versorgung',
@@ -761,7 +767,7 @@ export function applyOasisCopy(locale: Locale): void {
       springHouse: copy.springHouseHint,
       palm: copy.palmHint,
     },
-    inspector: { hub: { idle: copy.hubIdle } },
+    inspector: { terrains: copy.terrains, hub: { idle: copy.hubIdle } },
     overlays: { data: copy.shadeMap },
   });
 }
