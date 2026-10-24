@@ -1234,7 +1234,7 @@ body,
 }
 /* Fit the bar instead of scrolling it: panel buttons keep their icon and accessible name.
    The bar still scrolls as a last resort on very narrow phones. */
-@media (max-width: 1360px) {
+@media (max-width: 1480px) {
   .app:has(.oasis-construction) .hud {
     gap: 12px;
     overflow-x: auto;
@@ -1278,7 +1278,7 @@ body,
     white-space: nowrap;
   }
 }
-@media (max-width: 860px) {
+@media (max-width: 960px) {
   .app:has(.oasis-construction) .hud {
     gap: 10px;
   }
@@ -1287,6 +1287,16 @@ body,
   }
   .app:has(.oasis-construction) .speed-button {
     min-width: 30px;
+  }
+}
+/* Leave room for wider fallback system fonts (DejaVu Sans on Linux CI). */
+@media (max-width: 760px) {
+  .app:has(.oasis-construction) .hud {
+    gap: 8px;
+    padding: 0 8px;
+  }
+  .app:has(.oasis-construction) .hud-city {
+    max-width: 110px;
   }
 }
 @media (max-width: 1180px) {

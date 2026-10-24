@@ -34,14 +34,16 @@ for (const locale of ['pt-BR', 'de'])
   }) => {
     await start(page, locale);
     const hud = page.getByTestId('hud');
-    for (const width of [1440, 1366, 1280, 1180, 1024, 800, 768, 720]) {
+    for (const width of [1600, 1481, 1440, 1366, 1280, 1024, 961, 900, 800, 768, 720]) {
       await page.setViewportSize({ width, height: 720 });
       await expect
-        .poll(() => hud.evaluate((node) => node.scrollWidth - node.clientWidth))
+        .poll(() => hud.evaluate((node) => node.scrollWidth - node.clientWidth), {
+          message: `top bar overflow at ${width}px`,
+        })
         .toBeLessThanOrEqual(0);
       for (const id of ['budget', 'charts', 'overlays', 'system']) {
         const button = page.getByTestId(`open-${id}`);
-        await expect(button).toBeInViewport({ ratio: 1 });
+        await expect(button, `${id} at ${width}px`).toBeInViewport({ ratio: 1 });
         expect(await button.evaluate((node) => node.textContent?.trim().length)).toBeGreaterThan(0);
       }
       if (!process.env.CI && (width === 800 || width === 1280))

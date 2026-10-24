@@ -99,12 +99,14 @@ charge, and nothing is written to the world, saves or hashes.
 
 ### Top bar
 
-The Oasis top bar fits its width instead of scrolling from 720 px upward. At 1360 px and below,
+The Oasis top bar fits its width instead of scrolling from 720 px upward. At 1480 px and below,
 the budget, charts, maps and menu buttons show only their icons. Their labels remain as
 accessible names and tooltips. Stat labels stack above their values, the city name truncates,
-and debt badges give way to the red funds value. At 860 px and below, the studio mark is hidden
-and the gaps narrow. Narrower phones keep horizontal scrolling as a last resort. Browser checks
-cover pt-BR and German from 1440 px to 720 px. The classic HUD is unchanged.
+and debt badges give way to the red funds value. At 960 px and below, the studio mark is hidden
+and the gaps narrow. At 760 px and below, the bar padding narrows too. Narrower phones keep
+horizontal scrolling as a last resort. Breakpoints leave room for wider fallback system fonts,
+such as DejaVu Sans on Linux. Browser checks cover pt-BR and German from 1600 px to 720 px,
+including each breakpoint edge. The classic HUD is unchanged.
 
 ### Management panels
 
