@@ -214,11 +214,11 @@ export class GameSession {
   readonly foundingRuleset: 'classic' | 'oasis';
   /**
    * Rules the current city runs under. It starts as the app's own ruleset and follows the file
-   * when a save is loaded, so opening a classic city in Neo Urbe shows classic panels.
+   * when a save is loaded, so opening a classic city in Urbe Oasis shows classic panels.
    */
   ruleset: 'classic' | 'oasis';
 
-  /** Envelope format this app reads and writes; Neo Urbe and Urbe never share a file. */
+  /** Envelope format this app reads and writes; Urbe Oasis exports its own file format. */
   saveFormat(): string {
     return this.ruleset === 'oasis' ? OASIS_SAVE_FORMAT : SAVE_FORMAT;
   }
@@ -423,7 +423,7 @@ export class GameSession {
 
   async refreshSaves(): Promise<void> {
     try {
-      this.ui.set({ saves: await listSaves() });
+      this.ui.set({ saves: await listSaves(this.foundingRuleset) });
     } catch (error) {
       // Without IndexedDB the menu simply shows no saves; export/import still work.
       console.warn('[saves]', error);
@@ -438,7 +438,7 @@ export class GameSession {
     try {
       const { text, meta } = await this.client.exportSave(new Date().toISOString());
       const id = autosave ? AUTOSAVE_ID : manualSlotId(meta.name, meta.seed);
-      await writeSave({ ...meta, id, autosave, bytes: text.length }, text);
+      await writeSave(this.foundingRuleset, { ...meta, id, autosave, bytes: text.length }, text);
       this.lastAutosave = { time: Date.now(), tick: meta.tick };
       if (!autosave) this.toast('info', this.strings().save.saved);
       await this.refreshSaves();
@@ -462,10 +462,10 @@ export class GameSession {
 
   async loadSlot(id: string): Promise<LoadResult | null> {
     try {
-      return await this.importText(await readSave(id));
+      return await this.importText(await readSave(this.foundingRuleset, id));
     } catch (error) {
       if (error instanceof SaveStorageError && error.kind === 'missing') {
-        await deleteSave(id).catch(() => undefined);
+        await deleteSave(this.foundingRuleset, id).catch(() => undefined);
         await this.refreshSaves();
       }
       this.reportStorageError(error, this.strings().save.loadFailed);
@@ -480,7 +480,7 @@ export class GameSession {
 
   async deleteSlot(id: string): Promise<void> {
     try {
-      await deleteSave(id);
+      await deleteSave(this.foundingRuleset, id);
     } catch (error) {
       this.reportStorageError(error, this.strings().save.failed);
     }

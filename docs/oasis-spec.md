@@ -280,3 +280,6 @@ road is required when it is placed. The adobe theme does not draw drones.
 
 Oasis cities use the envelope `oasis-city-save` and the extension `.oasis.json`.
 A classic file stays classic when opened here.
+The Oasis app stores browser saves in its own `urbe-oasis` IndexedDB database so games
+hosted on the same origin cannot appear in its menu. Existing Oasis saves in the former
+shared `city-builder` database are copied on first access and left untouched there.

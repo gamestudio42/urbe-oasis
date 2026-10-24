@@ -120,7 +120,7 @@ test('places a qanat, a cistern and a windbreak through the debug command API', 
   expect(stats?.oasis).toBeDefined();
 });
 
-test('exports and imports a neon save', async ({ page }) => {
+test('exports and imports an Oasis save', async ({ page }) => {
   await startNeonCity(page, 'neon-save');
   const text = await page.evaluate(() => window.__cityDebug?.exportText() ?? '');
   expect(text.length).toBeGreaterThan(0);
@@ -128,6 +128,67 @@ test('exports and imports a neon save', async ({ page }) => {
     return window.__cityDebug?.importText(saved) ?? null;
   }, text);
   expect(loaded?.ok).toBe(true);
+});
+
+test('shows only Oasis saves on a shared origin and preserves legacy Oasis saves', async ({
+  page,
+}) => {
+  await startNeonCity(page, 'oasis-legacy-save');
+  const text = await page.evaluate(() => window.__cityDebug!.exportText());
+  const meta = JSON.parse(text).meta as {
+    name: string;
+    seed: string;
+    size: number;
+    tick: number;
+    population: number;
+    funds: number;
+    savedAt: string;
+  };
+  const oasisId = `city:${meta.seed}:${meta.name}`;
+  await page.evaluate(
+    async ({ oasisId, meta, text }) => {
+      const db = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open('city-builder', 1);
+        request.onupgradeneeded = () => {
+          const database = request.result;
+          database.createObjectStore('meta', { keyPath: 'id' });
+          database.createObjectStore('data', { keyPath: 'id' });
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      const tx = db.transaction(['meta', 'data'], 'readwrite');
+      tx.objectStore('meta').put({
+        ...meta,
+        id: 'autosave',
+        name: 'Neon City',
+        autosave: true,
+        bytes: 42,
+        savedAt: '2026-10-24T12:00:00.000Z',
+      });
+      tx.objectStore('data').put({
+        id: 'autosave',
+        text: JSON.stringify({ state: { ruleset: 'classic' } }),
+      });
+      tx.objectStore('meta').put({ ...meta, id: oasisId, autosave: false, bytes: text.length });
+      tx.objectStore('data').put({ id: oasisId, text });
+      await new Promise<void>((resolve, reject) => {
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+      db.close();
+    },
+    { oasisId, meta, text },
+  );
+
+  await page.reload();
+  await page.getByTestId('main-menu').waitFor();
+  await expect(page.getByTestId('save-slot')).toHaveCount(1);
+  await expect(page.getByTestId('continue')).toContainText(meta.name);
+  await expect(page.getByTestId('saved-cities')).not.toContainText('Neon City');
+  await page.getByTestId('load-slot').click();
+  await page.waitForFunction(() => window.__cityDebug?.isReady());
+  expect(await page.evaluate(() => window.__cityDebug!.getStats()!.ruleset)).toBe('oasis');
 });
 
 test('replays the same command log and ticks to the same hash', async ({ page }) => {

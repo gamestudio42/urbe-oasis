@@ -34,7 +34,7 @@ export const SAVE_FORMAT = 'city-builder-save';
  */
 export const SAVE_VERSION = 2;
 export const SAVE_FILE_EXTENSION = '.city.json';
-/** Neo Urbe envelope: same schema, its own format and extension so the two never mix. */
+/** Urbe Oasis envelope: same schema, its own format and extension. */
 export const OASIS_SAVE_FORMAT = 'oasis-city-save';
 export const OASIS_SAVE_FILE_EXTENSION = '.oasis.json';
 
@@ -81,11 +81,11 @@ export interface DecodeOptions {
   /** Defaults to `SAVE_MIGRATIONS` and `SAVE_VERSION`; tests inject their own. */
   migrations?: Readonly<Record<number, SaveMigration>>;
   currentVersion?: number;
-  /** Envelope format. Neo Urbe passes `OASIS_SAVE_FORMAT` so the two games never mix files. */
+  /** Envelope format. Urbe Oasis passes `OASIS_SAVE_FORMAT` for its exported files. */
   format?: string;
   /**
    * Formats the decoder accepts. Defaults to every known city format, so a classic city opens
-   * in Neo Urbe and vice versa; the `ruleset` inside the file decides the rules it runs under.
+   * in Urbe Oasis and vice versa; the `ruleset` inside the file decides the rules it runs under.
    */
   acceptFormats?: readonly string[];
 }
@@ -139,7 +139,7 @@ export function encodeSave(
  *
  * The envelope format is checked against `options.format` only when the caller demands a strict
  * match. By default any known city format is accepted, because a classic city is a perfectly
- * valid city to open in Neo Urbe: the `ruleset` stored inside the file decides which rules it runs
+ * valid city to open in Urbe Oasis: the `ruleset` stored inside the file decides which rules it runs
  * under, not the app that happens to open it.
  */
 export function decodeSave(text: string, options: DecodeOptions = {}): DecodeResult {

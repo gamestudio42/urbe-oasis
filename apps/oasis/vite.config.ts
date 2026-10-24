@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      // The Neo app reuses the Urbe shell (UI, session, worker) without copying it.
+      // The Oasis app reuses the Urbe shell (UI, session, worker) without copying it.
       '@oasis/web': new URL('../web/src', import.meta.url).pathname,
     },
   },
