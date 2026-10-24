@@ -100,11 +100,22 @@ export function cisternDelivery(engine: SimulationEngine): number {
  * Before the water solve: a spare component charges its cisterns and they add nothing.
  * A short one is topped up only by the missing water, and the charge falls by that share.
  */
-function settleCisterns(engine: SimulationEngine): void {
+function settleCisterns(engine: SimulationEngine, conductors: Uint8Array): void {
   const releases = new Map<number, number>();
   cisternRelease.set(engine, releases);
-  const components = waterNetworkComponents(
+  // Reset last delivery even when every bank has been removed, lost power or gone offline.
+  // No charge can change without an operating bank, so there is no network to settle.
+  let hasBank = false;
+  for (const b of engine.buildings.values()) {
+    if (b.kind === 'cistern' && b.powered && b.offline === 0) {
+      hasBank = true;
+      break;
+    }
+  }
+  if (!hasBank) return;
+  const components = walkComponents(
     engine,
+    conductors,
     (b) => waterSupply(engine.world, b, true) > 0 || b.kind === 'cistern',
   );
   for (const buildings of components) {
@@ -212,7 +223,7 @@ export function updateUtilities(
     (b, on) => (b.powered = on),
     { conductors: powerConductors, supply: powerSupply, demand: powerDemand },
   );
-  if (write && engine.ruleset === 'oasis') settleCisterns(engine);
+  if (write && engine.ruleset === 'oasis') settleCisterns(engine, waterConductors);
   const water = solve(
     engine,
     write,

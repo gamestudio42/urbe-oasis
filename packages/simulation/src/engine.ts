@@ -44,7 +44,7 @@ import { RoadNetwork } from './systems/roads';
 import { updateServices } from './systems/services';
 import { componentStats, gatewayRoads, updateTraffic, type TrafficResult } from './systems/traffic';
 import { updateUtilities, type UtilityResult } from './systems/utilities';
-import { cascade, tickGrid, updateGrid, type GridResult } from './systems/oasis/grid';
+import { refreshGrid, tickGrid, updateGrid, type GridResult } from './systems/oasis/grid';
 import { updateCaravans, type CaravanResult } from './systems/oasis/caravans';
 import { ensureSpring, updateSpring } from './systems/oasis/spring';
 import { rationingSummary } from './systems/oasis/rationing';
@@ -464,10 +464,7 @@ export class SimulationEngine {
     this.utilities = result;
     this.networksDirty = false;
     if (this.ruleset === 'oasis') {
-      const cascaded = cascade(this, result.water);
-      const grid = updateGrid(this);
-      grid.cascaded = cascaded.cascaded;
-      this.lastGrid = grid;
+      this.lastGrid = refreshGrid(this, result.water);
     }
     const month = monthIndex(this.tick);
     if ((result.power.shortage || result.water.shortage) && month !== this.lastShortageMonth) {

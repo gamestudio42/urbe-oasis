@@ -264,3 +264,43 @@ Validation: `pnpm check` passes with 376 unit/integration tests, 17 simulation s
 lint, type checking and the production build. All 14 Oasis Playwright tests pass against an
 isolated production preview. The new replay fixtures preserve pre-optimization hashes, while
 focused tests verify scratch isolation and exact blur results across window sizes and edges.
+
+## Oasis water traversal checkpoint (2026-10-24)
+
+Starting at `daabd74`, cistern settlement now skips component discovery when there is no
+powered, online bank, and otherwise reuses the current refresh's water conductor mask.
+Cascade evaluation and stress reporting share their component calculation until an outage
+changes the network. The report then rebuilds immediately. There is no cross-refresh cache,
+change to traversal/RNG order, or change to the classic rules.
+
+Fresh three-process benchmark sets are in `reports/water-network-before/` and
+`reports/water-network-after/`, using the same `grid` and `oasis-grid` workloads, seed `bench`,
+96 warm-up months and 24 measured months. Every run retains classic hash `b6c91483` or Oasis
+hash `e51be040`, including identical population, buildings and funds.
+
+These unpaired timing sets are too noisy for an overall speedup claim: median simulated-month
+cost was 10.672 versus 12.883 ms for unchanged classic, and 11.072 versus 15.568 ms for Oasis.
+Calibration ranges also shifted (classic 4.69–6.12 versus 6.99–24.47 ns/tile). Two of the six
+post-change runs miss a heavy-stage budget; all six baseline runs passed. This shared-machine
+measurement does not establish a stable 8 ms budget or a whole-game frame-rate improvement.
+
+A paired comparison loads the original and optimized utility/grid functions in one process,
+with identical snapshots of the 96-month Oasis grid. Each variant warms up for 25 refreshes,
+then runs twelve batches of twenty refreshes, alternating which variant runs first. Complete
+state hashes and emitted events match after every pair of batches. Median combined utility,
+cascade and stress-report cost fell from 4.895 to 4.278 ms without banks (12.6%), and from
+4.751 to 4.552 ms with one powered cistern (4.2%). These are subsystem measurements in this
+environment, not percentages to add to the earlier whole-month result. Scripts, original
+functions and raw samples are retained in `reports/water-network-paired*` and
+`reports/water-*-before.ts`.
+
+The 120-month, three-seed `oasis-balanced` and `oasis-rationing` reports retain every gameplay
+metric and hash from the previous checkpoint. Timing and heap fields are excluded from that
+comparison. New regression tests cover stale delivery after loss of power, offline status
+and demolition, reserve preservation/recovery, read-only summaries, and identical RNG/events
+through both qanat and ordinary-building cascades. The sole-source qanat failure explicitly
+checks that the post-outage stress report drops the now-unsupplied component.
+
+Validation: `pnpm check` passes with 381 unit/integration tests, 17 simulation scenarios,
+lint, type checking and the production build. All 14 Oasis Playwright tests pass against
+an isolated production preview.

@@ -51,6 +51,18 @@ reaches `overloadThreshold` (0.9) of its supply is parched. If that component ha
 qanat goes offline for `cascadeOutageDays` and the collapse notice fires. With no qanat, a share
 of the other buildings goes offline and only the water-stress notice fires.
 
+Each utility refresh clears the previous cistern delivery before checking for powered, online
+banks. Without an operating bank, settlement can skip its component traversal: no reserve can
+charge or discharge. When banks exist, settlement reuses the water conductor mask already built
+for this refresh; it retains the same source and BFS order, including inactive cisterns as
+traversal origins. No mask or component result is retained across refreshes.
+
+After utilities, cascade evaluation and the stress report share one component calculation.
+If a cascade takes any building offline, the report rebuilds the components and their supply
+from the new state. Otherwise the pre-cascade calculation is still current. Source order,
+random draws, outages, event order and stress anchors are unchanged. A separate monthly stress
+update still computes the live network independently.
+
 ### Emergency water rationing
 
 `setWaterRationing` is an Oasis-only, reversible policy. Normal supply is the default.

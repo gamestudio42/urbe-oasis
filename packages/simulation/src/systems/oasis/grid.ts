@@ -47,8 +47,11 @@ interface Component {
  * `oasis.parched` always describes the live solution.
  */
 export function updateGrid(engine: SimulationEngine): GridResult {
+  return reportGrid(engine, waterComponents(engine));
+}
+
+function reportGrid(engine: SimulationEngine, components: Component[]): GridResult {
   const result: GridResult = { parched: 0, cascaded: 0, cisternOutput: 0 };
-  const components = waterComponents(engine);
   const parched: number[] = [];
 
   for (const component of components) {
@@ -60,6 +63,15 @@ export function updateGrid(engine: SimulationEngine): GridResult {
   }
   engine.oasis.parched = parched;
   result.cisternOutput = cisternDelivery(engine);
+  return result;
+}
+
+/** Reuse this refresh's traversal unless a cascade changes the available water sources. */
+export function refreshGrid(engine: SimulationEngine, utilities: UtilityResult): GridResult {
+  const components = waterComponents(engine);
+  const cascaded = utilities.shortage ? cascadeComponents(engine, components).cascaded : 0;
+  const result = reportGrid(engine, cascaded > 0 ? waterComponents(engine) : components);
+  result.cascaded = cascaded;
   return result;
 }
 
@@ -83,14 +95,17 @@ function waterComponents(engine: SimulationEngine): Component[] {
  * and only the water-stress toast fires.
  */
 export function cascade(engine: SimulationEngine, utilities: UtilityResult): GridResult {
+  return cascadeComponents(engine, utilities.shortage ? waterComponents(engine) : []);
+}
+
+function cascadeComponents(engine: SimulationEngine, components: Component[]): GridResult {
   const result: GridResult = {
     parched: engine.oasis.parched.length,
     cascaded: 0,
     cisternOutput: 0,
   };
-  if (!utilities.shortage) return result;
   const ticks = OASIS_WATER.cascadeOutageDays * 4;
-  for (const component of waterComponents(engine)) {
+  for (const component of components) {
     const ratio = component.supply > 0 ? component.demand / component.supply : 0;
     if (ratio < OASIS_WATER.overloadThreshold) continue;
     if (!engine.rng.chance(OASIS_WATER.cascadeChance)) continue;
