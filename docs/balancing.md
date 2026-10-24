@@ -213,3 +213,54 @@ Validation: `pnpm check` passes with 374 unit/integration tests, 14 simulation s
 production build. The complete 14-test Oasis Playwright suite passes; the water-management
 flow is also repeated against the final build after the save-counter validation and fractional
 percentage display adjustments.
+
+## Deterministic simulation performance checkpoint (2026-10-24)
+
+The benchmark now includes a full `stateHash` and an `oasis-grid` workload: the same dense
+128 by 128 road/pipe grid, with Oasis rules, shade canals along each horizontal street and
+one palm beside each street. It uses the same automated plant/pump maintenance. This matters
+because the original `grid` workload exercises classic rules, not cisterns, shade and water stress.
+The new preset is a stress workload with a large treasury, not a recommended opening build.
+
+Three separate Node processes were measured before and after the optimizations, with seed
+`bench`, 96 warm-up months and 24 measured months. The benchmark harness and Oasis preset
+were identical in both sets; the starting simulation implementation was commit `4619b73`.
+Reports are in `reports/performance-before/` and `reports/performance-after/`.
+
+```sh
+for preset in grid oasis-grid; do
+  for trial in 1 2 3; do
+    node --import tsx tools/benchmark.ts --preset "$preset" --out "reports/performance-after/$preset-$trial.json"
+  done
+done
+```
+
+Median cost per simulated month fell from 33.766 to 30.596 ms for classic (9.4%) and from
+58.145 to 49.892 ms for Oasis (14.2%). Median p95 utility-refresh cost fell from 10.885 to
+9.109 ms for classic and from 28.499 to 24.969 ms for Oasis. Median p95 influence cost fell
+from 9.698 to 8.382 ms for classic and from 12.196 to 8.900 ms for Oasis. These are local CPU
+measurements, not a frame-rate claim or a guarantee on another device. Calibration medians
+were 14.86 versus 14.24 ns per tile for classic, and 15.77 versus 15.80 for Oasis.
+
+A separate paired check loaded the pre-change and optimized functions in the same process,
+warmed both, and alternated which ran first for twelve batches. Utility batches made twenty
+solves; blur batches made one hundred calls on the same 128 by 128 input. Median utility cost
+fell 8.3% for classic and 11.1% for Oasis; radius-one and radius-two blur costs fell 40.5% and
+36.2%. Both utility variants ended with identical state hashes. The local comparison scripts,
+original functions and raw samples are retained in `reports/` (`performance-paired.json`).
+
+All six full benchmark runs per workload ended with the same hash: classic `b6c91483`
+(32673 residents, 4312 buildings) and Oasis `e51be040` (31735 residents, 4340 buildings).
+The three 120-month `oasis-balanced` controls also retain every gameplay metric and hashes
+`6dda1252` / `6a82429f` / `2967728c`. Continuous-rationing controls retain every gameplay metric
+and hashes `f80e15de` / `86c194df` / `e4fac10f`.
+
+**The 8 ms heavy-tick target still fails.** Median p95 traffic is 10.988 ms for classic and
+12.101 ms for Oasis; Oasis monthly closing is 12.784 ms. Further work is needed, especially on
+Oasis water-network traversal. The budgets were not relaxed, and no monthly stage was skipped
+or moved to produce these gains.
+
+Validation: `pnpm check` passes with 376 unit/integration tests, 17 simulation scenarios,
+lint, type checking and the production build. All 14 Oasis Playwright tests pass against an
+isolated production preview. The new replay fixtures preserve pre-optimization hashes, while
+focused tests verify scratch isolation and exact blur results across window sizes and edges.

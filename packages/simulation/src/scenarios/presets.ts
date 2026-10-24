@@ -100,6 +100,27 @@ export const SIM_PRESETS: Record<string, SimPreset> = {
       return { engine, onMonth: (e) => void maintainGrid(e, layout) };
     },
   },
+  'oasis-grid': {
+    description: 'Large Oasis street grid with shade canals and palms (benchmark city)',
+    defaultSize: 128,
+    create(seed, size) {
+      const engine = createEngine({
+        seed,
+        size,
+        name: 'Oasis benchmark',
+        ruleset: 'oasis',
+        funds: 10_000_000,
+        terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
+      });
+      engine.disastersEnabled = false;
+      const layout = buildGridCity(engine);
+      for (const y of layout.streets) {
+        run(engine, { type: 'canal', x0: 0, y0: y, x1: size - 1, y1: y });
+        run(engine, { type: 'place', kind: 'palm', x: 1, y: y + 1 });
+      }
+      return { engine, onMonth: (e) => void maintainGrid(e, layout) };
+    },
+  },
   terrain: {
     description: 'Generated terrain without a city (baseline cost of an empty map)',
     defaultSize: 128,

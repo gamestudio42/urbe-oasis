@@ -12,7 +12,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { parseArgs } from 'node:util';
 import { encodeSave, TICKS_PER_MONTH } from '@city/shared';
-import { monthStage, SIM_PRESETS, type MonthStage } from '@city/simulation';
+import { hashState, monthStage, SIM_PRESETS, type MonthStage } from '@city/simulation';
 
 const BUDGETS = { heavyTickMs: 8, fastTickMs: 0.5 };
 const HEAVY = ['traffic', 'services', 'influence', 'close', 'utilityRefresh'] as const;
@@ -118,6 +118,7 @@ const result = {
   warmupMonths: warmup,
   measuredMonths: months,
   node: process.version,
+  stateHash: hashState(engine),
   city: {
     population: stats.population,
     buildings: engine.buildings.size,

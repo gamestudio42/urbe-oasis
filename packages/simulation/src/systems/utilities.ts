@@ -371,6 +371,41 @@ function serviceLayer(w: World, layer: ServiceLayer): Uint8Array {
   return layer === 'linked' ? w.linked : w.structure[layer];
 }
 
+/** Scratch memory belongs to a world, never to a save or a utility result. */
+interface UtilityScratch {
+  next: Uint8Array;
+  visited: Uint8Array;
+  queue: Int32Array;
+  state: Uint8Array;
+  supply: Float64Array;
+}
+const utilityScratch = new WeakMap<World, UtilityScratch>();
+
+function scratchFor(engine: SimulationEngine): UtilityScratch {
+  const w = engine.world;
+  let scratch = utilityScratch.get(w);
+  const capacity = engine.buildings.nextId;
+  if (!scratch) {
+    scratch = {
+      next: new Uint8Array(w.tileCount),
+      visited: new Uint8Array(w.tileCount),
+      queue: new Int32Array(w.tileCount),
+      state: new Uint8Array(capacity),
+      supply: new Float64Array(capacity),
+    };
+    utilityScratch.set(w, scratch);
+  } else {
+    scratch.next.fill(0);
+    scratch.visited.fill(0);
+    if (scratch.state.length < capacity) {
+      const grown = Math.max(capacity, scratch.state.length * 2);
+      scratch.state = new Uint8Array(grown);
+      scratch.supply = new Float64Array(grown);
+    } else scratch.state.fill(0);
+  }
+  return scratch;
+}
+
 function solve(
   engine: SimulationEngine,
   write: boolean,
@@ -385,17 +420,16 @@ function solve(
   const conductors = spec.conductors;
   const infra = w.structure.infra;
   const buildingId = w.buildingId;
-  const next = new Uint8Array(w.tileCount);
-  const visited = new Uint8Array(w.tileCount);
-  // Per building id: footprints are contiguous conductors, so each building joins one component.
-  const state = new Uint8Array(engine.buildings.nextId);
-  const queue = new Int32Array(w.tileCount);
+  const { next, visited, state, queue, supply: supplyById } = scratchFor(engine);
+  // Supply inputs stay fixed during this pass. Recompute for every pass, since water depends
+  // on the just-solved power flags and shade depends on the just-solved water flags.
+  for (const b of engine.buildings.values()) supplyById[b.id] = spec.supply(b);
   const result: UtilityResult = { supply: 0, demand: 0, served: 0, shortage: false };
   let consumers = 0;
   let servedConsumers = 0;
 
   for (const source of engine.buildings.values()) {
-    if (spec.supply(source) <= 0) continue;
+    if ((supplyById[source.id] as number) <= 0) continue;
     const start = w.index(source.x, source.y);
     if (visited[start] === 1) continue;
     // Breadth-first discovery from the source footprint.
@@ -417,7 +451,7 @@ function solve(
         const b = engine.buildings.get(id);
         if (b) {
           state[id] = UNSERVED;
-          supply += spec.supply(b);
+          supply += supplyById[b.id] as number;
           order.push(b);
           firstTile.push(head);
         }
@@ -455,7 +489,7 @@ function solve(
     for (let k = 0; k < order.length; k++) {
       const b = order[k] as BuildingRecord;
       const demand = spec.demand(b);
-      const isSource = spec.supply(b) > 0;
+      const isSource = (supplyById[b.id] as number) > 0;
       if (demand > 0 && !isSource) {
         consumers++;
         result.demand += demand;
@@ -486,7 +520,7 @@ function solve(
     }
     if (reached === UNREACHED) {
       const demand = spec.demand(b);
-      if (demand > 0 && spec.supply(b) <= 0) {
+      if (demand > 0 && (supplyById[b.id] as number) <= 0) {
         consumers++;
         result.demand += demand;
       }

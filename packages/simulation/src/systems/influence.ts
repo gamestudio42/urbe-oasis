@@ -13,9 +13,24 @@ export function boxBlur(src: Float32Array, size: number, radius: number): Float3
     for (let x = 0; x < size; x++) {
       const lo = x < radius ? 0 : x - radius;
       const hi = x + radius >= size ? size - 1 : x + radius;
-      let sum = 0;
-      for (let k = row + lo; k <= row + hi; k++) sum += src[k] as number;
-      tmp[row + x] = sum / (hi - lo + 1);
+      const i = row + x;
+      // Interior windows use fixed offsets, keeping the original left-to-right addition order.
+      if (radius === 1 && x > 0 && x < size - 1) {
+        tmp[i] = (0 + (src[i - 1] as number) + (src[i] as number) + (src[i + 1] as number)) / 3;
+      } else if (radius === 2 && x > 1 && x < size - 2) {
+        tmp[i] =
+          (0 +
+            (src[i - 2] as number) +
+            (src[i - 1] as number) +
+            (src[i] as number) +
+            (src[i + 1] as number) +
+            (src[i + 2] as number)) /
+          5;
+      } else {
+        let sum = 0;
+        for (let k = row + lo; k <= row + hi; k++) sum += src[k] as number;
+        tmp[i] = sum / (hi - lo + 1);
+      }
     }
   }
   // Vertical pass row by row; each pixel still sums its window from top to bottom.
@@ -23,6 +38,26 @@ export function boxBlur(src: Float32Array, size: number, radius: number): Float3
   for (let y = 0; y < size; y++) {
     const lo = y < radius ? 0 : y - radius;
     const hi = y + radius >= size ? size - 1 : y + radius;
+    // Keep Float32 rounding between passes, and the same top-to-bottom additions. Each
+    // interior pixel now writes its accumulator once instead of once per window row.
+    if (radius === 1 && y > 0 && y < size - 1) {
+      for (let i = y * size; i < (y + 1) * size; i++)
+        out[i] =
+          (0 + (tmp[i - size] as number) + (tmp[i] as number) + (tmp[i + size] as number)) / 3;
+      continue;
+    }
+    if (radius === 2 && y > 1 && y < size - 2) {
+      for (let i = y * size; i < (y + 1) * size; i++)
+        out[i] =
+          (0 +
+            (tmp[i - 2 * size] as number) +
+            (tmp[i - size] as number) +
+            (tmp[i] as number) +
+            (tmp[i + size] as number) +
+            (tmp[i + 2 * size] as number)) /
+          5;
+      continue;
+    }
     sums.fill(0);
     for (let k = lo; k <= hi; k++) {
       const row = k * size;

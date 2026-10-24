@@ -319,12 +319,17 @@ export class SimulationEngine {
   }
 
   planContext(): PlanContext {
+    // Tool unlocks need only population. Hover previews must not aggregate jobs and quality.
+    let population = 0;
+    for (const b of this.buildings.values()) {
+      if (b.kind === 'residential' && !b.abandoned) population += b.occupancy;
+    }
     return {
       world: this.world,
       building: (id) => this.buildings.get(id),
       funds: this.economy.funds,
       bankrupt: this.economy.bankrupt,
-      population: cityTotals(this).residents,
+      population,
       ruleset: this.ruleset,
     };
   }

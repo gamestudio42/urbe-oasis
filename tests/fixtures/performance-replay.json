@@ -1,0 +1,98 @@
+{
+  "grid": [
+    {
+      "month": 12,
+      "phase": "traffic",
+      "hash": "91738d1b"
+    },
+    {
+      "month": 12,
+      "phase": "close",
+      "hash": "d9398223"
+    },
+    {
+      "month": 24,
+      "phase": "traffic",
+      "hash": "2e9c4fcd"
+    },
+    {
+      "month": 24,
+      "phase": "close",
+      "hash": "48e75751"
+    },
+    {
+      "month": 36,
+      "phase": "traffic",
+      "hash": "f96d0056"
+    },
+    {
+      "month": 36,
+      "phase": "close",
+      "hash": "577bc2e8"
+    }
+  ],
+  "oasis-grid": [
+    {
+      "month": 12,
+      "phase": "traffic",
+      "hash": "77aab735"
+    },
+    {
+      "month": 12,
+      "phase": "close",
+      "hash": "593598b6"
+    },
+    {
+      "month": 24,
+      "phase": "traffic",
+      "hash": "5d205fd1"
+    },
+    {
+      "month": 24,
+      "phase": "close",
+      "hash": "24c00028"
+    },
+    {
+      "month": 36,
+      "phase": "traffic",
+      "hash": "12fe3aee"
+    },
+    {
+      "month": 36,
+      "phase": "close",
+      "hash": "4d5136cd"
+    }
+  ],
+  "oasis-rationing": [
+    {
+      "month": 12,
+      "phase": "traffic",
+      "hash": "a0b41c44"
+    },
+    {
+      "month": 12,
+      "phase": "close",
+      "hash": "d9242563"
+    },
+    {
+      "month": 24,
+      "phase": "traffic",
+      "hash": "73f669bb"
+    },
+    {
+      "month": 24,
+      "phase": "close",
+      "hash": "97571651"
+    },
+    {
+      "month": 36,
+      "phase": "traffic",
+      "hash": "95e66b16"
+    },
+    {
+      "month": 36,
+      "phase": "close",
+      "hash": "f69b1ffd"
+    }
+  ]
+}

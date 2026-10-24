@@ -230,6 +230,24 @@ The flood fill runs on typed arrays: a per-network conductor mask is built once 
 and each building is tracked as unreached, unserved or served in a `Uint8Array` indexed by
 building id. The visiting order (and therefore the nearest-first policy) is unchanged.
 
+### Derived-work optimizations
+
+The utility solver computes each building's supply once per network pass. It recomputes this
+snapshot for power, water and shade separately: pumps read the power flags just solved, and
+spring houses read the water flags just solved. It does not retain supplies between solves.
+Consumers, BFS traversal, source order and the first-unserved cutoff are unchanged.
+
+Temporary next-layer, visited, queue, building-state and supply arrays are reused per `World`
+through a weak reference. Flags are cleared before every pass; building arrays grow geometrically
+when ids require more space. Scratch memory never escapes in results or saves. It uses six bytes
+per map tile plus nine bytes per reserved building id, excluding typed-array headers. Removing
+buildings does not shrink the reservation; releasing the world releases its scratch storage.
+Read-only statistics still do not settle cisterns or write service layers.
+
+Construction previews count non-abandoned residential occupants directly, in building order.
+They no longer compute unrelated employment and residential-quality totals just to check a
+population unlock. This does not cache population or change unlock thresholds.
+
 ## 8.1 Clock
 
 One tick is a quarter of a day; a month is 30 days (120 ticks). Each tick: queued commands run,
@@ -271,6 +289,14 @@ health) + 0.05·police + 10·(road access) + hubs + city centre bonus max(0, 40 
   directly (tests, generators) must bump it too.
 - **Crime** (developed tiles): `40 + 12·level + 90·abandoned + (128 − landValue)/2 − 0.6·police`,
   blurred once.
+
+The radius-one and radius-two blur interiors use fixed offsets. Their additions retain the
+original left-to-right horizontal and top-to-bottom vertical order, including the initial zero
+and Float32 rounding between passes. Edges and other radii keep the general loop. This avoids
+repeated accumulator writes without changing floating-point rounding or the resulting byte maps.
+Tests compare the separable definition across small and large windows, signed values,
+cancellation, infinities and NaNs. Stored reference hashes cover classic, Oasis and rationed
+cities at months 12, 24 and 36; saves taken after traffic also reproduce the next monthly close.
 
 ## 10. Economy, monthly
 
