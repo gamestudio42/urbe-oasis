@@ -758,7 +758,7 @@ body,
 
 .oasis-status {
   left: 20px;
-  width: min(550px, calc(100% - 100px));
+  width: min(600px, calc(100% - 100px));
   padding: 10px 14px;
 }
 .oasis-resources {
@@ -769,7 +769,7 @@ body,
   padding: 5px 10px;
 }
 .oasis-resource > strong {
-  font-size: 15px;
+  font-size: 14px;
 }
 .oasis-resource > small {
   font-size: 10px;

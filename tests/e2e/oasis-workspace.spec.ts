@@ -79,7 +79,9 @@ test('construction categories expose names and costs, preserve tools on Escape, 
       const dock = await page.getByTestId('toolbar').boundingBox();
       expect(map!.x + map!.width).toBeLessThan(dock!.x);
     }
-    await page.screenshot({ path: `test-results/oasis-workspace-${width}.png` });
+    if (!process.env.CI) {
+      await page.screenshot({ path: `test-results/oasis-workspace-${width}.png` });
+    }
     await page.keyboard.press('Escape');
     await page.getByTestId('open-system').scrollIntoViewIfNeeded();
     await expect(page.getByTestId('open-system')).toBeInViewport();

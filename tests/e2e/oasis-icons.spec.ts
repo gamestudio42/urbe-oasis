@@ -123,6 +123,8 @@ test('Oasis uses its own complete icon family with themed colors, selected and l
   const bounds = await page.getByTestId('construction-utilities').boundingBox();
   expect(bounds!.x).toBeGreaterThanOrEqual(0);
   expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(390);
-  await page.screenshot({ path: 'test-results/oasis-icons-mobile.png' });
+  if (!process.env.CI) {
+    await page.screenshot({ path: 'test-results/oasis-icons-mobile.png' });
+  }
   expect(await page.evaluate(() => window.__cityDebug!.hash())).toBe(before);
 });

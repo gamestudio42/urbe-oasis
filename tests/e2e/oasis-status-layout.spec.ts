@@ -57,9 +57,11 @@ for (const populated of [false, true]) {
           expect(rows.every((r) => r.height <= r.lineHeight + 1)).toBe(true);
         }
       }
-      await panel.screenshot({
-        path: `test-results/oasis-status-${populated ? 'populated' : 'empty'}-${width}.png`,
-      });
+      if (!process.env.CI) {
+        await panel.screenshot({
+          path: `test-results/oasis-status-${populated ? 'populated' : 'empty'}-${width}.png`,
+        });
+      }
       await page.getByTestId('oasis-water').click();
       await expect(page.getByTestId('oasis-water')).toHaveAttribute('aria-pressed', 'true');
       await page.getByTestId('oasis-water').click();
