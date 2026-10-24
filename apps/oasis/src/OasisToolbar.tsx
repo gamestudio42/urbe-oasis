@@ -21,6 +21,25 @@ export function OasisToolbar({ session }: { session: GameSession }) {
   const activeTool = toolById(active);
   const tools = toolsFor(ruleset);
 
+  // The guide stays above the real dock, including wrapped tool names and translations.
+  useEffect(() => {
+    const node = host.current;
+    const app = node?.closest<HTMLElement>('.app');
+    if (!node || !app) return;
+    const measure = () => {
+      const top = node.getBoundingClientRect().top - app.getBoundingClientRect().top;
+      app.style.setProperty('--oasis-construction-top', `${top}px`);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    observer.observe(app);
+    return () => {
+      observer.disconnect();
+      app.style.removeProperty('--oasis-construction-top');
+    };
+  }, []);
+
   useEffect(() => {
     if (!group) return;
     const close = (event: KeyboardEvent) => {

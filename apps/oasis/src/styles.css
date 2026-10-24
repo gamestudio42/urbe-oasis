@@ -265,6 +265,233 @@ body,
   line-height: 1.55;
 }
 
+/* The founding guide occupies a separate rail and never covers the construction dock. */
+.oasis-guide {
+  position: absolute;
+  top: 64px;
+  right: 72px;
+  width: 340px;
+  max-height: calc(var(--oasis-construction-top, 75dvh) - 76px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  z-index: 14;
+}
+.oasis-guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  flex: none;
+}
+.oasis-guide-header small {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.oasis-guide-header h3 {
+  margin: 4px 0 0;
+  font-size: 16px;
+  line-height: 1.3;
+}
+.oasis-guide-toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  color: var(--text);
+  background: transparent;
+  cursor: pointer;
+}
+.oasis-guide-body {
+  padding: 0 14px 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  min-height: 0;
+}
+.oasis-guide-body[hidden] {
+  display: none;
+}
+.oasis-guide-action {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.oasis-guide-tools {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.oasis-guide-tool {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.oasis-guide-tool > span:not(.oasis-guide-order) {
+  flex: 1;
+}
+.oasis-guide-tool strong,
+.oasis-guide-tool small {
+  display: block;
+}
+.oasis-guide-tool strong {
+  font-size: 13px;
+}
+.oasis-guide-tool small {
+  color: var(--muted);
+  margin-top: 3px;
+  font-size: 11px;
+}
+.oasis-guide-tool > svg {
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+.oasis-guide-tool[aria-pressed='true'] {
+  border-color: var(--accent);
+}
+.oasis-guide-order {
+  color: var(--muted);
+  font-size: 11px;
+}
+.oasis-guide-tool:hover,
+.oasis-guide-toggle:hover {
+  background: var(--panel-border);
+}
+.oasis-guide button:focus-visible,
+.oasis-guide summary:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+.oasis-guide .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.oasis-guide .button > svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+.oasis-guide-details {
+  border-top: 1px solid var(--panel-border);
+  margin-top: 12px;
+  padding-top: 10px;
+}
+.oasis-guide-details summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--muted);
+}
+.oasis-guide-details p,
+.oasis-guide-waiting p,
+.oasis-guide-note,
+.oasis-guide-goals p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 8px 0;
+}
+.oasis-guide-waiting {
+  border-left: 2px solid var(--accent);
+  padding-left: 10px;
+  margin-top: 12px;
+}
+.oasis-guide-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+}
+.oasis-guide-goals {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+.oasis-guide-goals li {
+  padding: 12px 0;
+  border-top: 1px solid var(--panel-border);
+}
+.oasis-goal-heading {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  font-size: 13px;
+}
+.oasis-goal-heading strong {
+  flex: 1;
+}
+.oasis-goal-heading > span {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.oasis-goal-state {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 6px;
+}
+.oasis-guide-goals [data-met='true'] .oasis-goal-state {
+  color: var(--accent);
+}
+.app:has(.oasis-guide[data-expanded='true']) .oasis-chronicle,
+.app:has(.construction-tray:not([hidden])) .oasis-guide {
+  display: none;
+}
+@media (max-width: 1180px) and (min-width: 721px) {
+  .oasis-guide {
+    top: calc(var(--oasis-status-bottom, 220px) + 12px);
+    left: 20px;
+    right: auto;
+    max-height: calc(
+      var(--oasis-construction-top, 75dvh) - var(--oasis-status-bottom, 220px) - 24px
+    );
+  }
+}
+@media (max-width: 720px) {
+  .oasis-guide {
+    top: auto;
+    bottom: calc(100% - var(--oasis-construction-top, 75dvh) + 12px);
+    left: 12px;
+    right: 12px;
+    width: auto;
+    /* Keep the audio controls visible even with the explanation expanded. */
+    max-height: calc(var(--oasis-construction-top, 75dvh) - 176px);
+  }
+  .oasis-guide-header {
+    padding: 10px 12px;
+  }
+  .oasis-guide-header h3 {
+    font-size: 14px;
+  }
+  .oasis-guide-toggle {
+    width: 40px;
+    height: 40px;
+  }
+  .app:has(.oasis-guide[data-expanded='true']) .oasis-status,
+  .app:has(.oasis-guide[data-expanded='true']) .paused-banner {
+    visibility: hidden;
+  }
+}
+
 @media (max-width: 900px) {
   .oasis-status {
     padding: 8px 10px;
