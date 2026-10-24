@@ -11,6 +11,7 @@ import {
 import type { MusicStatus } from '../audio/sound';
 import type { SaveSlot } from '../persistence/saves';
 import type { AnimationStats, HubSample, VehicleSample } from '@view/city';
+import type { PlacementPreview } from '@view/city';
 import type { Point } from '@view/city';
 import type { BootState, GameSession } from './session';
 
@@ -56,6 +57,7 @@ export interface CityDebugApi {
   reportFire(x: number, y: number): void;
   /** Read-only cosmetic telemetry; events still originate in the simulation. */
   oasisEffectStats(): { signals: number; intensity: number; age: number };
+  placementPreview(): (PlacementPreview & { visible: boolean }) | null;
 }
 
 declare global {
@@ -121,6 +123,7 @@ export function installDebugApi(session: GameSession): void {
       ),
     reportFire: (x, y) => session.renderer.reportFire(x, y),
     oasisEffectStats: () => session.renderer.oasisEffectStats(),
+    placementPreview: () => session.renderer.placementPreview(),
   };
   window.__cityDebug = api;
 }

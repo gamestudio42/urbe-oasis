@@ -839,6 +839,156 @@ body,
 .construction-selection span {
   color: var(--muted);
 }
+.oasis-tool-preview {
+  width: 280px;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+  white-space: normal;
+  padding: 12px;
+  box-shadow: 0 8px 24px var(--panel);
+}
+.oasis-tool-preview header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.oasis-tool-preview header > svg {
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+.oasis-tool-preview header strong {
+  flex: 1;
+}
+.oasis-tool-preview header small {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.construction-plan-state {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  margin: 8px 0;
+}
+.oasis-tool-preview.bad .construction-plan-state {
+  color: var(--bad);
+}
+.construction-plan-state svg {
+  flex: none;
+}
+.oasis-tool-preview dl {
+  margin: 8px 0;
+}
+.oasis-tool-preview dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+.oasis-tool-preview dt {
+  color: var(--muted);
+}
+.oasis-tool-preview dd {
+  margin: 0;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.oasis-tool-preview footer {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.oasis-tool-preview .tool-tooltip-reason {
+  margin: 8px 0;
+}
+.construction-receipt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.construction-receipt[data-ok='false'],
+.construction-receipt[data-phase='failed'] {
+  border-left-color: var(--bad);
+}
+.construction-receipt > div {
+  min-width: 0;
+  flex: 1;
+}
+.construction-receipt-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.construction-receipt-heading svg {
+  flex: none;
+}
+.construction-receipt-heading span {
+  color: var(--muted);
+}
+.construction-receipt p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 6px 0 0;
+  font-size: 11px;
+}
+.construction-receipt-reason {
+  color: var(--muted);
+}
+.construction-receipt button {
+  pointer-events: auto;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--panel-border);
+  border-radius: 5px;
+  color: var(--text);
+  background: transparent;
+  cursor: pointer;
+}
+.construction-receipt button svg {
+  width: 18px;
+  height: 18px;
+}
+@media (max-width: 720px) {
+  .construction-receipt {
+    width: 100%;
+    padding: 8px 10px;
+  }
+  .construction-receipt button {
+    width: 36px;
+    height: 36px;
+  }
+  .oasis-tool-preview {
+    font-size: 11px;
+  }
+  /* Give the active construction decision its own space on a phone. */
+  .app:has(.oasis-tool-preview, .construction-receipt) .oasis-status,
+  .app:has(.oasis-tool-preview, .construction-receipt) .oasis-guide,
+  .app:has(.oasis-tool-preview, .construction-receipt) .oasis-chronicle,
+  .app:has(.oasis-tool-preview, .construction-receipt) .paused-banner,
+  .app:has(.construction-receipt) .oasis-tool-preview {
+    visibility: hidden;
+  }
+}
 .oasis-construction kbd {
   margin-left: auto;
   padding: 2px 5px;

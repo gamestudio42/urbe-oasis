@@ -55,6 +55,27 @@ the tray; Escape first closes an open tray and returns focus to its category wit
 the selected tool. Keyboard shortcuts and tutorial actions use the same shared controller.
 The active tool remains visible above the dock. The classic toolbar is unchanged.
 
+Construction previews show the planner's estimated cost, affected lots, existing infrastructure
+and blocked lots. Text distinguishes ready, partial and rejected operations, alongside the map's
+themed highlights. The card flips and clamps within the viewport above the measured construction
+dock. Blocked operations without a complete price estimate do not display a misleading free cost.
+
+Oasis building placement includes a translucent silhouette from the same sprite factory, variant,
+footprint anchor and shoreline orientation as the finished building. It follows zoom and terrain
+height, uses themed validity colors, and clears when hovering away, cancelling or loading a city.
+It stays available with reduced motion because it is static planning information. It never adds
+a building or modifies a tile in the mirror world. Successful placement clears the silhouette
+until the next target or attempt, so the completed building does not immediately appear blocked.
+
+After a tool command, a short dismissible receipt reports the worker's actual charged cost,
+applied lots, skipped lots and rejection reason. Pending and unconfirmed commands have distinct
+states; success is never inferred from the preview. The receipt retains the submitted tool name
+if selection changes. Older responses cannot replace a newer receipt or leak across city loads
+or a return to the menu. Receipts expire after seven seconds or when planning at another map
+target, and are excluded from saves. Phone layouts temporarily hide secondary status panels
+while planning, and show the receipt instead of a second preview until the next target.
+Classic cities retain their shared tooltip and rejection toasts.
+
 ### Management panels
 
 Management panels use a wider, responsive layout with fixed headers and scrollable bodies.

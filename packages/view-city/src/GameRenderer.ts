@@ -1,7 +1,13 @@
-import { BALANCE, type BuildingRecord, type Speed } from '@city/shared';
-import type { World } from '@city/simulation';
+import {
+  BALANCE,
+  PLACEABLE_SPECS,
+  type PlaceableKind,
+  type BuildingRecord,
+  type Speed,
+} from '@city/shared';
+import { tileVariant, type World } from '@city/simulation';
 import { color, shade, type Theme } from '@theme/core';
-import { Application, Container, Graphics } from 'pixi.js';
+import { Application, Container, Graphics, Sprite } from 'pixi.js';
 import {
   AnimationLayer,
   type AnimationStats,
@@ -30,6 +36,7 @@ import {
   drawOverlay,
   drawRoads,
   drawWires,
+  waterSide,
   type DrawContext,
   type OverlayMode,
 } from './chunkDraw';
@@ -76,6 +83,13 @@ export interface HighlightTile {
   state: 'ok' | 'bad' | 'neutral';
 }
 
+export interface PlacementPreview {
+  kind: PlaceableKind;
+  x: number;
+  y: number;
+  ok: boolean;
+}
+
 function highlightColors(theme: Theme) {
   return {
     ok: { fill: color(theme, 'highlight.okFill'), stroke: color(theme, 'highlight.okStroke') },
@@ -103,6 +117,8 @@ export class GameRenderer {
   private readonly root = new Container();
   private readonly chunkLayer = new Container();
   private readonly highlight = new Graphics();
+  private readonly placementGhost = new Sprite();
+  private placement: PlacementPreview | null = null;
   private readonly springMark = new Graphics();
   private springAt: { x: number; y: number } | null = null;
   private readonly chunkGrid = new ChunkGrid<Chunk>();
@@ -162,6 +178,7 @@ export class GameRenderer {
       this.animation.smoke,
       this.animation.sky,
       this.highlight,
+      this.placementGhost,
       this.springMark,
     );
     this.app.stage.addChild(this.root);
@@ -275,6 +292,7 @@ export class GameRenderer {
   }
 
   setWorld(world: World, buildings: Map<number, BuildingRecord>): void {
+    this.setPlacementPreview(null);
     this.oasisEffects?.reset();
     this.world = world;
     this.buildings = buildings;
@@ -426,6 +444,52 @@ export class GameRenderer {
   setHighlight(tiles: HighlightTile[]): void {
     this.highlightTiles = tiles;
     this.highlightDirty = true;
+  }
+
+  /** Reuses the real building texture and anchor without adding a building to the mirror. */
+  setPlacementPreview(placement: PlacementPreview | null): void {
+    const world = this.world;
+    const size = placement ? PLACEABLE_SPECS[placement.kind].size : 0;
+    if (
+      !placement ||
+      !world ||
+      !this.factory ||
+      this.theme.style !== 'adobe' ||
+      !world.inBounds(placement.x, placement.y) ||
+      !world.inBounds(placement.x + size - 1, placement.y + size - 1)
+    ) {
+      this.placement = null;
+      this.placementGhost.visible = false;
+      return;
+    }
+    const { x, y, kind, ok } = placement;
+    const building = {
+      kind,
+      x,
+      y,
+      w: size,
+      h: size,
+      level: 1,
+      variant: tileVariant(x, y),
+      abandoned: false,
+    };
+    const texture = this.factory.building(
+      building,
+      kind === 'marina' ? waterSide(world, building) : 0,
+    );
+    const front = vertexToScreen(x + size, y + size, world.corners(x + size - 1, y + size - 1)[2]);
+    this.placementGhost.texture = texture.texture;
+    this.placementGhost.anchor.set(texture.anchorX, texture.anchorY);
+    this.placementGhost.position.set(front.x, front.y);
+    this.placementGhost.alpha = ok ? 0.65 : 0.45;
+    this.placementGhost.tint = color(this.theme, ok ? 'highlight.okStroke' : 'highlight.badStroke');
+    this.placementGhost.visible = true;
+    this.placement = { ...placement };
+  }
+
+  /** Read-only inspection of the actual preview sprite, used by browser checks. */
+  placementPreview(): (PlacementPreview & { visible: boolean }) | null {
+    return this.placement ? { ...this.placement, visible: this.placementGhost.visible } : null;
   }
 
   /** Converts a client (CSS pixel) position to a tile. */

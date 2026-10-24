@@ -44,6 +44,8 @@ export interface AppProps {
   toolbar?: (session: GameSession) => ReactNode;
   /** Hosts can present their own guide while keeping the shared tutorial state. */
   guide?: (session: GameSession) => ReactNode;
+  /** Hosts can explain the shared construction plan in their own visual language. */
+  toolPreview?: (session: GameSession) => ReactNode;
 }
 
 export function App({
@@ -56,6 +58,7 @@ export function App({
   status,
   toolbar,
   guide,
+  toolPreview,
 }: AppProps = {}) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [session, setSession] = useState<GameSession | null>(null);
@@ -81,6 +84,7 @@ export function App({
               status={status}
               toolbar={toolbar}
               guide={guide}
+              toolPreview={toolPreview}
             />
             <BootScreen session={session} credit={credit?.('boot')} />
           </>
@@ -98,12 +102,14 @@ function Screens({
   status,
   toolbar,
   guide,
+  toolPreview,
 }: {
   session: GameSession;
   credit?: AppProps['credit'];
   status?: AppProps['status'];
   toolbar?: AppProps['toolbar'];
   guide?: AppProps['guide'];
+  toolPreview?: AppProps['toolPreview'];
 }) {
   const booted = useStore(session.ui, (s) => s.boot.step === 'done');
   const screen = useStore(session.ui, (s) => s.screen);
@@ -130,7 +136,7 @@ function Screens({
       {toolbar ? toolbar(session) : <Toolbar session={session} />}
       <Minimap session={session} />
       <TileReadout session={session} />
-      <ToolTooltip session={session} />
+      {toolPreview ? toolPreview(session) : <ToolTooltip session={session} />}
       <div className="side-panels">
         <Inspector session={session} />
         {panel === 'budget' && <BudgetPanel session={session} />}

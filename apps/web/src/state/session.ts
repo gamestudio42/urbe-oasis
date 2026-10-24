@@ -41,7 +41,7 @@ import {
 import { GameRenderer } from '@view/city';
 import type { OverlayMode } from '@view/city';
 import type { Point } from '@view/city';
-import { ToolController, type ToolPreview } from '../tools/controller';
+import { ToolController, type ToolPreview, type ConstructionFeedback } from '../tools/controller';
 import { toolByHotkey, type ToolId } from '../tools/tools';
 import { CityClient } from './client';
 import { installDebugApi } from './debug';
@@ -83,6 +83,7 @@ export interface UiState {
   history: HistoryEntry[];
   tool: ToolId;
   preview: ToolPreview | null;
+  constructionFeedback: ConstructionFeedback | null;
   /** Client position of the pointer over the map, for the tool tooltip. */
   pointer: Point | null;
   toasts: Toast[];
@@ -118,6 +119,7 @@ const initialUi: UiState = {
   history: [],
   tool: 'select',
   preview: null,
+  constructionFeedback: null,
   pointer: null,
   toasts: [],
   oasisDispatches: [],
@@ -284,6 +286,7 @@ export class GameSession {
           selected: null,
           hover: null,
           oasisDispatches: [],
+          constructionFeedback: null,
           cityRevision: this.ui.get().cityRevision + 1,
         });
       },
@@ -335,7 +338,7 @@ export class GameSession {
         this.tools.onHover(tile);
       },
       onPointer: (kind, tile, event) => {
-        if (kind === 'move') this.ui.set({ pointer: { x: event.clientX, y: event.clientY } });
+        this.ui.set({ pointer: { x: event.clientX, y: event.clientY } });
         this.tools.onPointer(kind, tile);
       },
       onCancel: () => this.tools.cancel(),
@@ -415,7 +418,14 @@ export class GameSession {
     this.setSpeed(0);
     await this.autosave(true);
     this.tools.cancel();
-    this.ui.set({ screen: 'menu', panel: null, tutorial: null, selected: null, hover: null });
+    this.ui.set({
+      screen: 'menu',
+      panel: null,
+      tutorial: null,
+      selected: null,
+      hover: null,
+      constructionFeedback: null,
+    });
     this.renderer.setHighlight([]);
     this.renderer.setSimSpeed(1);
     this.renderer.setAttract(true);
@@ -658,8 +668,9 @@ export class GameSession {
     this.ui.set({ toasts: this.ui.get().toasts.filter((x) => x.id !== id) });
   }
 
-  notifyReason(reason: RejectReason): void {
+  notifyReason(reason: RejectReason, showToast = true): void {
     this.sound.play('error');
+    if (!showToast) return;
     this.toast(
       reason === 'INSUFFICIENT_FUNDS' || reason === 'BANKRUPT' ? 'error' : 'warning',
       this.strings().reasons[reason],

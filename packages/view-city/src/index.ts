@@ -1,4 +1,10 @@
-export { GameRenderer, CHUNK_SIZE, type HighlightTile, type RendererInput } from './GameRenderer';
+export {
+  GameRenderer,
+  CHUNK_SIZE,
+  type HighlightTile,
+  type RendererInput,
+  type PlacementPreview,
+} from './GameRenderer';
 export {
   isGoodOverlay,
   overlayColor,
