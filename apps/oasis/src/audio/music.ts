@@ -1,7 +1,8 @@
 import { createRandom, type Random } from '@view/city';
 import { barSeconds, composeBar, midiToHz, TRACKS, type NoteEvent, type TrackId } from './composer';
 
-const LEVEL = 0.42;
+// The shared board already applies music and master attenuation.
+const LEVEL = 1;
 const FADE_SECONDS = 1.5;
 const CROSSFADE_SECONDS = 2;
 const SEEDS: Record<TrackId, number> = { menu: 0x0a51501, city: 0x0a51502 };
@@ -187,6 +188,11 @@ export class OasisMusic {
     const release = note.voice === 'pad' ? 1.2 : 0.3;
     env.gain.setValueAtTime(0.0001, time);
     env.gain.linearRampToValueAtTime(level, time + attack);
+    // Sustained voices must hold their body instead of fading to near silence across
+    // the entire note. Plucks and drums retain their short exponential decay.
+    if (note.voice === 'bass' || note.voice === 'pad' || note.voice === 'lead') {
+      env.gain.linearRampToValueAtTime(level * 0.65, time + duration);
+    }
     env.gain.exponentialRampToValueAtTime(0.0001, time + duration + release);
     const osc = (hz: number, type: OscillatorType, output: AudioNode) => {
       const node = keep(ctx.createOscillator());
@@ -227,6 +233,13 @@ export class OasisMusic {
       body.frequency.exponentialRampToValueAtTime(frequency, time + 0.06);
     } else {
       osc(frequency, 'sine', env);
+      if (note.voice === 'bass') {
+        // A quiet upper harmonic keeps the bass present on laptop speakers.
+        const harmonic = keep(ctx.createGain());
+        harmonic.gain.value = 0.18;
+        harmonic.connect(env);
+        osc(frequency * 2, 'triangle', harmonic);
+      }
     }
     const end = time + duration + release + 0.05;
     let remaining = sources.length;

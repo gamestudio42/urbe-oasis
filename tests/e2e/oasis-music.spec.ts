@@ -48,6 +48,18 @@ test('Oasis music emits audio, follows the city, and persists independently', as
   await page.getByTestId('city-name-input').click();
   await expect.poll(() => signal(page)).toBeGreaterThan(0.001);
   expect(await state(page)).toMatchObject({ playing: true, track: 'menu' });
+  // Existence of a signal is insufficient: measure after both startup fades through
+  // the actual master bus, including the gaps between plucked notes.
+  await page.waitForTimeout(2500);
+  const samples: number[] = [];
+  for (let i = 0; i < 12; i++) {
+    samples.push(await signal(page));
+    await page.waitForTimeout(500);
+  }
+  expect(samples.reduce((sum, value) => sum + value, 0) / samples.length).toBeGreaterThan(0.008);
+  expect(Math.min(...samples)).toBeGreaterThan(0.003);
+  expect(Math.max(...samples)).toBeLessThan(0.5);
+
   await page.getByTestId('menu-sound').click();
   await expect.poll(() => signal(page)).toBe(0);
   await page.getByTestId('menu-sound').click();

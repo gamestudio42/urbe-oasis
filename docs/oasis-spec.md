@@ -306,3 +306,9 @@ remain unchanged and are not migrated: they cannot reliably identify which sibli
 player muted on the shared hosting origin. New Oasis preferences default to sound and music on,
 subject to the browser's gesture requirement. Composer tests cover modal pitch, phrasing and
 repeatability; browser tests measure real audio output, mute, restart and preference persistence.
+
+The Oasis mix accounts for attenuation in the shared music and master buses. Bass, pad and
+flute hold their note body before release; plucked strings and drums decay immediately.
+A quiet upper bass harmonic preserves presence on small speakers. Browser regression checks
+sample the final master output after startup fades, checking audible sustained levels between
+notes as well as mute and restart behavior. Classic music and sound-effect levels are unchanged.
