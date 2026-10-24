@@ -1,7 +1,7 @@
 const STUDIO_URL = 'https://gamestudio42.github.io/';
 const MARK_URL = `${import.meta.env.BASE_URL}studio-badge.svg`;
 
-/** Game Studio 42 credit. The game mark stays the neon skyline; this is the studio seal. */
+/** Original studio seal, colored by the Oasis interface theme. */
 export function StudioMark({ placement }: { placement: 'boot' | 'menu' | 'play' }) {
   const named = placement !== 'play';
   return (
@@ -13,7 +13,9 @@ export function StudioMark({ placement }: { placement: 'boot' | 'menu' | 'play' 
       aria-label="Game Studio 42"
       data-testid={placement === 'boot' ? undefined : 'studio-mark'}
     >
-      <img src={MARK_URL} alt="" width={named ? 28 : 30} height={named ? 28 : 30} />
+      <svg viewBox="0 0 64 64" width={named ? 28 : 30} height={named ? 28 : 30} aria-hidden="true">
+        <use href={`${MARK_URL}#studio-seal`} />
+      </svg>
       {named ? <span>Game Studio 42</span> : null}
     </a>
   );

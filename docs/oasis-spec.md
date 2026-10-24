@@ -60,6 +60,9 @@ confirmation/cancellation and narrow layouts, alongside the existing save and au
 
 ### Interface icons
 
+The studio seal retains its original silhouette and link, using the theme's water accent,
+panel background and light ink on hover or keyboard focus in the HUD, menu and boot screen.
+
 The adobe theme has a complete collection for all 36 construction tools, separate category
 symbols and matching system controls. Palms, canals, spring houses, qanats, cisterns, arcades,
 windbreaks and caravanserais use their Oasis silhouettes instead of electronic metaphors.

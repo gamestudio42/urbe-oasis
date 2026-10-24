@@ -75,7 +75,7 @@ body,
     0 0 12px rgba(31, 138, 134, 0.35);
 }
 
-/* Studio seal. The phosphor green is the studio colour, not a city token. */
+/* Studio seal shares the Oasis icon palette while retaining its original geometry. */
 .studio-mark {
   display: inline-flex;
   align-items: center;
@@ -87,10 +87,16 @@ body,
   text-decoration: none;
 }
 
-.studio-mark img {
+.studio-mark svg {
   display: block;
   width: 28px;
   height: 28px;
+  color: var(--icon-water);
+}
+
+.studio-mark:hover svg,
+.studio-mark:focus-visible svg {
+  color: var(--icon-ink);
 }
 
 .studio-mark:hover,
@@ -122,7 +128,7 @@ body,
   margin-left: 8px;
 }
 
-.studio-mark-play img {
+.studio-mark-play svg {
   width: 30px;
   height: 30px;
 }
