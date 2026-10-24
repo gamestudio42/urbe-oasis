@@ -33,9 +33,10 @@ export function Hud({ session, credit }: { session: GameSession; credit?: ReactN
       onClick={() => session.togglePanel(id)}
       data-testid={`open-${id}`}
       aria-pressed={panel === id}
+      title={label}
     >
       <InterfaceIcon id={PANEL_ICONS[id]} />
-      {label}
+      <span className="hud-button-label">{label}</span>
     </button>
   );
 

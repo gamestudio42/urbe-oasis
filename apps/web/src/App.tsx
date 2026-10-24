@@ -9,7 +9,7 @@ import { CityAudio } from './ui/CityAudio';
 import { BudgetPanel } from './ui/BudgetPanel';
 import { ChartsPanel } from './ui/ChartsPanel';
 import { Hud } from './ui/Hud';
-import { Inspector } from './ui/Inspector';
+import { Inspector, type InspectorDetails } from './ui/Inspector';
 import { MainMenu } from './ui/MainMenu';
 import { Minimap } from './ui/Minimap';
 import { OverlayPanel } from './ui/OverlayPanel';
@@ -44,6 +44,10 @@ export interface AppProps {
   toolbar?: (session: GameSession) => ReactNode;
   /** Hosts can present their own guide while keeping the shared tutorial state. */
   guide?: (session: GameSession) => ReactNode;
+  /** Hosts can explain the shared construction plan in their own visual language. */
+  toolPreview?: (session: GameSession) => ReactNode;
+  /** Hosts can add their own rows to the tile inspector. */
+  inspectorDetails?: InspectorDetails;
 }
 
 export function App({
@@ -56,6 +60,8 @@ export function App({
   status,
   toolbar,
   guide,
+  toolPreview,
+  inspectorDetails,
 }: AppProps = {}) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [session, setSession] = useState<GameSession | null>(null);
@@ -81,6 +87,8 @@ export function App({
               status={status}
               toolbar={toolbar}
               guide={guide}
+              toolPreview={toolPreview}
+              inspectorDetails={inspectorDetails}
             />
             <BootScreen session={session} credit={credit?.('boot')} />
           </>
@@ -98,12 +106,16 @@ function Screens({
   status,
   toolbar,
   guide,
+  toolPreview,
+  inspectorDetails,
 }: {
   session: GameSession;
   credit?: AppProps['credit'];
   status?: AppProps['status'];
   toolbar?: AppProps['toolbar'];
   guide?: AppProps['guide'];
+  toolPreview?: AppProps['toolPreview'];
+  inspectorDetails?: AppProps['inspectorDetails'];
 }) {
   const booted = useStore(session.ui, (s) => s.boot.step === 'done');
   const screen = useStore(session.ui, (s) => s.screen);
@@ -130,9 +142,9 @@ function Screens({
       {toolbar ? toolbar(session) : <Toolbar session={session} />}
       <Minimap session={session} />
       <TileReadout session={session} />
-      <ToolTooltip session={session} />
+      {toolPreview ? toolPreview(session) : <ToolTooltip session={session} />}
       <div className="side-panels">
-        <Inspector session={session} />
+        <Inspector session={session} details={inspectorDetails} />
         {panel === 'budget' && <BudgetPanel session={session} />}
         {panel === 'charts' && <ChartsPanel session={session} />}
         {panel === 'overlays' && <OverlayPanel session={session} />}

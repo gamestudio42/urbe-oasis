@@ -16,7 +16,7 @@ import {
   ZONE_KIND,
   type World,
 } from '@city/simulation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { formatNumber, useStrings, type Locale, type Strings } from '../i18n';
 import type { GameSession } from '../state/session';
 import { useStore } from '../state/store';
@@ -84,7 +84,9 @@ function inspect(session: GameSession, x: number, y: number): Snapshot | null {
         taxes: stats.taxes,
         power: stats.power,
         ...(roads ? { roads } : {}),
-        ...(stats.oasis && session.ruleset === 'oasis' ? { oasis: neonHints(session, stats, x, y) } : {}),
+        ...(stats.oasis && session.ruleset === 'oasis'
+          ? { oasis: neonHints(session, stats, x, y) }
+          : {}),
       },
       x,
       y,
@@ -166,7 +168,19 @@ function HubFacts({
   );
 }
 
-export function Inspector({ session }: { session: GameSession }) {
+/** Host-specific inspector rows; `version` changes whenever the mirror reads should refresh. */
+export type InspectorDetails = (
+  session: GameSession,
+  tile: { x: number; y: number; version: string },
+) => ReactNode;
+
+export function Inspector({
+  session,
+  details,
+}: {
+  session: GameSession;
+  details?: InspectorDetails | undefined;
+}) {
   const t = useStrings(session.ui);
   const locale = useStore(session.ui, (s) => s.locale);
   const selected = useStore(session.ui, (s) => s.selected);
@@ -238,18 +252,25 @@ export function Inspector({ session }: { session: GameSession }) {
                 <dd>{Math.round(b.attractiveness * 100)}%</dd>
               </>
             )}
-            {hub && <HubFacts building={b} spec={hub} regional={s.regional} t={t} locale={locale} />}
+            {hub && (
+              <HubFacts building={b} spec={hub} regional={s.regional} t={t} locale={locale} />
+            )}
             <dt>{n.age}</dt>
             <dd>
               {b.age} {n.months}
             </dd>
           </>
         )}
-        <dt>{n.power}</dt>
-        <dd>{s.powered ? n.yes : n.no}</dd>
-        <dt>{n.water}</dt>
-        <dd>{s.watered ? n.yes : n.no}</dd>
+        {!details && (
+          <>
+            <dt>{n.power}</dt>
+            <dd>{s.powered ? n.yes : n.no}</dd>
+            <dt>{n.water}</dt>
+            <dd>{s.watered ? n.yes : n.no}</dd>
+          </>
+        )}
       </dl>
+      {details?.(session, { x: selected.x, y: selected.y, version: `${day}:${revision}` })}
       {s.problems.length > 0 && (
         <>
           <h3>{n.why}</h3>

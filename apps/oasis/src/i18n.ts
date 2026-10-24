@@ -971,3 +971,314 @@ const GUIDE_COPY: Record<Locale, typeof GUIDE_EN> = {
 export function oasisGuideCopy(locale: Locale): typeof GUIDE_EN {
   return GUIDE_COPY[locale];
 }
+
+const CONSTRUCTION_EN = {
+  ready: 'Ready to apply',
+  partial: 'Valid lots only',
+  blocked: 'Cannot apply here',
+  noChange: 'No changes',
+  estimate: 'Estimated cost',
+  affected: 'Affected lots',
+  existing: 'Already present',
+  excluded: 'Blocked lots',
+  release: 'Release to apply · Esc to cancel',
+  place: 'Click to place · Esc to cancel',
+  drag: 'Drag to plan · Release to apply',
+  adjust: 'Adjust the location or cancel with Esc.',
+  pending: 'Applying…',
+  applied: 'Applied',
+  refused: 'Not applied',
+  failed: 'Confirmation unavailable',
+  spent: 'Charged',
+  skipped: 'Skipped lots',
+  checkMap: 'Check the map before trying again.',
+};
+const CONSTRUCTION_COPY: Record<Locale, typeof CONSTRUCTION_EN> = {
+  en: CONSTRUCTION_EN,
+  'pt-BR': {
+    ready: 'Pronto para aplicar',
+    partial: 'Somente lotes válidos',
+    blocked: 'Não é possível aplicar aqui',
+    noChange: 'Sem alterações',
+    estimate: 'Custo estimado',
+    affected: 'Lotes afetados',
+    existing: 'Já existentes',
+    excluded: 'Lotes bloqueados',
+    release: 'Solte para aplicar · Esc cancela',
+    place: 'Clique para construir · Esc cancela',
+    drag: 'Arraste para planejar · Solte para aplicar',
+    adjust: 'Ajuste o local ou cancele com Esc.',
+    pending: 'Aplicando…',
+    applied: 'Aplicado',
+    refused: 'Não aplicado',
+    failed: 'Confirmação indisponível',
+    spent: 'Cobrado',
+    skipped: 'Lotes ignorados',
+    checkMap: 'Confira o mapa antes de tentar novamente.',
+  },
+  es: {
+    ready: 'Listo para aplicar',
+    partial: 'Solo parcelas válidas',
+    blocked: 'No se puede aplicar aquí',
+    noChange: 'Sin cambios',
+    estimate: 'Coste estimado',
+    affected: 'Parcelas afectadas',
+    existing: 'Ya existentes',
+    excluded: 'Parcelas bloqueadas',
+    release: 'Suelta para aplicar · Esc cancela',
+    place: 'Haz clic para construir · Esc cancela',
+    drag: 'Arrastra para planificar · Suelta para aplicar',
+    adjust: 'Ajusta la ubicación o cancela con Esc.',
+    pending: 'Aplicando…',
+    applied: 'Aplicado',
+    refused: 'No aplicado',
+    failed: 'Confirmación no disponible',
+    spent: 'Cobrado',
+    skipped: 'Parcelas omitidas',
+    checkMap: 'Revisa el mapa antes de volver a intentarlo.',
+  },
+  fr: {
+    ready: 'Prêt à appliquer',
+    partial: 'Terrains valides seulement',
+    blocked: 'Impossible ici',
+    noChange: 'Aucun changement',
+    estimate: 'Coût estimé',
+    affected: 'Terrains affectés',
+    existing: 'Déjà présents',
+    excluded: 'Terrains bloqués',
+    release: 'Relâcher pour appliquer · Échap annule',
+    place: 'Cliquer pour construire · Échap annule',
+    drag: 'Glisser pour planifier · Relâcher pour appliquer',
+    adjust: 'Changez l’emplacement ou annulez avec Échap.',
+    pending: 'Application…',
+    applied: 'Appliqué',
+    refused: 'Non appliqué',
+    failed: 'Confirmation indisponible',
+    spent: 'Débité',
+    skipped: 'Terrains ignorés',
+    checkMap: 'Vérifiez la carte avant de réessayer.',
+  },
+  de: {
+    ready: 'Bereit zum Anwenden',
+    partial: 'Nur gültige Grundstücke',
+    blocked: 'Hier nicht möglich',
+    noChange: 'Keine Änderungen',
+    estimate: 'Geschätzte Kosten',
+    affected: 'Betroffene Grundstücke',
+    existing: 'Bereits vorhanden',
+    excluded: 'Blockierte Grundstücke',
+    release: 'Loslassen zum Anwenden · Esc bricht ab',
+    place: 'Klicken zum Bauen · Esc bricht ab',
+    drag: 'Ziehen zum Planen · Loslassen zum Anwenden',
+    adjust: 'Standort ändern oder mit Esc abbrechen.',
+    pending: 'Wird angewendet…',
+    applied: 'Angewendet',
+    refused: 'Nicht angewendet',
+    failed: 'Bestätigung nicht verfügbar',
+    spent: 'Abgebucht',
+    skipped: 'Übersprungene Grundstücke',
+    checkMap: 'Prüfe die Karte, bevor du es erneut versuchst.',
+  },
+};
+export function oasisConstructionCopy(locale: Locale): typeof CONSTRUCTION_EN {
+  return CONSTRUCTION_COPY[locale];
+}
+
+type ServiceKey = 'power' | 'water' | 'shade';
+type IssueKey = 'OFFLINE' | 'NO_POWER' | 'NO_WATER' | 'FAR_FROM_SPRING' | 'UNSHADED' | 'EMPTY';
+
+const SERVICE_EN = {
+  title: 'Services',
+  networks: { power: 'Power', water: 'Water', shade: 'Shade' } as Record<ServiceKey, string>,
+  status: {
+    served: 'Served',
+    disconnected: 'Not connected',
+    sourcesIdle: 'Source stopped',
+    shortage: 'Not enough',
+    none: '—',
+  },
+  disconnected: {
+    power: 'No power plant reaches this lot. Run a power line or build next to a powered lot.',
+    water:
+      'No well, pump or qanat reaches this lot. Lay pipes from a water source: the spring does not feed pipes.',
+    shade:
+      'No planted palm or spring house reaches this lot. Dig a canal from one: wild palms give no shade.',
+  } as Record<ServiceKey, string>,
+  idle: 'Sources in reach add nothing:',
+  shortage: (supply: string, demand: string) =>
+    `Connected, but short: ${supply} supplied for ${demand} needed. Add a source or split the district.`,
+  reduced: 'Reduced output:',
+  issues: {
+    OFFLINE: 'out of service after an incident',
+    NO_POWER: 'no power',
+    NO_WATER: 'no water, reduced shade',
+    FAR_FROM_SPRING: 'too far from the spring',
+    UNSHADED: 'no shade, loses water to the sun',
+    EMPTY: 'reserve empty',
+  } as Record<IssueKey, string>,
+  show: 'Show',
+  network: (name: string) => `${name} network`,
+  sources: (active: string, total: string) => `${active} of ${total} sources active`,
+  noSource: 'No source in reach',
+  balance: (supply: string, demand: string) => `Supply ${supply} · demand ${demand}`,
+  adds: (supply: string) => `Adds ${supply}`,
+  thisBuilding: 'This building:',
+};
+const SERVICE_COPY: Record<Locale, typeof SERVICE_EN> = {
+  en: SERVICE_EN,
+  'pt-BR': {
+    title: 'Serviços',
+    networks: { power: 'Energia', water: 'Água', shade: 'Sombra' },
+    status: {
+      served: 'Atendido',
+      disconnected: 'Sem conexão',
+      sourcesIdle: 'Fonte parada',
+      shortage: 'Insuficiente',
+      none: '—',
+    },
+    disconnected: {
+      power:
+        'Nenhuma usina alcança este lote. Puxe uma linha de energia ou construa junto a um lote energizado.',
+      water:
+        'Nenhum poço, bomba ou qanat alcança este lote. Leve canos de uma fonte de água: a nascente não abastece canos.',
+      shade:
+        'Nenhuma palmeira plantada ou casa da nascente alcança este lote. Abra um canal a partir de uma delas: palmeiras nativas não dão sombra.',
+    },
+    idle: 'As fontes ao alcance não produzem nada:',
+    shortage: (supply, demand) =>
+      `Conectado, mas insuficiente: ${supply} de oferta para ${demand} de consumo. Adicione uma fonte ou divida o bairro.`,
+    reduced: 'Produção reduzida:',
+    issues: {
+      OFFLINE: 'fora de serviço após um incidente',
+      NO_POWER: 'sem energia',
+      NO_WATER: 'sem água, sombra reduzida',
+      FAR_FROM_SPRING: 'longe demais da nascente',
+      UNSHADED: 'sem sombra, perde água para o sol',
+      EMPTY: 'reserva vazia',
+    },
+    show: 'Mostrar',
+    network: (name) => `Rede de ${name.toLowerCase()}`,
+    sources: (active, total) => `${active} de ${total} fontes ativas`,
+    noSource: 'Nenhuma fonte ao alcance',
+    balance: (supply, demand) => `Oferta ${supply} · consumo ${demand}`,
+    adds: (supply) => `Acrescenta ${supply}`,
+    thisBuilding: 'Esta construção:',
+  },
+  es: {
+    title: 'Servicios',
+    networks: { power: 'Energía', water: 'Agua', shade: 'Sombra' },
+    status: {
+      served: 'Atendido',
+      disconnected: 'Sin conexión',
+      sourcesIdle: 'Fuente parada',
+      shortage: 'Insuficiente',
+      none: '—',
+    },
+    disconnected: {
+      power:
+        'Ninguna central llega a esta parcela. Tiende una línea eléctrica o construye junto a una parcela con energía.',
+      water:
+        'Ningún pozo, bomba o qanat llega a esta parcela. Tiende tuberías desde una fuente de agua: el manantial no abastece tuberías.',
+      shade:
+        'Ninguna palmera plantada ni casa del manantial llega a esta parcela. Abre un canal desde una de ellas: las palmeras silvestres no dan sombra.',
+    },
+    idle: 'Las fuentes al alcance no aportan nada:',
+    shortage: (supply, demand) =>
+      `Conectado, pero insuficiente: ${supply} de oferta para ${demand} de consumo. Añade una fuente o divide el barrio.`,
+    reduced: 'Producción reducida:',
+    issues: {
+      OFFLINE: 'fuera de servicio tras un incidente',
+      NO_POWER: 'sin energía',
+      NO_WATER: 'sin agua, sombra reducida',
+      FAR_FROM_SPRING: 'demasiado lejos del manantial',
+      UNSHADED: 'sin sombra, pierde agua al sol',
+      EMPTY: 'reserva vacía',
+    },
+    show: 'Mostrar',
+    network: (name) => `Red de ${name.toLowerCase()}`,
+    sources: (active, total) => `${active} de ${total} fuentes activas`,
+    noSource: 'Ninguna fuente al alcance',
+    balance: (supply, demand) => `Oferta ${supply} · consumo ${demand}`,
+    adds: (supply) => `Aporta ${supply}`,
+    thisBuilding: 'Esta construcción:',
+  },
+  fr: {
+    title: 'Services',
+    networks: { power: 'Énergie', water: 'Eau', shade: 'Ombre' },
+    status: {
+      served: 'Desservi',
+      disconnected: 'Non raccordé',
+      sourcesIdle: 'Source à l’arrêt',
+      shortage: 'Insuffisant',
+      none: '—',
+    },
+    disconnected: {
+      power:
+        'Aucune centrale n’atteint ce terrain. Tirez une ligne électrique ou construisez près d’un terrain alimenté.',
+      water:
+        'Aucun puits, pompe ou qanat n’atteint ce terrain. Posez des canalisations depuis une source d’eau : la source naturelle n’alimente pas les canalisations.',
+      shade:
+        'Aucun palmier planté ni maison de la source n’atteint ce terrain. Creusez un canal depuis l’un d’eux : les palmiers sauvages ne donnent pas d’ombre.',
+    },
+    idle: 'Les sources à portée ne produisent rien :',
+    shortage: (supply, demand) =>
+      `Raccordé, mais insuffisant : ${supply} fournis pour ${demand} demandés. Ajoutez une source ou scindez le quartier.`,
+    reduced: 'Production réduite :',
+    issues: {
+      OFFLINE: 'hors service après un incident',
+      NO_POWER: 'sans énergie',
+      NO_WATER: 'sans eau, ombre réduite',
+      FAR_FROM_SPRING: 'trop loin de la source',
+      UNSHADED: 'sans ombre, perd de l’eau au soleil',
+      EMPTY: 'réserve vide',
+    },
+    show: 'Afficher',
+    network: (name) => `Réseau : ${name.toLowerCase()}`,
+    sources: (active, total) => `${active} sur ${total} sources actives`,
+    noSource: 'Aucune source à portée',
+    balance: (supply, demand) => `Offre ${supply} · demande ${demand}`,
+    adds: (supply) => `Ajoute ${supply}`,
+    thisBuilding: 'Ce bâtiment :',
+  },
+  de: {
+    title: 'Versorgung',
+    networks: { power: 'Strom', water: 'Wasser', shade: 'Schatten' },
+    status: {
+      served: 'Versorgt',
+      disconnected: 'Nicht verbunden',
+      sourcesIdle: 'Quelle steht still',
+      shortage: 'Zu wenig',
+      none: '—',
+    },
+    disconnected: {
+      power:
+        'Kein Kraftwerk erreicht dieses Grundstück. Ziehe eine Stromleitung oder baue neben ein versorgtes Grundstück.',
+      water:
+        'Kein Brunnen, keine Pumpe und kein Qanat erreicht dieses Grundstück. Verlege Rohre von einer Wasserquelle: Die Quelle selbst speist keine Rohre.',
+      shade:
+        'Keine gepflanzte Palme und kein Quellhaus erreicht dieses Grundstück. Grabe einen Kanal von dort: Wilde Palmen spenden keinen Schatten.',
+    },
+    idle: 'Quellen in Reichweite liefern nichts:',
+    shortage: (supply, demand) =>
+      `Verbunden, aber zu wenig: ${supply} Angebot für ${demand} Bedarf. Füge eine Quelle hinzu oder teile das Viertel.`,
+    reduced: 'Verringerte Leistung:',
+    issues: {
+      OFFLINE: 'nach einem Vorfall außer Betrieb',
+      NO_POWER: 'kein Strom',
+      NO_WATER: 'kein Wasser, weniger Schatten',
+      FAR_FROM_SPRING: 'zu weit von der Quelle',
+      UNSHADED: 'kein Schatten, verliert Wasser an die Sonne',
+      EMPTY: 'Reserve leer',
+    },
+    show: 'Zeigen',
+    network: (name) => `Netz: ${name}`,
+    sources: (active, total) => `${active} von ${total} Quellen aktiv`,
+    noSource: 'Keine Quelle in Reichweite',
+    balance: (supply, demand) => `Angebot ${supply} · Bedarf ${demand}`,
+    adds: (supply) => `Liefert ${supply}`,
+    thisBuilding: 'Dieses Gebäude:',
+  },
+};
+export function oasisServiceCopy(locale: Locale): typeof SERVICE_EN {
+  return SERVICE_COPY[locale];
+}

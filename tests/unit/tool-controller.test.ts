@@ -1,4 +1,4 @@
-import { Infra, RejectReason, type Command, type Ruleset } from '@city/shared';
+import { Infra, RejectReason, type Command, type CommandResult, type Ruleset } from '@city/shared';
 import { createEngine, hashState } from '@city/simulation';
 import { Store } from '../../packages/chrome/src/store';
 import type { GameSession, UiState } from '../../apps/web/src/state/session';
@@ -30,11 +30,27 @@ function setup(ruleset: Ruleset = 'oasis') {
     funds: 100_000,
     terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
   });
-  const ui = new Store<Pick<UiState, 'tool' | 'hover' | 'preview' | 'underground'>>({
+  const ui = new Store<
+    Pick<
+      UiState,
+      | 'tool'
+      | 'hover'
+      | 'preview'
+      | 'underground'
+      | 'constructionFeedback'
+      | 'cityRevision'
+      | 'screen'
+      | 'overlay'
+    >
+  >({
     tool: 'canal',
     hover: { x: 4, y: 4 },
     preview: null,
     underground: false,
+    constructionFeedback: null,
+    cityRevision: 1,
+    screen: 'game',
+    overlay: 'none',
   });
   const client = {
     world: engine.world,
@@ -42,20 +58,179 @@ function setup(ruleset: Ruleset = 'oasis') {
     stats: engine.stats(),
     command: vi.fn(async (command: Command) => engine.execute(command)),
   };
-  const renderer = { setHighlight: vi.fn() };
+  const renderer = {
+    setHighlight: vi.fn(),
+    setPlacementPreview: vi.fn(),
+    setServiceTrace: vi.fn(),
+  };
+  const onBuilt = vi.fn();
+  const notifyReason = vi.fn();
   const tools = new ToolController({
     ui,
     client,
     renderer,
-    notifyReason: vi.fn(),
-    onBuilt: vi.fn(),
+    notifyReason,
+    onBuilt,
     select: vi.fn(),
     setUnderground: (underground: boolean) => ui.set({ underground }),
+    setOverlay: (overlay: UiState['overlay']) => ui.set({ overlay }),
+    serviceContext: () =>
+      client.stats.oasis
+        ? {
+            world: client.world,
+            building: (id: number) => client.buildings.get(id),
+            spring: client.stats.oasis.spring,
+          }
+        : null,
   } as unknown as GameSession);
-  return { engine, ui, client, renderer, tools };
+  return { engine, ui, client, renderer, tools, onBuilt, notifyReason };
 }
 
 describe('construction input', () => {
+  it('keeps the completed building clear of ghosts until the next target or attempt', async () => {
+    const { tools, renderer, client, engine } = setup();
+    tools.setTool('fireStation');
+    tools.onPointer('down', { x: 4, y: 4 });
+    await Promise.resolve();
+    client.stats = engine.stats();
+    tools.refreshCurrent();
+    frame();
+    expect(renderer.setPlacementPreview).toHaveBeenLastCalledWith(null);
+    tools.refreshCurrent();
+    frame();
+    expect(renderer.setPlacementPreview).toHaveBeenLastCalledWith(null);
+    tools.onHover({ x: 8, y: 8 });
+    frame();
+    expect(renderer.setPlacementPreview).toHaveBeenLastCalledWith(
+      expect.objectContaining({ kind: 'fireStation', ok: true }),
+    );
+    tools.onPointer('down', { x: 4, y: 4 });
+    await Promise.resolve();
+    frame();
+    expect(renderer.setPlacementPreview).toHaveBeenLastCalledWith(
+      expect.objectContaining({ kind: 'fireStation', ok: false }),
+    );
+  });
+
+  it('distinguishes existing lots from the actual changes and cost in a partial drag', () => {
+    const { tools, ui, engine, client } = setup();
+    const first = engine.execute({ type: 'canal', x0: 4, y0: 4, x1: 4, y1: 4 });
+    client.stats = engine.stats();
+    const before = hashState(engine);
+    tools.onPointer('down', { x: 4, y: 4 });
+    tools.onPointer('move', { x: 6, y: 4 });
+    frame();
+    expect(ui.get().preview).toMatchObject({
+      ok: true,
+      count: 2,
+      skipped: 1,
+      unchanged: 1,
+      dragging: true,
+      cost: first.cost * 2,
+    });
+    expect(hashState(engine)).toBe(before);
+  });
+
+  it.each(['oasis', 'classic'] as const)(
+    'keeps placement silhouettes scoped to %s presentation',
+    (ruleset) => {
+      const { tools, renderer } = setup(ruleset);
+      tools.setTool('fireStation');
+      frame();
+      if (ruleset === 'oasis')
+        expect(renderer.setPlacementPreview).toHaveBeenLastCalledWith(
+          expect.objectContaining({ kind: 'fireStation', ok: true }),
+        );
+      else expect(renderer.setPlacementPreview).toHaveBeenLastCalledWith(null);
+      tools.cancel();
+      expect(renderer.setPlacementPreview).toHaveBeenLastCalledWith(null);
+    },
+  );
+
+  it('uses the worker receipt even after selecting another tool', async () => {
+    const { tools, ui, client } = setup();
+    let reply!: (result: CommandResult) => void;
+    client.command.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          reply = resolve;
+        }),
+    );
+    tools.onPointer('down', { x: 4, y: 4 });
+    tools.onPointer('up', { x: 6, y: 4 });
+    expect(ui.get().constructionFeedback).toMatchObject({ phase: 'pending', tool: 'canal' });
+    tools.setTool('road');
+    const actual = { ok: true, cost: 5, applied: 1, skipped: 2 };
+    reply(actual);
+    await Promise.resolve();
+    expect(ui.get().constructionFeedback).toMatchObject({
+      phase: 'complete',
+      tool: 'canal',
+      result: actual,
+    });
+  });
+
+  it.each(['city', 'menu'] as const)(
+    'drops delayed results after changing the %s',
+    async (change) => {
+      const { tools, ui, client, onBuilt, notifyReason } = setup();
+      let reply!: (result: CommandResult) => void;
+      client.command.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            reply = resolve;
+          }),
+      );
+      tools.onPointer('down', { x: 4, y: 4 });
+      tools.onPointer('up', { x: 4, y: 4 });
+      ui.set(
+        change === 'city'
+          ? { cityRevision: 2, constructionFeedback: null }
+          : { screen: 'menu', constructionFeedback: null },
+      );
+      reply({ ok: true, cost: 5, applied: 1, skipped: 0 });
+      await Promise.resolve();
+      expect(ui.get().constructionFeedback).toBeNull();
+      expect(onBuilt).not.toHaveBeenCalled();
+      expect(notifyReason).not.toHaveBeenCalled();
+    },
+  );
+
+  it('does not let an older response replace a newer receipt', async () => {
+    const { tools, ui, client } = setup();
+    let first!: (result: CommandResult) => void;
+    client.command.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          first = resolve;
+        }),
+    );
+    tools.onPointer('down', { x: 4, y: 4 });
+    tools.onPointer('up', { x: 4, y: 4 });
+    tools.onPointer('down', { x: 5, y: 4 });
+    tools.onPointer('up', { x: 5, y: 4 });
+    await Promise.resolve();
+    const latest = ui.get().constructionFeedback;
+    first({ ok: false, cost: 0, applied: 0, skipped: 1, reason: RejectReason.Occupied });
+    await Promise.resolve();
+    expect(ui.get().constructionFeedback).toEqual(latest);
+  });
+
+  it('shows an unconfirmed result after a transport failure and keeps classic receipts absent', async () => {
+    const { tools, ui, client } = setup();
+    client.command.mockRejectedValueOnce(new Error('Worker unavailable'));
+    tools.onPointer('down', { x: 4, y: 4 });
+    tools.onPointer('up', { x: 4, y: 4 });
+    await Promise.resolve();
+    expect(ui.get().constructionFeedback).toMatchObject({ phase: 'failed' });
+    const classic = setup('classic');
+    classic.tools.setTool('road');
+    classic.tools.onPointer('down', { x: 4, y: 4 });
+    classic.tools.onPointer('up', { x: 4, y: 4 });
+    await Promise.resolve();
+    expect(classic.ui.get().constructionFeedback).toBeNull();
+  });
+
   it.each(['oasis', 'classic'] as const)('previews canals using the %s ruleset', (ruleset) => {
     const { engine, ui, tools } = setup(ruleset);
     const before = hashState(engine);
@@ -126,5 +301,54 @@ describe('construction input', () => {
     tools.refreshCurrent();
     frame();
     expect(ui.get().preview).toBeNull();
+  });
+
+  it('shows the network a canal joins and opens its overlay only while the tool is active', () => {
+    const { tools, ui, engine, client, renderer } = setup();
+    expect(engine.execute({ type: 'place', kind: 'palm', x: 8, y: 4 }).ok).toBe(true);
+    client.stats = engine.stats();
+    tools.setTool('canal');
+    expect(ui.get().overlay).toBe('data');
+    tools.onPointer('down', { x: 5, y: 4 });
+    tools.onPointer('move', { x: 7, y: 4 });
+    frame();
+    expect(ui.get().preview?.network).toMatchObject({
+      network: 'shade',
+      sources: 1,
+      active: 1,
+      plannedSupply: null,
+    });
+    expect(renderer.setServiceTrace).toHaveBeenLastCalledWith(
+      expect.objectContaining({ sources: [expect.objectContaining({ x: 8, y: 4, ok: true })] }),
+    );
+    tools.setTool('select');
+    expect(ui.get().overlay).toBe('none');
+    expect(renderer.setServiceTrace).toHaveBeenLastCalledWith(null);
+  });
+
+  it('keeps an overlay the player chose and warns about an isolated spring house', () => {
+    const { tools, ui } = setup();
+    ui.set({ overlay: 'pollution' });
+    tools.setTool('springHouse');
+    expect(ui.get().overlay).toBe('pollution');
+    tools.onHover({ x: 10, y: 10 });
+    frame();
+    expect(ui.get().preview?.network).toMatchObject({
+      network: 'shade',
+      plannedIssue: 'NO_POWER',
+      plannedSupply: 0,
+    });
+    tools.setTool('select');
+    expect(ui.get().overlay).toBe('pollution');
+  });
+
+  it('adds no network explanation in a classic city', () => {
+    const { tools, ui } = setup('classic');
+    tools.setTool('pipe');
+    expect(ui.get().overlay).toBe('none');
+    tools.onHover({ x: 6, y: 6 });
+    frame();
+    expect(ui.get().preview).not.toBeNull();
+    expect(ui.get().preview?.network).toBeUndefined();
   });
 });

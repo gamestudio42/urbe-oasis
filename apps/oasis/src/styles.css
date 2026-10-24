@@ -839,6 +839,216 @@ body,
 .construction-selection span {
   color: var(--muted);
 }
+.oasis-tool-preview {
+  width: 280px;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+  white-space: normal;
+  padding: 12px;
+  box-shadow: 0 8px 24px var(--panel);
+}
+.oasis-tool-preview header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.oasis-tool-preview header > svg {
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+.oasis-tool-preview header strong {
+  flex: 1;
+}
+.oasis-tool-preview header small {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.construction-plan-state {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  margin: 8px 0;
+}
+.oasis-tool-preview.bad .construction-plan-state {
+  color: var(--bad);
+}
+.construction-plan-state svg {
+  flex: none;
+}
+.oasis-tool-preview dl {
+  margin: 8px 0;
+}
+.oasis-tool-preview dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+.oasis-tool-preview dt {
+  color: var(--muted);
+}
+.oasis-tool-preview dd {
+  margin: 0;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.oasis-tool-preview footer {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.oasis-tool-preview .tool-tooltip-reason {
+  margin: 8px 0;
+}
+.construction-network {
+  margin: 8px 0;
+  padding: 6px 8px;
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  font-size: 12px;
+}
+.construction-network.warn {
+  border-left-color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 10%, transparent);
+}
+.construction-network p {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 4px 0 0;
+}
+.construction-network p svg {
+  flex: none;
+  margin-top: 1px;
+}
+.construction-network-hint {
+  color: var(--muted);
+}
+.oasis-services {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.oasis-services li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--panel-border);
+}
+.oasis-services li:first-child {
+  border-top: 0;
+}
+.oasis-services .service-state {
+  font-weight: 600;
+}
+.oasis-services li[data-status='served'] .service-state {
+  color: var(--accent);
+}
+.oasis-services li:not([data-status='served']) .service-state {
+  color: var(--bad);
+}
+.oasis-services p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.oasis-services button {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+.construction-receipt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.construction-receipt[data-ok='false'],
+.construction-receipt[data-phase='failed'] {
+  border-left-color: var(--bad);
+}
+.construction-receipt > div {
+  min-width: 0;
+  flex: 1;
+}
+.construction-receipt-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.construction-receipt-heading svg {
+  flex: none;
+}
+.construction-receipt-heading span {
+  color: var(--muted);
+}
+.construction-receipt p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 6px 0 0;
+  font-size: 11px;
+}
+.construction-receipt-reason {
+  color: var(--muted);
+}
+.construction-receipt button {
+  pointer-events: auto;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--panel-border);
+  border-radius: 5px;
+  color: var(--text);
+  background: transparent;
+  cursor: pointer;
+}
+.construction-receipt button svg {
+  width: 18px;
+  height: 18px;
+}
+@media (max-width: 720px) {
+  .construction-receipt {
+    width: 100%;
+    padding: 8px 10px;
+  }
+  .construction-receipt button {
+    width: 36px;
+    height: 36px;
+  }
+  .oasis-tool-preview {
+    font-size: 11px;
+  }
+  /* Give the active construction decision its own space on a phone. */
+  .app:has(.oasis-tool-preview, .construction-receipt) .oasis-status,
+  .app:has(.oasis-tool-preview, .construction-receipt) .oasis-guide,
+  .app:has(.oasis-tool-preview, .construction-receipt) .oasis-chronicle,
+  .app:has(.oasis-tool-preview, .construction-receipt) .paused-banner,
+  .app:has(.construction-receipt) .oasis-tool-preview {
+    visibility: hidden;
+  }
+}
 .oasis-construction kbd {
   margin-left: auto;
   padding: 2px 5px;
@@ -1022,8 +1232,11 @@ body,
 .app:has(.oasis-construction) .paused-banner {
   bottom: 57px;
 }
-@media (max-width: 1180px) {
+/* Fit the bar instead of scrolling it: panel buttons keep their icon and accessible name.
+   The bar still scrolls as a last resort on very narrow phones. */
+@media (max-width: 1480px) {
   .app:has(.oasis-construction) .hud {
+    gap: 12px;
     overflow-x: auto;
     scrollbar-width: thin;
   }
@@ -1031,6 +1244,62 @@ body,
     flex-shrink: 0;
     white-space: nowrap;
   }
+  .app:has(.oasis-construction) .hud-city {
+    flex-shrink: 1;
+    min-width: 72px;
+    max-width: 140px;
+  }
+  .app:has(.oasis-construction) .hud-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    line-height: 1.25;
+  }
+  .app:has(.oasis-construction) .hud-stat .badge {
+    display: none;
+  }
+  .app:has(.oasis-construction) .hud-city > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .app:has(.oasis-construction) .hud-panels {
+    gap: 4px;
+  }
+  .app:has(.oasis-construction) .hud-button {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .app:has(.oasis-construction) .hud-button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 960px) {
+  .app:has(.oasis-construction) .hud {
+    gap: 10px;
+  }
+  .app:has(.oasis-construction) .hud .studio-mark-play {
+    display: none;
+  }
+  .app:has(.oasis-construction) .speed-button {
+    min-width: 30px;
+  }
+}
+/* Leave room for wider fallback system fonts (DejaVu Sans on Linux CI). */
+@media (max-width: 760px) {
+  .app:has(.oasis-construction) .hud {
+    gap: 8px;
+    padding: 0 8px;
+  }
+  .app:has(.oasis-construction) .hud-city {
+    max-width: 110px;
+  }
+}
+@media (max-width: 1180px) {
   .oasis-construction {
     left: auto;
     right: 16px;

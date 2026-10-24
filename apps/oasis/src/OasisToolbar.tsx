@@ -7,6 +7,7 @@ import { TOOL_GROUPS, toolById, toolsFor, type ToolGroup } from '@oasis/web/tool
 import { costLabel } from '@oasis/web/ui/Toolbar';
 import { ToolIcon } from '@oasis/web/ui/icons';
 import { AdobeIcon, AdobeCategoryIcon } from '@oasis/web/ui/adobeIcons';
+import { OasisConstructionReceipt } from './OasisConstructionFeedback';
 
 /** A compact construction dock. All planning and execution remain in the shared controller. */
 export function OasisToolbar({ session }: { session: GameSession }) {
@@ -61,6 +62,7 @@ export function OasisToolbar({ session }: { session: GameSession }) {
 
   return (
     <div className="oasis-construction" ref={host} data-testid="oasis-construction">
+      <OasisConstructionReceipt session={session} />
       <div className="construction-selection" data-testid="construction-selection">
         <ToolIcon id={active} style={session.renderer.theme.style} />
         <strong>{t.tools[active]}</strong>
