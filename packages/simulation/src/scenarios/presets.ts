@@ -1,3 +1,4 @@
+import { PLACEABLE_SPECS, defaultJourneyState, isZoneKind, type PlaceableKind } from '@city/shared';
 import { createEngine, type SimulationEngine } from '../engine';
 import { addServices, buildTown, flatCity, maintainTown, recoverCity, run } from './builders';
 import { buildGridCity, maintainGrid } from './grid';
@@ -59,6 +60,23 @@ export const SIM_PRESETS: Record<string, SimPreset> = {
       addServices(engine, buildTown(engine, { pumps: 8 }));
       addNeonData(engine);
       return { engine, onMonth: (e) => void maintainTown(e) };
+    },
+  },
+  'oasis-journey': {
+    description: 'Oasis balanced town that follows the journey: reserves, windbreaks, drought',
+    defaultSize: 64,
+    create(seed, size) {
+      const run = SIM_PRESETS['oasis-balanced']!.create(seed, size);
+      run.engine.oasis.journey = defaultJourneyState();
+      // The balanced town barely breaks even; the journey's answers need capital up front.
+      run.engine.economy.funds += 30_000;
+      return {
+        engine: run.engine,
+        onMonth: (e) => {
+          run.onMonth(e);
+          playJourney(e);
+        },
+      };
     },
   },
   'oasis-rationing': {
@@ -145,4 +163,45 @@ function addNeonData(engine: SimulationEngine): void {
   run(engine, { type: 'canal', x0: 46, y0: 17, x1: 46, y1: 15 });
   run(engine, { type: 'place', kind: 'springHouse', x: 47, y: 22 });
   run(engine, { type: 'place', kind: 'springHouse', x: 46, y: 14 });
+}
+
+/**
+ * The automated player's answer to each journey chapter: qanats and cisterns beside the pumps
+ * once the first quarter holds, then a windbreak beside each service. Positions are tried in a fixed
+ * order, so the run stays deterministic.
+ */
+function playJourney(engine: SimulationEngine): void {
+  const chapter = engine.oasis.journey?.chapter ?? 0;
+  if (chapter >= 1) {
+    // Reserves only charge from spare water, so deep water comes first.
+    if (engine.servedShares().water < 0.97)
+      placeBeside(engine, 'qanat', engine.buildings.ofKind('waterPump'), 8);
+    placeBeside(engine, 'cistern', engine.buildings.ofKind('waterPump'), 3);
+  }
+  if (chapter >= 2 && engine.buildings.ofKind('windbreak').length < 8) {
+    const services = [...engine.buildings.values()].filter(
+      (b) => !isZoneKind(b.kind) && PLACEABLE_SPECS[b.kind].jobs > 0 && b.kind !== 'windbreak',
+    );
+    placeBeside(engine, 'windbreak', services, 8);
+  }
+  if (chapter >= 4) placeBeside(engine, 'caravanserai', engine.buildings.ofKind('school'), 1);
+}
+
+function placeBeside(
+  engine: SimulationEngine,
+  kind: PlaceableKind,
+  anchors: readonly { x: number; y: number; w: number; h: number }[],
+  limit: number,
+): void {
+  for (const a of anchors) {
+    if (engine.buildings.ofKind(kind).length >= limit) return;
+    const size = PLACEABLE_SPECS[kind].size;
+    let placed = false;
+    // Every origin whose footprint touches the anchor's side, so the networks connect.
+    for (let y = a.y - size; y <= a.y + a.h && !placed; y++) {
+      for (let x = a.x - size; x <= a.x + a.w && !placed; x++) {
+        placed = engine.execute({ type: 'place', kind, x, y }).ok;
+      }
+    }
+  }
 }

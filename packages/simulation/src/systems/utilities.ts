@@ -12,6 +12,7 @@ import {
   type UtilityStats,
 } from '@city/shared';
 import type { SimulationEngine } from '../engine';
+import { droughtOutput } from './oasis/journey';
 import { springNear } from './oasis/spring';
 import { oasisShade, oasisPower, oasisWater } from './oasis/vertical';
 import type { World } from '../world/world';
@@ -82,7 +83,7 @@ const cisternRelease = new WeakMap<SimulationEngine, Map<number, number>>();
 /** Water a building adds. A cistern adds only the shortfall settled for this solve. */
 export function oasisWaterOutput(engine: SimulationEngine, b: BuildingRecord): number {
   const oasis = engine.ruleset === 'oasis';
-  const base = waterSupply(engine.world, b, oasis);
+  const base = droughtOutput(engine, b, waterSupply(engine.world, b, oasis));
   if (!oasis || b.kind !== 'cistern') return base;
   return base + (cisternRelease.get(engine)?.get(b.id) ?? 0);
 }

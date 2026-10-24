@@ -31,10 +31,39 @@ export interface Storm {
   kind: string;
 }
 
+/** Progress through the post-tutorial journey. Created only for cities founded by the Oasis app. */
+export interface JourneyState {
+  /** Chapters completed, 0..JOURNEY_CHAPTERS. */
+  chapter: number;
+  /** Month index at which each completed chapter closed, in order. */
+  completedMonths: number[];
+  /** Month index of the first close that starts the drought; -1 until chapter 3 completes. */
+  droughtStart: number;
+  /** Month closes left in the active drought; 0 when none is running. */
+  droughtMonthsLeft: number;
+  /** Sum of water service shares at drought closes, in thousandths. */
+  droughtServed: number;
+  /** -1 before the drought ends, 1 when the city held on, 0 when it fell short. */
+  droughtOutcome: number;
+}
+
+export function defaultJourneyState(): JourneyState {
+  return {
+    chapter: 0,
+    completedMonths: [],
+    droughtStart: -1,
+    droughtMonthsLeft: 0,
+    droughtServed: 0,
+    droughtOutcome: -1,
+  };
+}
+
 /** Persisted state of every neon system. */
 export interface OasisState {
   /** Optional for legacy saves. Accrued ticks survive a toggle and a mid-month reload. */
   waterPolicy?: { rationing: boolean; rationedTicks: number };
+  /** Optional: legacy saves, imports and scenario presets have no journey. */
+  journey?: JourneyState;
 
   caravans: Caravan[];
   cisterns: BatteryState[];

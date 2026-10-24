@@ -31,12 +31,14 @@ The guide stays above the measured construction dock and hides while a tool tray
 or management panel is open. On phones its expanded sheet temporarily hides the resource card;
 folding it restores the card. Escape folds the guide and returns focus to its toggle.
 
-After founding, a collapsed guide offers optional, live goals: 100 residents, cisterns at least
-half full, a completed non-negative operating report with residents, positive windbreak coverage,
-and the first caravan receipt. These are presentation targets, not simulation rules, rewards or
-new unlocks. Status is recomputed from current telemetry, may regress, and survives save/load
-through the existing city data. The guide can reopen founding in a paused city without resetting
-the world or its tutorial-completion preference. Classic cities retain the shared tutorial.
+After founding, cities that the Oasis menu founded show the journey (below) in the collapsed guide.
+Saves without a journey, such as older Oasis cities and imports, keep the optional live goals:
+100 residents, cisterns at least half full, a completed non-negative operating report with
+residents, positive windbreak coverage, and the first caravan receipt. These goals are presentation
+targets, not simulation rules, rewards or new unlocks. Status is recomputed from current
+telemetry, may regress, and survives save/load through the existing city data. The guide can
+reopen founding in a paused city without resetting the world or its tutorial-completion
+preference. Classic cities retain the shared tutorial.
 
 The survival panel shows served shares and supply/demand from engine statistics, plus cistern
 charge and the number of placed cisterns. Empty cities display “No consumers”; unpowered
@@ -208,6 +210,66 @@ also redraws the diagonal chunk so neighboring street paving cannot become stale
 covers all sixteen road connection masks against actual vehicle paths, canal and bridge
 preservation, chunk boundaries, classic isolation and simulation hash stability. Browser checks
 exercise construction shortcuts and the grid toggle alongside the responsive dock.
+
+## Journey
+
+Cities that the Oasis menu founds follow a five-chapter journey after the founding tutorial.
+Each chapter has one goal, a treasury grant and a short reason. Chapters advance in order, and
+only at a month close: after growth, the oasis updates and the monthly budget, so a grant never
+reads as monthly revenue. At most one chapter completes per close. A completed chapter pays its
+`OASIS_JOURNEY.rewards` grant and emits `journeyChapter`. Goals read the last utility solve.
+
+| #   | Chapter       | Goal at the month close                                                             | Grant                                                           |
+| --- | ------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| 1   | First quarter | at least 100 residents, with water and shade each serving at least 80% of consumers | $2,000                                                          |
+| 2   | Reserves      | water still serving 80%, and two powered, online cisterns holding water             | $2,500                                                          |
+| 3   | Shelter       | windbreak cover of at least 50% of services                                         | $3,000                                                          |
+| 4   | Dry season    | survive the drought below                                                           | $5,000 if water service averaged at least 75%, otherwise $1,000 |
+| 5   | Caravan road  | an operating caravanserai (staffed, so powered and on a road)                       | $4,000                                                          |
+
+The reserves goal asks for cisterns that hold water rather than a charge level. A cistern only
+charges while its network has spare water, at 1/240 of a bank per utility refresh, so a charge
+target would take years of game time. Holding any water proves a surplus. The commerce goal is
+an operating caravanserai, because caravan receipts depend on vacant serviced lots that a
+player does not directly control.
+
+### Dry season
+
+The drought starts at the first month close after the shelter chapter completes, so the player
+gets a month of warning. It needs no random draw. It lasts `droughtMonths` (3) closes. While it
+runs, wells and pumps deliver `droughtFactor` (0.6) of their output, after evaporation. Qanats and
+cistern releases keep their full output, and rationing works as usual. Each drought close adds
+the water served share to a running sum, in thousandths. After the third, the mean decides the
+grant (`droughtTarget` 0.75) and the chapter completes. `droughtStarted` and `droughtEnded`
+events report the length and the outcome. Starting and ending the drought marks the networks
+dirty, so the next daily refresh applies the new output.
+
+### State and compatibility
+
+`oasis.journey` is optional. `NewCityOptions.journey` creates it, and the Oasis app sets that
+option only when it founds a city from the menu. Legacy saves, imported cities and the existing
+scenario presets have no journey, so their state shape, hashes and balance are unchanged. A classic
+engine ignores the option. The decoder validates the chapter (0–5), one completion month per
+completed chapter, the drought months (0–3), the served sum and the outcome (−1, 0 or 1).
+`CityStats.oasis.journey` mirrors the chapter, the drought countdown, months left, mean service,
+outcome, cisterns holding water and staffed caravanserais. The mirror-world service trace applies
+the same drought cut to wells and pumps.
+
+The `oasis-journey` preset runs the balanced town with $30,000 extra capital and an automated
+player. That player adds qanats and cisterns beside the pumps, windbreaks beside services and a
+caravanserai beside a school.
+
+### Presentation
+
+The collapsed guide names the current chapter (`Oasis journey · Chapter n of 5`). Expanded, it
+shows the action, live goal rows from engine statistics, the grant, ordered tool shortcuts with
+prices, and a collapsible reason. Rows show a dash rather than a full share while nobody uses
+the service, and the engine still decides completion. During the warning month and the drought,
+a card shows the countdown, the mean service so far against the 75% target, and a rationing
+toggle that sends the same command as the water-management dialog. Completing a chapter remounts
+the guide with the next heading and shows a toast with the grant. Drought start and end have their
+own toasts. A finished journey shows a closing note and the drought outcome. Copy covers all
+five locales.
 
 ## Shade
 

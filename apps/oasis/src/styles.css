@@ -452,6 +452,59 @@ body,
 .oasis-guide-goals [data-met='true'] .oasis-goal-state {
   color: var(--accent);
 }
+.oasis-journey-rows {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+.oasis-journey-rows li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--panel-border);
+  font-size: 12px;
+}
+.oasis-journey-rows strong {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.oasis-journey-rows li[data-met='true'] {
+  color: var(--accent);
+}
+.oasis-journey-reward,
+.oasis-journey-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 8px 0;
+}
+.oasis-journey-reward b {
+  color: var(--text);
+}
+.oasis-drought {
+  margin: 10px 0;
+  padding: 8px 10px;
+  border-left: 3px solid var(--bad);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bad) 12%, transparent);
+  font-size: 12px;
+}
+.oasis-drought strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.oasis-drought p {
+  margin: 6px 0;
+}
+.oasis-drought .button {
+  margin-top: 4px;
+}
 .app:has(.oasis-guide[data-expanded='true']) .oasis-chronicle,
 .app:has(.construction-tray:not([hidden])) .oasis-guide {
   display: none;

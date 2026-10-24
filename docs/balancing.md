@@ -304,3 +304,34 @@ checks that the post-outage stress report drops the now-unsupplied component.
 Validation: `pnpm check` passes with 381 unit/integration tests, 17 simulation scenarios,
 lint, type checking and the production build. All 14 Oasis Playwright tests pass against
 an isolated production preview.
+
+## Oasis journey checkpoint (2026-10-24)
+
+The journey and its dry season apply only to cities founded with `journey: true`. The existing
+presets have no journey, so the control must stay identical.
+
+```sh
+pnpm sim --preset oasis-balanced --months 120 --seeds 1,2,3 --out reports/journey-control
+pnpm sim --preset oasis-journey --months 120 --seeds 1,2,3 --out reports/journey
+pnpm bench --out reports/bench/oasis-journey.json
+```
+
+The control matches the previous reference exactly: populations 2538 / 2372 / 2587 and funds
+5027 / 1670 / 5495. With $30,000 of extra starting capital, the `oasis-journey` automated player
+completes all five chapters. The completion months are 26, 27, 28, 32, 33 for seed 1, then
+25, 26, 27, 31, 32 for seed 2, and 5, 6, 7, 11, 12 for seed 3. Every seed holds on through the
+drought, with mean water service of 0.840 / 0.828 / 0.850, and earns the full $16,500 in grants.
+After 120 months, populations are 6271 / 5538 / 5263 and funds 88729 / 71923 / 78754, and none
+is bankrupt. Water service ends at 1.0. Shade service ends at 0.15, because this player never
+extends the canals. Most of the extra growth comes from the qanats bought with the extra
+capital and from caravanserai trade, not from the grants. The chapter pace comes from that
+scripted player and does not predict a human player's pace.
+
+The first chapter is the slow one: seeds 1 and 2 need about two years to bring water and shade
+to 80% of consumers. Shelter, and then reserves, follow within a month each, because the
+automated player builds the answer as soon as a chapter opens.
+
+The benchmark grid city is classic, so it never runs the journey. It ends at 32673 residents and
+4312 buildings. p95 in milliseconds: traffic 7.702, services 1.283, influence 7.017, close 8.130,
+utility refresh 6.638. **The heavy-tick budget still fails**, by 0.13 ms on the month close. That
+is within this shared machine's run-to-run variation, and the earlier checkpoints also record it.

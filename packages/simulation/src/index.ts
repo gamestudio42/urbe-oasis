@@ -62,6 +62,12 @@ export {
   type GridResult,
 } from './systems/oasis/grid';
 export {
+  chapterGoalMet,
+  droughtActive,
+  journeySummary,
+  updateJourney,
+} from './systems/oasis/journey';
+export {
   initCaravans,
   ownerOf,
   updateCaravans,

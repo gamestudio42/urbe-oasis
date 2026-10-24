@@ -182,3 +182,35 @@ export const OASIS_RATIONING = {
   demandMultiplier: 0.75,
   businessRevenuePenalty: 0.2,
 } as const;
+
+/**
+ * Journey: five chapters after the founding tutorial, checked at each month close.
+ * Rewards land in the treasury after the monthly budget. See docs/oasis-spec.md, "Journey".
+ */
+export const OASIS_JOURNEY = {
+  /** Chapter 1: residents needed, with water and shade each serving this share of consumers. */
+  residents: 100,
+  servedShare: 0.8,
+  /**
+   * Chapter 2: this many powered cisterns already holding water, with water still serving
+   * `servedShare`. A cistern only charges while its network has spare water, so the goal asks
+   * for a surplus rather than a charge level (charging takes years of game time).
+   */
+  reserveBanks: 2,
+  /** Chapter 3: share of services under windbreak cover. */
+  shelter: 0.5,
+  /** Chapter 5: an operating caravanserai (staffed, powered and on a road). */
+  /** Treasury grant for each chapter, in order. The drought grant is the one for holding on. */
+  rewards: [2000, 2500, 3000, 5000, 4000],
+  /** Drought grant when water service averaged below `droughtTarget`. */
+  droughtShortReward: 1000,
+  /** Month closes the drought lasts, after a month of warning. */
+  droughtMonths: 3,
+  /** Share of well and pump output left during the drought. Qanats and cisterns are spared. */
+  droughtFactor: 0.6,
+  /** Mean water service across the drought's month closes that counts as holding on. */
+  droughtTarget: 0.75,
+} as const;
+
+/** Chapters in the journey; `chapter === JOURNEY_CHAPTERS` means it is complete. */
+export const JOURNEY_CHAPTERS = 5;

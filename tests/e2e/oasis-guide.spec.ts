@@ -71,21 +71,18 @@ for (const locale of ['pt-BR', 'de']) {
   });
 }
 
-test('optional goals are live, save-derived observations and guide actions preserve the city', async ({
+test('saves without a journey keep live optional goals and guide actions preserve the city', async ({
   page,
 }) => {
   test.setTimeout(120_000);
   await found(page);
   const emptyHash = await page.evaluate(() => window.__cityDebug!.hash());
   await page.getByTestId('tutorial-skip').click();
+  // A city founded from the menu follows the journey; its first chapter replaces the goals.
+  await expect(page.getByTestId('oasis-next-steps')).toHaveAttribute('data-journey', '0');
   await page.getByTestId('oasis-guide-toggle').click();
-  for (const id of ['residents', 'reserves', 'budget', 'protection', 'trade']) {
-    await expect(page.getByTestId(`oasis-goal-${id}`)).toHaveAttribute('data-met', 'false');
-  }
-  await page.getByTestId('oasis-goal-action-budget').click();
-  await expect(page.getByTestId('budget-panel')).toBeVisible();
-  await expect(page.getByTestId('oasis-next-steps')).toBeHidden();
-  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('oasis-journey')).toBeVisible();
+  await expect(page.getByTestId('oasis-goal-residents')).toHaveCount(0);
   await page.getByTestId('oasis-guide-review').click();
   await expect(page.getByTestId('tutorial')).toContainText('1/10');
   await expect(page.getByTestId('speed-0')).toHaveAttribute('aria-pressed', 'true');

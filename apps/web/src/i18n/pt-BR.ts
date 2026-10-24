@@ -468,6 +468,12 @@ export const ptBR = {
     sandstorm: 'Uma tempestade de areia soterrrou um serviço.',
     sandstormBlocked: 'Um quebra-vento segurou a tempestade.',
     springMoved: 'A nascente mudou de lugar. A sombra segue a água.',
+    journeyChapter: (chapter: number, reward: string) =>
+      `Capítulo ${chapter} de 5 da jornada concluído. O conselho concedeu ${reward}.`,
+    droughtStarted: (months: number) =>
+      `Começou a estação seca: poços e bombas darão menos água por ${months} meses.`,
+    droughtHeld: 'A estação seca acabou. A cidade manteve a água correndo.',
+    droughtShort: 'A estação seca acabou. Muitas casas ficaram sem água.',
     debt: (months: number) => `Cofres no vermelho há ${months} ${months === 1 ? 'mês' : 'meses'}.`,
     bankrupt: 'A cidade faliu! Ajuste impostos e gastos para recuperar o caixa.',
     recovered: 'As finanças da cidade se recuperaram.',
