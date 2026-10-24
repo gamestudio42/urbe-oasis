@@ -1,193 +1,78 @@
 import type { Random } from '@view/city';
 
-/**
- * Desert composer for Urbe Oasis. Pure: no WebAudio, so the rules are unit tested.
- *
- * The shape mirrors the Urbe composer (one bar at a time, notes in MIDI, times in beats) but the
- * mood is slower: natural minor, 76-84 bpm, a two-note drone (root then fifth), a held triad,
- * a sparse arpeggio and a lead hook on the second half of the bar.
- *
- * Pitch classes are not MIDI notes. Each voice is placed at or above its own floor, so the bass
- * sits around C2 and the lead around E4 instead of falling below the audible range.
- */
-
+/** Original modal desert score. Pure composition, independent of the simulation RNG. */
 export type TrackId = 'menu' | 'city';
-export type VoiceId = 'bass' | 'pad' | 'lead' | 'arp';
-
-export interface Chord {
-  /** Chord root in semitones above the key root. */
-  root: number;
-  /** Chord tones above the chord root (0 = root). */
-  tones: readonly number[];
-}
-
+export type VoiceId = 'bass' | 'pad' | 'lead' | 'arp' | 'drum';
 export interface TrackSpec {
   id: TrackId;
   bpm: number;
-  /** Pitch class of the key root (0 = C). */
-  key: number;
-  /** Melody scale in semitones above the key root. */
+  /** MIDI tonic, shared by all instruments before octave placement. */
+  tonic: number;
   scale: readonly number[];
-  /** One chord per bar, looped. */
-  progression: readonly Chord[];
-  /** Chance an eighth-note slot starts a lead note. */
-  leadDensity: number;
-  /** Chance an eighth-note slot starts an arpeggio note. */
-  arpDensity: number;
-  /** Backbeat gate: how long the snare burst lasts, in beats. */
-  gate: number;
+  activity: number;
 }
-
 export interface NoteEvent {
   voice: VoiceId;
   midi: number;
-  /** Start, in beats from the bar start. */
   beat: number;
-  /** Length in beats. */
   duration: number;
-  /** Velocity 0..1. */
   velocity: number;
 }
-
 export const BEATS_PER_BAR = 4;
-/** Eighth notes per bar. */
-const EIGHTHS = 8;
-/** Natural minor: the synthwave default. */
-const MINOR = [0, 2, 3, 5, 7, 8, 10] as const;
-
-const MINOR_TRIAD = [0, 3, 7] as const;
-const MAJOR_TRIAD = [0, 4, 7] as const;
-
-/**
- * Lowest MIDI note of a voice. A pitch class is placed in the octave that starts here, then
- * chord tones stack above that root.
- */
-const VOICE_FLOOR: Record<VoiceId, number> = {
-  bass: 36,
-  pad: 48,
-  lead: 64,
-  arp: 72,
-};
-
-/** i – VI – III – VII. Roots are semitones above the key; tones are above the chord root. */
-const MINOR_LOOP: readonly Chord[] = [
-  { root: 0, tones: MINOR_TRIAD },
-  { root: 8, tones: MAJOR_TRIAD },
-  { root: 3, tones: MAJOR_TRIAD },
-  { root: 10, tones: MAJOR_TRIAD },
-];
-
-/** Pitch class `semitones` above C, placed in the octave that starts at `floor`. */
-function placed(semitones: number, floor: number): number {
-  const pitchClass = ((semitones % 12) + 12) % 12;
-  return floor + pitchClass;
-}
-
+export const PHRASE_BARS = 16;
+const DORIAN = [0, 2, 3, 5, 7, 9, 10] as const;
+const PENTATONIC = [0, 3, 5, 7, 10] as const;
 export const TRACKS: Record<TrackId, TrackSpec> = {
-  menu: {
-    id: 'menu',
-    bpm: 76,
-    key: 9,
-    scale: MINOR,
-    progression: MINOR_LOOP,
-    leadDensity: 0.22,
-    arpDensity: 0.5,
-    gate: 0.5,
-  },
-  city: {
-    id: 'city',
-    bpm: 84,
-    key: 4,
-    scale: MINOR,
-    progression: MINOR_LOOP,
-    leadDensity: 0.3,
-    arpDensity: 0.7,
-    gate: 0.4,
-  },
+  menu: { id: 'menu', bpm: 72, tonic: 38, scale: PENTATONIC, activity: 0.55 },
+  city: { id: 'city', bpm: 82, tonic: 38, scale: DORIAN, activity: 0.8 },
 };
+// A recurring question and answer, with space at the end of each four-bar phrase.
+const MOTIFS = [
+  [4, 3, 2],
+  [2, 1, 0],
+  [0, 2, 3],
+  [2, 1, 0],
+] as const;
+const PLUCK_STEPS = [0, 2, 4, 2, 1, 3, 2, 0] as const;
 
-/** 440 Hz at MIDI 69, equal temperament. */
 export function midiToHz(midi: number): number {
   return 440 * 2 ** ((midi - 69) / 12);
 }
-
-/** Picks a lead tone in the lead octave, biased to chord tones on strong beats. */
-function pickTone(random: Random, spec: TrackSpec, chord: Chord, strong: boolean): number {
-  const root = placed(spec.key + chord.root, VOICE_FLOOR.lead);
-  if (strong) {
-    const tone = chord.tones[Math.min(chord.tones.length - 1, Math.floor(random() * chord.tones.length))] as number;
-    return root + tone;
-  }
-  const degree = spec.scale[Math.min(spec.scale.length - 1, Math.floor(random() * spec.scale.length))] as number;
-  return root + degree;
-}
-
-/**
- * One bar of notes. Deterministic for a given `random` stream, so a unit test can assert the
- * groove and a reload of the same seed sounds identical.
- */
-export function composeBar(spec: TrackSpec, bar: number, random: Random): NoteEvent[] {
-  const chord = spec.progression[bar % spec.progression.length] as Chord;
-  const notes: NoteEvent[] = [];
-  const bassRoot = placed(spec.key + chord.root, VOICE_FLOOR.bass);
-  const padRoot = placed(spec.key + chord.root, VOICE_FLOOR.pad);
-  const arpRoot = placed(spec.key + chord.root, VOICE_FLOOR.arp);
-
-  // Bass: a slow drone on the root, then the fifth. Two notes across the bar.
-  notes.push({
-    voice: 'bass',
-    midi: bassRoot,
-    beat: 0,
-    duration: 2,
-    velocity: 0.85,
-  });
-  notes.push({
-    voice: 'bass',
-    midi: bassRoot + 7,
-    beat: 2,
-    duration: 2,
-    velocity: 0.55,
-  });
-
-  // Pad: a held triad across the bar, an octave above the bass floor.
-  for (const tone of chord.tones) {
-    notes.push({
-      voice: 'pad',
-      midi: padRoot + tone,
-      beat: 0,
-      duration: BEATS_PER_BAR,
-      velocity: 0.5,
-    });
-  }
-
-  // Arpeggio: the same triad two octaves above the pad.
-  for (let step = 0; step < EIGHTHS; step++) {
-    if (random() >= spec.arpDensity) continue;
-    const tone = chord.tones[Math.min(chord.tones.length - 1, Math.floor(random() * chord.tones.length))] as number;
-    notes.push({
-      voice: 'arp',
-      midi: arpRoot + tone,
-      beat: step / 2,
-      duration: 0.35,
-      velocity: 0.32,
-    });
-  }
-
-  // Lead: sparse, mostly on the second half of the bar.
-  for (let step = 4; step < EIGHTHS; step++) {
-    if (random() >= spec.leadDensity) continue;
-    notes.push({
-      voice: 'lead',
-      midi: pickTone(random, spec, chord, step % 2 === 0),
-      beat: step / 2,
-      duration: 0.9,
-      velocity: 0.4,
-    });
-  }
-  return notes;
-}
-
-/** Deterministic bar length in seconds. */
 export function barSeconds(spec: TrackSpec): number {
   return (BEATS_PER_BAR * 60) / spec.bpm;
+}
+
+/** Sixteen-bar arc: arrival, movement, bloom, then a sparse return. */
+export function composeBar(spec: TrackSpec, bar: number, random: Random): NoteEvent[] {
+  const phraseBar = ((bar % PHRASE_BARS) + PHRASE_BARS) % PHRASE_BARS;
+  const section = Math.floor(phraseBar / 4);
+  const density = [0.5, 0.8, 1, 0.35][section]! * spec.activity;
+  const notes: NoteEvent[] = [];
+  const add = (voice: VoiceId, midi: number, beat: number, duration: number, velocity: number) =>
+    notes.push({ voice, midi, beat, duration, velocity });
+  // Open fifths leave room for the modal melody; no imported synthwave chord loop.
+  add('bass', spec.tonic, 0, 3.8, 0.65);
+  for (const interval of [0, 7]) add('pad', spec.tonic + 12 + interval, 0, 4, 0.32);
+  if (section === 2) add('pad', spec.tonic + 22, 0, 4, 0.2);
+
+  for (let step = 0; step < 8; step++) {
+    const roll = random();
+    if (step !== 0 && roll > density) continue;
+    const degree = PLUCK_STEPS[(step + phraseBar) % PLUCK_STEPS.length]!;
+    add('arp', spec.tonic + 24 + spec.scale[degree]!, step / 2, 0.45, 0.3 + roll * 0.12);
+  }
+  // Breath between phrases and a full rest in the final bar.
+  if (phraseBar % 4 !== 3) {
+    const motif = MOTIFS[section]!;
+    motif.forEach((degree, i) => {
+      if (section === 0 && i === 2) return;
+      add('lead', spec.tonic + 24 + spec.scale[degree]!, 0.5 + i, 0.85, 0.35 + random() * 0.08);
+    });
+  }
+  if (section === 1 || section === 2) {
+    add('drum', 45, 0, 0.3, spec.id === 'city' ? 0.5 : 0.25);
+    add('drum', 57, 2.5, 0.16, 0.22);
+    if (section === 2 && spec.id === 'city') add('drum', 57, 3.5, 0.12, 0.15);
+  }
+  return notes;
 }

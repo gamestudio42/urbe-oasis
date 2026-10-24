@@ -96,14 +96,19 @@ export interface MusicEngine {
 export type MusicFactory = (ctx: AudioContext, bus: GainNode, noise: AudioBuffer) => MusicEngine;
 
 export class SoundBoard {
-  private readonly graph = new AudioGraph({ mutedKey: STORAGE_KEY });
+  private readonly graph: AudioGraph;
+  private readonly musicKey: string;
+  private musicOn: boolean;
   private music: MusicEngine | null = null;
   private readonly musicFactory: MusicFactory;
 
-  constructor(options: { music?: MusicFactory } = {}) {
+  constructor(options: { music?: MusicFactory; preferenceScope?: string } = {}) {
+    const scope = options.preferenceScope;
+    this.graph = new AudioGraph({ mutedKey: scope ? `${scope}.muted` : STORAGE_KEY });
+    this.musicKey = scope ? `${scope}.music` : MUSIC_KEY;
+    this.musicOn = readFlag(this.musicKey, true);
     this.musicFactory = options.music ?? ((ctx, bus, noise) => new MusicPlayer(ctx, bus, noise));
   }
-  private musicOn = readFlag(MUSIC_KEY, true);
   private musicTrack: TrackId = 'menu';
   private musicDucked = false;
   private readonly lastPlayed = new Map<SoundName, number>();
@@ -123,7 +128,7 @@ export class SoundBoard {
 
   setMusicEnabled(on: boolean): void {
     this.musicOn = on;
-    writeFlag(MUSIC_KEY, on);
+    writeFlag(this.musicKey, on);
     if (on) this.unlock();
     this.syncMusic();
   }

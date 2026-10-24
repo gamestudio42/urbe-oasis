@@ -286,3 +286,23 @@ A classic file stays classic when opened here.
 The Oasis app stores browser saves in its own `urbe-oasis` IndexedDB database so games
 hosted on the same origin cannot appear in its menu. Existing Oasis saves in the former
 shared `city-builder` database are copied on first access and left untouched there.
+
+## Music and audio preferences
+
+Oasis has an original procedural score, generated locally through Web Audio without downloads
+or external samples. The menu uses a sparse D minor pentatonic theme at 72 BPM; the city uses
+D Dorian at 82 BPM. Sixteen-bar phrases build from open fifths and plucked-string synthesis to
+breathy flute and soft frame-drum tones, then return to a sparse passage. Filtered noise adds
+quiet wind and water-like ambience. These are synthesized approximations, not sampled instruments.
+Composition uses its own seeded random stream, never the simulation RNG.
+
+Music starts after a user gesture, crossfades between menu and city, and becomes quieter and
+darker while paused. A separate pause gain preserves attenuation when music is toggled off/on.
+The music switch controls the score and its ambience; master mute also controls sound effects.
+Audio nodes and timers are released on disposal, and completed notes disconnect their nodes.
+
+Preferences use `oasis.audio.muted` and `oasis.audio.music`. Classic `cityBuilder.*` audio keys
+remain unchanged and are not migrated: they cannot reliably identify which sibling game the
+player muted on the shared hosting origin. New Oasis preferences default to sound and music on,
+subject to the browser's gesture requirement. Composer tests cover modal pitch, phrasing and
+repeatability; browser tests measure real audio output, mute, restart and preference persistence.

@@ -1,14 +1,13 @@
+import { describe, expect, it, vi, afterEach } from 'vitest';
 import {
   BEATS_PER_BAR,
+  PHRASE_BARS,
   TRACKS,
-  barSeconds,
   composeBar,
   midiToHz,
-  type NoteEvent,
+  barSeconds,
 } from '../../apps/oasis/src/audio/composer';
-import { describe, expect, it } from 'vitest';
-
-/** Small deterministic PRNG so the composer's randomness is reproducible in tests. */
+import { SoundBoard } from '../../apps/web/src/audio/sound';
 function seeded(seed: number): () => number {
   let state = seed >>> 0;
   return () => {
@@ -16,120 +15,76 @@ function seeded(seed: number): () => number {
     return state / 0x1_0000_0000;
   };
 }
-
-const voices = (notes: NoteEvent[], voice: string) => notes.filter((n) => n.voice === voice);
-
-describe('oasis desert composer', () => {
-  it('keeps every note inside the bar', () => {
-    for (const spec of Object.values(TRACKS)) {
-      for (let bar = 0; bar < 8; bar++) {
+describe('Oasis score', () => {
+  it('keeps pitched instruments in the track mode and all events in safe ranges', () => {
+    for (const spec of Object.values(TRACKS))
+      for (let bar = 0; bar < 64; bar++) {
         for (const note of composeBar(spec, bar, seeded(bar + 1))) {
           expect(note.beat).toBeGreaterThanOrEqual(0);
           expect(note.beat).toBeLessThan(BEATS_PER_BAR);
           expect(note.duration).toBeGreaterThan(0);
+          expect(note.duration).toBeLessThanOrEqual(4);
           expect(note.velocity).toBeGreaterThan(0);
           expect(note.velocity).toBeLessThanOrEqual(1);
-        }
-      }
-    }
-  });
-
-  it('keeps every voice in an audible octave', () => {
-    const range: Record<string, [number, number]> = {
-      bass: [36, 60],
-      pad: [48, 72],
-      lead: [64, 86],
-      arp: [72, 91],
-    };
-    for (const spec of Object.values(TRACKS)) {
-      for (let bar = 0; bar < 8; bar++) {
-        for (const note of composeBar(spec, bar, seeded(bar + 3))) {
-          const [low, high] = range[note.voice] as [number, number];
-          expect(note.midi).toBeGreaterThanOrEqual(low);
-          expect(note.midi).toBeLessThanOrEqual(high);
           expect(midiToHz(note.midi)).toBeGreaterThan(60);
+          expect(midiToHz(note.midi)).toBeLessThan(2000);
+          if (note.voice !== 'drum') expect(spec.scale).toContain((note.midi - spec.tonic) % 12);
         }
       }
-    }
   });
-
-  it('voices the tonic as a minor triad and the VI as a major triad', () => {
-    const triad = (bar: number) =>
-      voices(composeBar(TRACKS.menu, bar, seeded(1)), 'pad')
-        .map((note) => note.midi)
-        .sort((a, b) => a - b);
-    const tonic = triad(0);
-    const sixth = triad(1);
-    expect(tonic[1]! - tonic[0]!).toBe(3);
-    expect(tonic[2]! - tonic[0]!).toBe(7);
-    expect(sixth[1]! - sixth[0]!).toBe(4);
-    expect(sixth[2]! - sixth[0]!).toBe(7);
-    expect(tonic[0]! % 12).toBe(TRACKS.menu.key % 12);
-    expect(sixth[0]! % 12).toBe((TRACKS.menu.key + 8) % 12);
-  });
-
-  it('lays down a two-note drone on every bar', () => {
-    const notes = composeBar(TRACKS.city, 0, seeded(7));
-    const bass = voices(notes, 'bass');
-    expect(bass).toHaveLength(2);
-    expect(bass[0]?.duration).toBeGreaterThanOrEqual(2);
-    expect(bass[1]?.midi).toBe((bass[0]?.midi ?? 0) + 7);
-  });
-
-  it('holds a pad triad across the whole bar', () => {
-    const notes = composeBar(TRACKS.menu, 0, seeded(3));
-    const pad = voices(notes, 'pad');
-    expect(pad).toHaveLength(3);
-    for (const note of pad) {
-      expect(note.beat).toBe(0);
-      expect(note.duration).toBe(BEATS_PER_BAR);
-    }
-  });
-
-  it('only starts lead notes in the second half of the bar', () => {
-    for (let bar = 0; bar < 12; bar++) {
-      const lead = voices(composeBar(TRACKS.city, bar, seeded(bar)), 'lead');
-      for (const note of lead) expect(note.beat).toBeGreaterThanOrEqual(BEATS_PER_BAR / 2);
-    }
-  });
-
-  it('loops the progression every four bars', () => {
-    const spec = TRACKS.menu;
-    for (let bar = 0; bar < 4; bar++) {
-      const first = composeBar(spec, bar, seeded(11));
-      const second = composeBar(spec, bar + spec.progression.length, seeded(11));
-      expect(first).toEqual(second);
-    }
-  });
-
-  it('is deterministic for the same random stream', () => {
-    expect(composeBar(TRACKS.city, 3, seeded(42))).toEqual(composeBar(TRACKS.city, 3, seeded(42)));
-  });
-
-  it('produces different bars from different streams', () => {
-    const a = composeBar(TRACKS.city, 0, seeded(1));
-    const b = composeBar(TRACKS.city, 0, seeded(9999));
-    expect(a).not.toEqual(b);
-  });
-
-  it('stays inside the slow desert tempo range', () => {
+  it('leaves breaths between phrases and reduces layers after the climax', () => {
     for (const spec of Object.values(TRACKS)) {
-      expect(spec.bpm).toBeGreaterThanOrEqual(70);
-      expect(spec.bpm).toBeLessThanOrEqual(88);
-      expect(barSeconds(spec)).toBeGreaterThan(2.5);
-      expect(barSeconds(spec)).toBeLessThan(4);
+      const end = composeBar(spec, PHRASE_BARS - 1, seeded(42));
+      const bloom = composeBar(spec, 10, seeded(42));
+      expect(end.some((n) => n.voice === 'lead' || n.voice === 'drum')).toBe(false);
+      expect(bloom.some((n) => n.voice === 'lead')).toBe(true);
+      expect(bloom.some((n) => n.voice === 'drum')).toBe(true);
+      expect(bloom.length).toBeGreaterThan(end.length);
     }
   });
-
-  it('tunes A4 to 440 Hz and octaves to double', () => {
-    expect(midiToHz(69)).toBeCloseTo(440, 5);
-    expect(midiToHz(81)).toBeCloseTo(880, 5);
-    expect(midiToHz(57)).toBeCloseTo(220, 5);
+  it('is reproducible while varying consecutive phrases', () => {
+    const a = seeded(42),
+      b = seeded(42);
+    for (let bar = 0; bar < 32; bar++)
+      expect(composeBar(TRACKS.city, bar, a)).toEqual(composeBar(TRACKS.city, bar, b));
+    expect(composeBar(TRACKS.city, 0, seeded(1))).not.toEqual(
+      composeBar(TRACKS.city, 8, seeded(1)),
+    );
   });
+  it('gives the city a distinct mode and more movement than the menu', () => {
+    expect(TRACKS.city.scale).not.toEqual(TRACKS.menu.scale);
+    expect(TRACKS.city.bpm).toBeGreaterThan(TRACKS.menu.bpm);
+    for (const spec of Object.values(TRACKS)) expect(barSeconds(spec)).toBeGreaterThan(2.5);
+    expect(midiToHz(69)).toBe(440);
+  });
+});
 
-  it('maps note velocities to a mixable range', () => {
-    const notes = composeBar(TRACKS.city, 1, seeded(5));
-    for (const note of notes) expect(note.velocity).toBeLessThanOrEqual(1);
-    expect(notes.some((n) => n.velocity > 0.8)).toBe(true);
+describe('Oasis audio preferences', () => {
+  afterEach(() => vi.unstubAllGlobals());
+  it('does not inherit or overwrite classic preferences and remembers its own settings', () => {
+    const saved = new Map([
+      ['cityBuilder.music', '0'],
+      ['cityBuilder.muted', '1'],
+    ]);
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => saved.get(key) ?? null,
+      setItem: (key: string, value: string) => saved.set(key, value),
+    });
+    const oasis = new SoundBoard({ preferenceScope: 'oasis.audio' });
+    expect(oasis.muted).toBe(false);
+    expect(oasis.musicEnabled).toBe(true);
+    oasis.setMusicEnabled(false);
+    oasis.setMuted(true);
+    const restored = new SoundBoard({ preferenceScope: 'oasis.audio' });
+    expect(restored.musicEnabled).toBe(false);
+    expect(restored.muted).toBe(true);
+    expect(saved.get('cityBuilder.music')).toBe('0');
+    expect(saved.get('cityBuilder.muted')).toBe('1');
+    const classic = new SoundBoard();
+    expect(classic.muted).toBe(true);
+    expect(classic.musicEnabled).toBe(false);
+    classic.setMusicEnabled(true);
+    expect(saved.get('cityBuilder.music')).toBe('1');
+    expect(saved.get('oasis.audio.music')).toBe('0');
   });
 });

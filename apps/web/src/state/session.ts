@@ -195,7 +195,10 @@ export class GameSession {
 
   constructor(options: SessionOptions = {}) {
     this.renderer = new GameRenderer(options.theme ?? urbe);
-    this.sound = new SoundBoard(options.music ? { music: options.music } : {});
+    this.sound = new SoundBoard({
+      ...(options.music ? { music: options.music } : {}),
+      ...(options.ruleset === 'oasis' ? { preferenceScope: 'oasis.audio' } : {}),
+    });
     this.ui = new Store<UiState>({
       ...initialUi,
       locale: bootLocale(),

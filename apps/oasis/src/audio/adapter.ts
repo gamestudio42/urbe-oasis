@@ -1,47 +1,34 @@
 import type { MusicEngine } from '@oasis/web/audio/sound';
-import type { TrackId } from '@oasis/web/audio/composer';
+import type { TrackId } from './composer';
 import { OasisMusic } from './music';
 
-/**
- * Bridges the synthwave player into the shared `SoundBoard`.
- *
- * The board owns the AudioContext, the master gain and the mute flag; the Neo player only needs
- * the destination bus. This adapter keeps the board's `MusicEngine` contract (start/stop/track/
- * duck) without teaching the shared code about synthwave.
- */
+/** The shared board owns the audio context; Oasis owns its score and instruments. */
 export function oasisMusicFactory(
   ctx: AudioContext,
   bus: GainNode,
-  _noise: AudioBuffer,
+  noise: AudioBuffer,
 ): MusicEngine {
-  const player = new OasisMusic(ctx, bus);
+  const player = new OasisMusic(ctx, bus, noise);
   let track: TrackId = 'menu';
-  let ducked = false;
-  let started = false;
   return {
     get state() {
       return player.state;
     },
     start() {
-      if (started) return;
-      started = true;
-      void player.start(track);
+      player.start(track);
     },
     stop() {
-      started = false;
       player.stop();
     },
-    setTrack(next: TrackId) {
+    setTrack(next) {
       track = next;
-      if (started) player.setTrack(next);
+      player.setTrack(next);
     },
-    setDucked(next: boolean) {
-      ducked = next;
+    setDucked(next) {
       player.setPaused(next);
     },
     dispose() {
-      player.stop();
-      void ducked;
+      player.dispose();
     },
   };
 }
