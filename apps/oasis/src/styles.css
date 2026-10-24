@@ -1232,8 +1232,11 @@ body,
 .app:has(.oasis-construction) .paused-banner {
   bottom: 57px;
 }
-@media (max-width: 1180px) {
+/* Fit the bar instead of scrolling it: panel buttons keep their icon and accessible name.
+   The bar still scrolls as a last resort on very narrow phones. */
+@media (max-width: 1360px) {
   .app:has(.oasis-construction) .hud {
+    gap: 12px;
     overflow-x: auto;
     scrollbar-width: thin;
   }
@@ -1241,6 +1244,52 @@ body,
     flex-shrink: 0;
     white-space: nowrap;
   }
+  .app:has(.oasis-construction) .hud-city {
+    flex-shrink: 1;
+    min-width: 72px;
+    max-width: 140px;
+  }
+  .app:has(.oasis-construction) .hud-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    line-height: 1.25;
+  }
+  .app:has(.oasis-construction) .hud-stat .badge {
+    display: none;
+  }
+  .app:has(.oasis-construction) .hud-city > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .app:has(.oasis-construction) .hud-panels {
+    gap: 4px;
+  }
+  .app:has(.oasis-construction) .hud-button {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .app:has(.oasis-construction) .hud-button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 860px) {
+  .app:has(.oasis-construction) .hud {
+    gap: 10px;
+  }
+  .app:has(.oasis-construction) .hud .studio-mark-play {
+    display: none;
+  }
+  .app:has(.oasis-construction) .speed-button {
+    min-width: 30px;
+  }
+}
+@media (max-width: 1180px) {
   .oasis-construction {
     left: auto;
     right: 16px;

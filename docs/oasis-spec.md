@@ -97,6 +97,15 @@ clears it. Traces and explanations come from `explainService` and `traceService`
 the mirror world only: supply follows the last solve's flags, cistern output uses the mean
 charge, and nothing is written to the world, saves or hashes.
 
+### Top bar
+
+The Oasis top bar fits its width instead of scrolling from 720 px upward. At 1360 px and below,
+the budget, charts, maps and menu buttons show only their icons. Their labels remain as
+accessible names and tooltips. Stat labels stack above their values, the city name truncates,
+and debt badges give way to the red funds value. At 860 px and below, the studio mark is hidden
+and the gaps narrow. Narrower phones keep horizontal scrolling as a last resort. Browser checks
+cover pt-BR and German from 1440 px to 720 px. The classic HUD is unchanged.
+
 ### Management panels
 
 Management panels use a wider, responsive layout with fixed headers and scrollable bodies.
