@@ -1,6 +1,7 @@
 import { OASIS_SAVE_FORMAT, encodeSave } from '@city/shared';
 import { SIM_PRESETS, droughtActive, type SimulationEngine } from '@city/simulation';
 import { expect, test, type Page } from '@playwright/test';
+import { openWorldOptions } from './helpers';
 
 /** A save of the journey preset, advanced until `until` holds after a month. */
 function journeySave(until: (engine: SimulationEngine) => boolean): string {
@@ -38,6 +39,7 @@ test('a city founded from the menu starts the journey after the tutorial', async
   await page.addInitScript(() => localStorage.removeItem('oasis.tutorial.founding.v1'));
   await page.goto('/');
   await page.getByTestId('main-menu').waitFor();
+  await openWorldOptions(page);
   await page.getByTestId('seed-input').fill('oasis-journey');
   await page.getByTestId('size-select').selectOption('64');
   await page.getByTestId('start-city').click();

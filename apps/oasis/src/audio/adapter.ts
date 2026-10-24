@@ -27,6 +27,9 @@ export function oasisMusicFactory(
     setDucked(next) {
       player.setPaused(next);
     },
+    setMood(mood) {
+      player.setMood(mood);
+    },
     dispose() {
       player.dispose();
     },

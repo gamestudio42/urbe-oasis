@@ -237,6 +237,10 @@ export const de = {
   },
   menu: {
     language: 'Sprache',
+    newCity: 'Neue Stadt',
+    advanced: 'Erweiterte Optionen',
+    back: 'Zurück',
+    latest: 'Letzte Stadt',
     subtitle: 'Baue, verwalte und lass deine Stadt wachsen.',
     cityName: 'Stadtname',
     defaultCityName: 'Neue Stadt',
@@ -482,6 +486,10 @@ export const de = {
   system: {
     display: 'Darstellung',
     audio: 'Audio',
+    volume: 'Lautstärke',
+    volumeMaster: 'Gesamt',
+    volumeMusic: 'Musik',
+    volumeEffects: 'Effekte',
     shortcuts: 'Tastenkürzel',
     advanced: 'Szenariowerkzeuge',
     confirmDisaster: 'Diese Aktion wirkt sich sofort auf die Stadt aus.',

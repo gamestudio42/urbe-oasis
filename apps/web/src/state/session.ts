@@ -17,7 +17,8 @@ import {
 import { RoadNetwork, type ServiceContext, type World } from '@city/simulation';
 import type { Theme } from '@theme/core';
 import { urbe } from '@theme/urbe';
-import { SoundBoard, type MusicFactory, type SoundName } from '../audio/sound';
+import { cityMood, STORM_MOOD_TICKS } from '../audio/mood';
+import { SoundBoard, type AudioLevels, type MusicFactory, type SoundName } from '../audio/sound';
 import {
   applyDocumentLocale,
   bootLocale,
@@ -98,6 +99,8 @@ export interface UiState {
   muted: boolean;
   /** Background music on (persisted in localStorage). */
   music: boolean;
+  /** Player volume per bus (persisted for Oasis; fixed at 1 for the classic mix). */
+  volumes: AudioLevels;
   /** Cars, smoke, water glints and fire engines (persisted in localStorage). */
   animations: boolean;
   /** Player language (persisted in localStorage). */
@@ -129,6 +132,7 @@ const initialUi: UiState = {
   busy: false,
   muted: false,
   music: true,
+  volumes: { master: 1, music: 1, effects: 1 },
   animations: true,
   locale: 'en',
 };
@@ -193,6 +197,8 @@ export class GameSession {
   private readonly listeners = new AbortController();
   private roadCache: { world: World; roads: RoadNetwork } | null = null;
   private nextToastId = 1;
+  /** Game tick until which a sandstorm colours the music. */
+  private stormUntilTick = -1;
   private disposed = false;
   private speedBeforePause: Speed = 1;
   private lastAutosave = { time: 0, tick: -1 };
@@ -209,6 +215,7 @@ export class GameSession {
       locale: bootLocale(),
       muted: this.sound.muted,
       music: this.sound.musicEnabled,
+      volumes: this.sound.levels,
       animations: readAnimations(),
     });
     this.menuSeed = options.menuSeed ?? MENU_CITY.seed;
@@ -310,6 +317,7 @@ export class GameSession {
         // Stats are emitted after the complete mirror delta, including its current funds.
         this.tools.refreshCurrent();
         this.renderer.setSpring(stats.oasis?.spring ?? null);
+        this.sound.setMusicMood(cityMood(stats, this.stormUntilTick));
         this.checkTutorial();
       },
       onHistory: (history) => this.ui.set({ history }),
@@ -711,6 +719,11 @@ export class GameSession {
     this.ui.set({ muted });
   }
 
+  setVolume(bus: keyof AudioLevels, value: number): void {
+    this.sound.setLevel(bus, value);
+    this.ui.set({ volumes: this.sound.levels });
+  }
+
   setMusic(music: boolean): void {
     this.sound.setMusicEnabled(music);
     this.ui.set({ music });
@@ -758,6 +771,11 @@ export class GameSession {
   }
 
   private announce(event: SimEvent): void {
+    if (event.type === 'sandstorm') {
+      const tick = this.client.stats?.tick ?? 0;
+      this.stormUntilTick = tick + STORM_MOOD_TICKS;
+      this.sound.setMusicMood(cityMood(this.client.stats, this.stormUntilTick));
+    }
     if (
       this.renderer.theme.style === 'adobe' &&
       this.client.stats?.ruleset === 'oasis' &&

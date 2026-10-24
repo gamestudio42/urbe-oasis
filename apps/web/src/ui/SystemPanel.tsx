@@ -14,6 +14,7 @@ export function SystemPanel({ session, children }: { session: GameSession; child
   const underground = useStore(session.ui, (s) => s.underground);
   const muted = useStore(session.ui, (s) => s.muted);
   const music = useStore(session.ui, (s) => s.music);
+  const volumes = useStore(session.ui, (s) => s.volumes);
   const animations = useStore(session.ui, (s) => s.animations);
   const disastersEnabled = useStore(session.ui, (s) => s.stats?.disastersEnabled ?? true);
   const s = t.system;
@@ -96,6 +97,33 @@ export function SystemPanel({ session, children }: { session: GameSession; child
           />
           {s.music}
         </label>
+        {session.ruleset === 'oasis' && (
+          <fieldset className="volume-fields" data-testid="volume-fields" disabled={muted}>
+            <legend>{s.volume}</legend>
+            {(
+              [
+                ['master', s.volumeMaster],
+                ['music', s.volumeMusic],
+                ['effects', s.volumeEffects],
+              ] as const
+            ).map(([bus, label]) => (
+              <label key={bus} className="field slider-field">
+                <span>
+                  {label} <output>{Math.round(volumes[bus] * 100)}%</output>
+                </span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={Math.round(volumes[bus] * 100)}
+                  data-testid={`volume-${bus}`}
+                  onChange={(e) => session.setVolume(bus, Number(e.target.value) / 100)}
+                />
+              </label>
+            ))}
+          </fieldset>
+        )}
       </section>
       <details className="management-section" data-testid="system-shortcuts">
         <summary>{s.shortcuts}</summary>

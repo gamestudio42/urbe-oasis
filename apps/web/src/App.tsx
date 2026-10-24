@@ -121,13 +121,16 @@ function Screens({
   const screen = useStore(session.ui, (s) => s.screen);
   const panel = useStore(session.ui, (s) => s.panel);
   if (!booted) return null;
+  // The Oasis menu opens on the latest city rather than on the founding form.
+  const launcher = session.foundingRuleset === 'oasis';
   if (screen === 'menu') {
     return (
       <>
         <MainMenu
           session={session}
-          extra={<SavedCities session={session} />}
+          extra={<SavedCities session={session} showContinue={!launcher} />}
           credit={credit?.('menu')}
+          launcher={launcher}
         />
         <Toasts session={session} />
       </>

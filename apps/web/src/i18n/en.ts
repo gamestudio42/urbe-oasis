@@ -237,6 +237,10 @@ export const en = {
   },
   menu: {
     language: 'Language',
+    newCity: 'New city',
+    advanced: 'Advanced options',
+    back: 'Back',
+    latest: 'Latest city',
     subtitle: 'Build, manage and grow your city.',
     cityName: 'City name',
     defaultCityName: 'New City',
@@ -482,6 +486,10 @@ export const en = {
   system: {
     display: 'Display',
     audio: 'Audio',
+    volume: 'Volume',
+    volumeMaster: 'Overall',
+    volumeMusic: 'Music',
+    volumeEffects: 'Effects',
     shortcuts: 'Keyboard shortcuts',
     advanced: 'Scenario tools',
     confirmDisaster: 'This will immediately affect the city.',

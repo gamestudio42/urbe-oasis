@@ -15,6 +15,25 @@ export function writeFlag(key: string, value: boolean): void {
   }
 }
 
+/** A stored level in 0..1, or the fallback when absent or malformed. */
+export function readLevel(key: string, fallback: number): number {
+  try {
+    const stored = localStorage.getItem(key);
+    const value = stored === null ? NaN : Number(stored);
+    return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export function writeLevel(key: string, value: number): void {
+  try {
+    localStorage.setItem(key, String(Math.min(1, Math.max(0, value))));
+  } catch {
+    // Private mode or disabled storage: the level lasts for this session only.
+  }
+}
+
 export interface ToneSpec {
   type: OscillatorType;
   freq: number;
@@ -91,6 +110,9 @@ export class AudioGraph {
   muted: boolean;
   private readonly mutedKey: string;
   private readonly volume: number;
+  /** Player levels on top of the fixed mix, 0..1; 1 keeps the designed balance. */
+  private masterLevel = 1;
+  private effectsLevel = 1;
 
   constructor(options: AudioGraphOptions) {
     this.mutedKey = options.mutedKey;
@@ -101,8 +123,19 @@ export class AudioGraph {
   setMuted(muted: boolean): void {
     this.muted = muted;
     writeFlag(this.mutedKey, muted);
-    if (this.master) this.master.gain.value = muted ? 0 : this.volume;
+    if (this.master) this.master.gain.value = this.masterGain();
     if (!muted) this.unlock();
+  }
+
+  setLevels(master: number, effects: number): void {
+    this.masterLevel = master;
+    this.effectsLevel = effects;
+    if (this.master) this.master.gain.value = this.masterGain();
+    if (this.sfx) this.sfx.gain.value = effects;
+  }
+
+  private masterGain(): number {
+    return this.muted ? 0 : this.volume * this.masterLevel;
   }
 
   unlock(): void {
@@ -116,9 +149,10 @@ export class AudioGraph {
     try {
       const ctx = new AudioContext();
       const master = ctx.createGain();
-      master.gain.value = this.muted ? 0 : this.volume;
+      master.gain.value = this.masterGain();
       master.connect(ctx.destination);
       const sfx = ctx.createGain();
+      sfx.gain.value = this.effectsLevel;
       sfx.connect(master);
       const buffer = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
       const data = buffer.getChannelData(0);

@@ -628,6 +628,34 @@ input[type='range'] {
   font-size: 12px;
 }
 
+.volume-fields {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+.volume-fields legend {
+  padding: 0 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.volume-fields span {
+  display: flex;
+  justify-content: space-between;
+}
+
+.volume-fields output {
+  font-variant-numeric: tabular-nums;
+}
+
+.volume-fields:disabled {
+  opacity: 0.5;
+}
+
 .menu-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1169,4 +1197,63 @@ input[type='range'] {
   display: flex;
   justify-content: flex-end;
   gap: 6px;
+}
+
+/* Launcher menu: the latest city first, founding one step away. */
+.menu-home {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.menu-continue {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  padding: 14px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.menu-continue:hover:not(:disabled),
+.menu-continue:focus-visible {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.menu-continue small {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+}
+
+.menu-continue strong {
+  font-size: 18px;
+}
+
+.menu-continue span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.menu-advanced {
+  display: grid;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+.menu-advanced summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.menu-advanced[open] summary {
+  margin-bottom: 4px;
 }

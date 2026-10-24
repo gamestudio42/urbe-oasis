@@ -1,7 +1,7 @@
 import { DIFFICULTIES, OASIS_TERRAIN, type Difficulty, type TerrainOptions } from '@city/shared';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { SoundToggle } from '@shell/chrome';
-import { useStrings } from '../i18n';
+import { formatMoney, formatNumber, useStrings } from '../i18n';
 import type { GameSession } from '../state/session';
 import { useStore } from '../state/store';
 import { LocaleSelect } from './LocaleSelect';
@@ -18,16 +18,28 @@ export function MainMenu({
   session,
   extra,
   credit,
+  launcher = false,
 }: {
   session: GameSession;
   extra?: ReactNode;
   /** Studio credit in the menu corner. The classic shell leaves it empty. */
   credit?: ReactNode;
+  /**
+   * Opens on the latest city, with founding one step away and its world options folded.
+   * The classic shell keeps the founding form in front.
+   */
+  launcher?: boolean;
 }) {
   const t = useStrings(session.ui);
   const m = t.menu;
   const muted = useStore(session.ui, (s) => s.muted);
   const locale = useStore(session.ui, (s) => s.locale);
+  const saves = useStore(session.ui, (s) => s.saves);
+  const loading = useStore(session.ui, (s) => s.busy);
+  const latest = saves[0];
+  // `null` follows the saves: home when a city exists, founding otherwise.
+  const [chosen, setChosen] = useState<'home' | 'new' | null>(null);
+  const view = !launcher ? 'new' : (chosen ?? (latest ? 'home' : 'new'));
   const [name, setName] = useState<string>(m.defaultCityName);
   const defaultName = useRef(m.defaultCityName);
   useEffect(() => {
@@ -79,8 +91,40 @@ export function MainMenu({
     </label>
   );
 
+  const seedField = (
+    <label className="field">
+      <span>{m.seed}</span>
+      <span className="row">
+        <input value={seed} onChange={(e) => setSeed(e.target.value)} data-testid="seed-input" />
+        <button type="button" className="button" onClick={() => setSeed(randomSeed())}>
+          {m.randomSeed}
+        </button>
+      </span>
+    </label>
+  );
+  const terrainFields = (
+    <fieldset className="terrain-fields">
+      <legend>{m.terrain}</legend>
+      {slider('water', m.water, 0.4)}
+      {slider('hills', m.hills, 1)}
+      {slider('forest', m.forest, 0.8)}
+      <label className="field slider-field">
+        <span>{m.rivers}</span>
+        <input
+          type="range"
+          min={0}
+          max={3}
+          step={1}
+          value={terrain.rivers}
+          data-testid="terrain-rivers"
+          onChange={(e) => setTerrain({ ...terrain, rivers: Number(e.target.value) })}
+        />
+      </label>
+    </fieldset>
+  );
+
   return (
-    <div className="main-menu" data-testid="main-menu">
+    <div className="main-menu" data-testid="main-menu" data-view={view}>
       <div className="menu-chrome">
         {credit}
         <div className="menu-chrome-actions">
@@ -103,95 +147,118 @@ export function MainMenu({
           <BrandLogo locale={locale} />
         </h1>
         <p className="muted">{m.subtitle}</p>
-        <form
-          className="menu-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void start();
-          }}
-        >
-          <label className="field">
-            <span>{m.cityName}</span>
-            <input
-              value={name}
-              maxLength={40}
-              onChange={(e) => setName(e.target.value)}
-              data-testid="city-name-input"
-            />
-          </label>
-          <label className="field">
-            <span>{m.seed}</span>
-            <span className="row">
-              <input
-                value={seed}
-                onChange={(e) => setSeed(e.target.value)}
-                data-testid="seed-input"
-              />
-              <button type="button" className="button" onClick={() => setSeed(randomSeed())}>
-                {m.randomSeed}
-              </button>
-            </span>
-          </label>
-          <div className="field-row">
-            <label className="field">
-              <span>{m.mapSize}</span>
-              <select
-                value={size}
-                onChange={(e) => setSize(Number(e.target.value))}
-                data-testid="size-select"
-              >
-                {SIZES.map((s) => (
-                  <option key={s} value={s}>
-                    {m.sizes[s]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="field">
-              <span>{m.difficulty}</span>
-              <select
-                value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-                data-testid="difficulty-select"
-              >
-                {DIFFICULTIES.map((d) => (
-                  <option key={d} value={d}>
-                    {m.difficulties[d]}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <fieldset className="terrain-fields">
-            <legend>{m.terrain}</legend>
-            {slider('water', m.water, 0.4)}
-            {slider('hills', m.hills, 1)}
-            {slider('forest', m.forest, 0.8)}
-            <label className="field slider-field">
-              <span>{m.rivers}</span>
-              <input
-                type="range"
-                min={0}
-                max={3}
-                step={1}
-                value={terrain.rivers}
-                data-testid="terrain-rivers"
-                onChange={(e) => setTerrain({ ...terrain, rivers: Number(e.target.value) })}
-              />
-            </label>
-          </fieldset>
-          <div className="menu-actions">
+        {view === 'home' && latest && (
+          <section className="menu-home" data-testid="menu-home">
             <button
-              type="submit"
-              className="button primary"
-              disabled={busy}
-              data-testid="start-city"
+              type="button"
+              className="menu-continue"
+              disabled={loading}
+              onClick={() => void session.continueLatest()}
+              data-testid="continue"
             >
-              {m.start}
+              <small>{m.latest}</small>
+              <strong>
+                {m.continue}: {latest.name}
+              </strong>
+              <span>
+                {t.save.slotInfo(
+                  formatNumber(latest.population, locale),
+                  formatMoney(latest.funds, locale),
+                )}
+              </span>
             </button>
-          </div>
-        </form>
-        {extra}
+            <div className="menu-actions">
+              <button
+                type="button"
+                className="button primary"
+                onClick={() => setChosen('new')}
+                data-testid="menu-new-city"
+              >
+                {m.newCity}
+              </button>
+            </div>
+          </section>
+        )}
+        {view === 'new' && (
+          <form
+            className="menu-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void start();
+            }}
+          >
+            <label className="field">
+              <span>{m.cityName}</span>
+              <input
+                value={name}
+                maxLength={40}
+                onChange={(e) => setName(e.target.value)}
+                data-testid="city-name-input"
+              />
+            </label>
+            {!launcher && seedField}
+            <div className="field-row">
+              <label className="field">
+                <span>{m.mapSize}</span>
+                <select
+                  value={size}
+                  onChange={(e) => setSize(Number(e.target.value))}
+                  data-testid="size-select"
+                >
+                  {SIZES.map((s) => (
+                    <option key={s} value={s}>
+                      {m.sizes[s]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span>{m.difficulty}</span>
+                <select
+                  value={difficulty}
+                  onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+                  data-testid="difficulty-select"
+                >
+                  {DIFFICULTIES.map((d) => (
+                    <option key={d} value={d}>
+                      {m.difficulties[d]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            {launcher ? (
+              <details className="menu-advanced" data-testid="menu-advanced">
+                <summary data-testid="menu-advanced-toggle">{m.advanced}</summary>
+                {seedField}
+                {terrainFields}
+              </details>
+            ) : (
+              terrainFields
+            )}
+            <div className="menu-actions">
+              {launcher && latest && (
+                <button
+                  type="button"
+                  className="button"
+                  onClick={() => setChosen('home')}
+                  data-testid="menu-back"
+                >
+                  {m.back}
+                </button>
+              )}
+              <button
+                type="submit"
+                className="button primary"
+                disabled={busy}
+                data-testid="start-city"
+              >
+                {m.start}
+              </button>
+            </div>
+          </form>
+        )}
+        {(view === 'home' || !launcher) && extra}
         <p className="muted small">{m.credits}</p>
       </div>
     </div>

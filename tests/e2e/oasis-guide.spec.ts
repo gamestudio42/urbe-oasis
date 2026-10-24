@@ -1,6 +1,7 @@
 import { encodeSave, OASIS_SAVE_FORMAT, TICKS_PER_MONTH } from '@city/shared';
 import { SIM_PRESETS } from '@city/simulation';
 import { expect, test, type Page } from '@playwright/test';
+import { openWorldOptions } from './helpers';
 
 async function found(page: Page, locale = 'pt-BR') {
   await page.addInitScript((language) => {
@@ -9,6 +10,7 @@ async function found(page: Page, locale = 'pt-BR') {
   }, locale);
   await page.goto('/');
   await page.getByTestId('main-menu').waitFor();
+  await openWorldOptions(page);
   await page.getByTestId('seed-input').fill('oasis-guide');
   await page.getByTestId('size-select').selectOption('64');
   await page.getByTestId('start-city').click();

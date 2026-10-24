@@ -465,3 +465,37 @@ flute hold their note body before release; plucked strings and drums decay immed
 A quiet upper bass harmonic preserves presence on small speakers. Browser regression checks
 sample the final master output after startup fades, checking audible sustained levels between
 notes as well as mute and restart behavior. Classic music and sound-effect levels are unchanged.
+
+### Volumes and mood
+
+The system panel offers overall, music and effects volume sliders in steps of 5%. They scale the
+master, music and effects buses on top of the fixed mix, so the default of 100% keeps the designed
+balance. Oasis stores them as `oasis.audio.volume.master`, `.music` and `.effects`, ignores
+malformed values, and disables the sliders while sound is muted. Classic cities have no sliders,
+store no volume keys and keep their mix.
+
+The city track follows the city's situation. `cityMood` reads the same statistics as the HUD:
+
+- **storm** for half a month of game time after a sandstorm report. A window left over from a
+  city loaded later is ignored.
+- **scarce** during the journey's drought, while a district is parched, or while water reaches
+  less than 75% of its consumers.
+- **prosperous** with at least 300 residents, a positive last month, water at 90% or more and
+  shade at 80% or more.
+- **calm** otherwise.
+
+A storm outranks scarcity, which outranks prosperity. Tempo and tonic never change. Scarcity
+switches to Aeolian, thins the plucks to 55% and drops the drums. A storm switches to Phrygian,
+plays a low pulse every bar and raises the wind to four times its calm level. Prosperity plays at
+full activity with an extra upper pad and drum. Brightness and wind glide over four seconds. The
+menu track always plays calm, and pause darkening still takes precedence. Composition remains
+deterministic for a seed in every mood.
+
+## Main menu
+
+The Oasis menu is a launcher. With a saved city, it opens on a large "Continue" card showing the
+latest city's name, residents and funds, with "New city", "Open file" and the saved-cities list
+below. "New city" shows a short founding form: name, map size and difficulty. Seed and terrain
+stay folded under "Advanced options", with the Oasis terrain defaults. "Back" returns to the
+latest city. With no saves, the menu opens on the founding form. The classic menu keeps its
+founding form in front.

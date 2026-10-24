@@ -1,4 +1,4 @@
-import { AudioGraph, readFlag, Voice, writeFlag } from '@shell/chrome';
+import { AudioGraph, readFlag, readLevel, Voice, writeFlag, writeLevel } from '@shell/chrome';
 import type { TrackId } from './composer';
 import { MusicPlayer, type MusicState } from './music';
 
@@ -78,8 +78,19 @@ const RECIPES: Record<SoundName, (v: Voice) => void> = {
   },
 };
 
+/** What the city sounds like; engines without moods ignore it. */
+export type MusicMood = 'calm' | 'prosperous' | 'scarce' | 'storm';
+
+/** Player volume per bus, 0..1. */
+export interface AudioLevels {
+  master: number;
+  music: number;
+  effects: number;
+}
+
 export interface MusicStatus extends MusicState {
   enabled: boolean;
+  mood: MusicMood;
 }
 
 /** Minimal shape of a music engine so a reskin can inject its own composer. */
@@ -89,6 +100,8 @@ export interface MusicEngine {
   stop(): void;
   setTrack(track: TrackId): void;
   setDucked(ducked: boolean): void;
+  /** Optional: reshape the score for the city's situation. */
+  setMood?(mood: MusicMood): void;
   dispose(): void;
 }
 
@@ -101,12 +114,26 @@ export class SoundBoard {
   private musicOn: boolean;
   private music: MusicEngine | null = null;
   private readonly musicFactory: MusicFactory;
+  /** Volume preferences exist only for a scoped (sibling) game; the classic mix is fixed. */
+  private readonly levelKey: string | null;
+  private levelsNow: AudioLevels = { master: 1, music: 1, effects: 1 };
+  private musicBus: GainNode | null = null;
+  private musicMood: MusicMood = 'calm';
 
   constructor(options: { music?: MusicFactory; preferenceScope?: string } = {}) {
     const scope = options.preferenceScope;
     this.graph = new AudioGraph({ mutedKey: scope ? `${scope}.muted` : STORAGE_KEY });
     this.musicKey = scope ? `${scope}.music` : MUSIC_KEY;
     this.musicOn = readFlag(this.musicKey, true);
+    this.levelKey = scope ? `${scope}.volume` : null;
+    if (this.levelKey) {
+      this.levelsNow = {
+        master: readLevel(`${this.levelKey}.master`, 1),
+        music: readLevel(`${this.levelKey}.music`, 1),
+        effects: readLevel(`${this.levelKey}.effects`, 1),
+      };
+      this.graph.setLevels(this.levelsNow.master, this.levelsNow.effects);
+    }
     this.musicFactory = options.music ?? ((ctx, bus, noise) => new MusicPlayer(ctx, bus, noise));
   }
   private musicTrack: TrackId = 'menu';
@@ -133,6 +160,26 @@ export class SoundBoard {
     this.syncMusic();
   }
 
+  get levels(): AudioLevels {
+    return { ...this.levelsNow };
+  }
+
+  /** Sets one bus level (0..1) and remembers it for a scoped game. */
+  setLevel(bus: keyof AudioLevels, value: number): void {
+    const level = Math.min(1, Math.max(0, value));
+    this.levelsNow = { ...this.levelsNow, [bus]: level };
+    if (this.levelKey) writeLevel(`${this.levelKey}.${bus}`, level);
+    this.graph.setLevels(this.levelsNow.master, this.levelsNow.effects);
+    if (this.musicBus) this.musicBus.gain.value = MUSIC_VOLUME * this.levelsNow.music;
+  }
+
+  /** The city's situation; an engine without moods keeps playing as before. */
+  setMusicMood(mood: MusicMood): void {
+    if (mood === this.musicMood) return;
+    this.musicMood = mood;
+    this.music?.setMood?.(mood);
+  }
+
   /** Track to play; switching crossfades. */
   setMusicTrack(track: TrackId): void {
     this.musicTrack = track;
@@ -151,7 +198,7 @@ export class SoundBoard {
       track: this.musicTrack,
       ducked: this.musicDucked,
     };
-    return { enabled: this.musicOn, ...state };
+    return { enabled: this.musicOn, ...state, mood: this.musicMood };
   }
 
   /** Creates or resumes the audio context; call it from a user gesture. */
@@ -176,15 +223,18 @@ export class SoundBoard {
   dispose(): void {
     this.music?.dispose();
     this.music = null;
+    this.musicBus = null;
     this.graph.dispose();
   }
 
   private attachMusic(): void {
     if (this.music || !this.graph.ctx || !this.graph.master || !this.graph.noiseBuffer) return;
     const musicBus = this.graph.ctx.createGain();
-    musicBus.gain.value = MUSIC_VOLUME;
+    musicBus.gain.value = MUSIC_VOLUME * this.levelsNow.music;
     musicBus.connect(this.graph.master);
+    this.musicBus = musicBus;
     this.music = this.musicFactory(this.graph.ctx, musicBus, this.graph.noiseBuffer);
+    this.music.setMood?.(this.musicMood);
   }
 
   private syncMusic(): void {
