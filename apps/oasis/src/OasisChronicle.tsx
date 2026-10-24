@@ -6,6 +6,7 @@ import { useStore } from '@oasis/web/state/store';
 import { months, useStrings } from '@oasis/web/i18n';
 import type { ToolId } from '@oasis/web/tools/tools';
 import { oasisCopy } from './i18n';
+import { AdobeIcon } from '@oasis/web/ui/adobeIcons';
 
 function presentation(event: OasisMoment): {
   key: 'storm' | 'blocked' | 'spring' | 'trade' | 'leave' | 'stress' | 'collapse';
@@ -67,9 +68,12 @@ function OasisReports({ session }: { session: GameSession }) {
           setSelected(null);
         }}
       >
-        <span>{copy.title}</span>
         <span>
-          {entries.length > 0 ? entries.length : '◇'} {history ? '−' : '+'}
+          <AdobeIcon id="chronicle" size={20} /> {copy.title}
+        </span>
+        <span>
+          {entries.length > 0 ? entries.length : null}
+          <AdobeIcon id={history ? 'collapse' : 'expand'} size={16} />
         </span>
       </button>
       {visible && view && (
@@ -111,7 +115,7 @@ function OasisReports({ session }: { session: GameSession }) {
                   setSelected(null);
                 }}
               >
-                ×
+                <AdobeIcon id="close" size={20} />
               </button>
             </div>
             <h3 aria-live="polite">{copy[view.key].title}</h3>
@@ -128,7 +132,7 @@ function OasisReports({ session }: { session: GameSession }) {
                 data-testid="chronicle-locate"
                 onClick={locate}
               >
-                {copy.locate} ↗
+                <AdobeIcon id="locate" size={20} /> {copy.locate}
               </button>
               {view.tool && (
                 <button
@@ -140,6 +144,7 @@ function OasisReports({ session }: { session: GameSession }) {
                     session.setTool(view.tool!);
                   }}
                 >
+                  <AdobeIcon id={view.tool} size={20} />
                   {t.tools[view.tool]}
                 </button>
               )}

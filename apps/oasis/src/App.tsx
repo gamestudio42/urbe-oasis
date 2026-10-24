@@ -1,6 +1,6 @@
 import type { MusicFactory } from '@oasis/web/audio/sound';
 import { App as UrbeApp } from '@oasis/web/App';
-import { oasis } from '@theme/oasis';
+import { oasis, oasisIconCss } from '@theme/oasis';
 import { oasisMusicFactory } from './audio/adapter';
 import { applyOasisCopy } from './i18n';
 import { StudioMark } from './StudioMark';
@@ -24,6 +24,7 @@ export function App() {
   return (
     <UrbeApp
       theme={oasis}
+      cssTokens={oasisIconCss}
       menuSeed="oasis-menu"
       ruleset="oasis"
       music={music}

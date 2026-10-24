@@ -5,6 +5,7 @@ import { formatMoney, formatNumber, intlLocale, months, useStrings, type Locale 
 import type { SaveSlot } from '../persistence/saves';
 import type { GameSession } from '../state/session';
 import { useStore } from '../state/store';
+import { InterfaceIcon } from './interfaceIcons';
 
 /** Button that opens a file picker and loads the chosen save file. */
 export function ImportFileButton({
@@ -18,8 +19,7 @@ export function ImportFileButton({
 }) {
   const input = useRef<HTMLInputElement>(null);
   const busy = useStore(session.ui, (s) => s.busy);
-  const extension =
-    session.ruleset === 'oasis' ? OASIS_SAVE_FILE_EXTENSION : SAVE_FILE_EXTENSION;
+  const extension = session.ruleset === 'oasis' ? OASIS_SAVE_FILE_EXTENSION : SAVE_FILE_EXTENSION;
   return (
     <>
       <button
@@ -29,6 +29,7 @@ export function ImportFileButton({
         onClick={() => input.current?.click()}
         data-testid={testId}
       >
+        <InterfaceIcon id="import" />
         {label}
       </button>
       <input
@@ -76,6 +77,7 @@ export function SavedCities({ session }: { session: GameSession }) {
             onClick={() => void session.continueLatest()}
             data-testid="continue"
           >
+            <InterfaceIcon id="play" />
             {m.continue}: {latest.name}
           </button>
         )}
@@ -120,7 +122,7 @@ export function SavedCities({ session }: { session: GameSession }) {
                 }}
                 data-testid="delete-slot"
               >
-                ×
+                <InterfaceIcon id="close" fallback="×" />
               </button>
             </li>
           ))}
@@ -146,6 +148,7 @@ export function SaveControls({ session }: { session: GameSession }) {
           onClick={() => void session.saveGame()}
           data-testid="save-now"
         >
+          <InterfaceIcon id="save" />
           {s.saveNow}
         </button>
         <button
@@ -155,6 +158,7 @@ export function SaveControls({ session }: { session: GameSession }) {
           onClick={() => void session.exportFile()}
           data-testid="export-file"
         >
+          <InterfaceIcon id="export" />
           {s.exportFile}
         </button>
         <ImportFileButton session={session} label={s.importFile} testId="import-file-game" />

@@ -1,6 +1,6 @@
 import type { Theme } from '@theme/core';
 import type { MusicFactory } from './audio/sound';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useStrings } from './i18n';
 import { GameSession } from './state/session';
 import { useStore } from './state/store';
@@ -20,10 +20,13 @@ import { Toasts } from './ui/Toasts';
 import { Toolbar } from './ui/Toolbar';
 import { ToolTooltip } from './ui/ToolTooltip';
 import { Tutorial } from './ui/Tutorial';
+import { IconStyleContext } from './ui/iconStyle';
 
 export interface AppProps {
   /** Art direction injected by the host app; defaults to Urbe. */
   theme?: Theme;
+  /** CSS tokens supplied by the host theme, scoped to this app. */
+  cssTokens?: Readonly<Record<string, string>>;
   /** Seed of the scripted city behind the main menu. */
   menuSeed?: string;
   /** Rules for cities created from this app's menu. */
@@ -41,7 +44,16 @@ export interface AppProps {
   toolbar?: (session: GameSession) => ReactNode;
 }
 
-export function App({ theme, menuSeed, ruleset, music, credit, status, toolbar }: AppProps = {}) {
+export function App({
+  theme,
+  cssTokens,
+  menuSeed,
+  ruleset,
+  music,
+  credit,
+  status,
+  toolbar,
+}: AppProps = {}) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [session, setSession] = useState<GameSession | null>(null);
 
@@ -55,17 +67,19 @@ export function App({ theme, menuSeed, ruleset, music, credit, status, toolbar }
   }, [theme, menuSeed, ruleset, music]);
 
   return (
-    <div className="app">
-      <div ref={hostRef} className="viewport" />
-      {session ? (
-        <>
-          <Screens session={session} credit={credit} status={status} toolbar={toolbar} />
-          <BootScreen session={session} credit={credit?.('boot')} />
-        </>
-      ) : (
-        <BootView boot={{ step: 'graphics', progress: 0 }} credit={credit?.('boot')} />
-      )}
-    </div>
+    <IconStyleContext.Provider value={theme?.style ?? 'classic'}>
+      <div className="app" style={cssTokens as CSSProperties}>
+        <div ref={hostRef} className="viewport" />
+        {session ? (
+          <>
+            <Screens session={session} credit={credit} status={status} toolbar={toolbar} />
+            <BootScreen session={session} credit={credit?.('boot')} />
+          </>
+        ) : (
+          <BootView boot={{ step: 'graphics', progress: 0 }} credit={credit?.('boot')} />
+        )}
+      </div>
+    </IconStyleContext.Provider>
   );
 }
 

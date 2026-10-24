@@ -1,0 +1,25 @@
+.oasis-icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  color: var(--icon-ink, currentColor);
+}
+.oasis-icon-accent {
+  stroke: var(--oasis-icon-accent);
+}
+.oasis-icon-wash {
+  fill: var(--oasis-icon-accent);
+  fill-opacity: 0.15;
+  stroke: none;
+}
+.oasis-icon-solid {
+  fill: var(--oasis-icon-accent);
+  stroke: none;
+}
+.oasis-icon-ink {
+  fill: currentColor;
+  stroke: none;
+}
+.oasis-icon-panel {
+  fill: var(--panel);
+}

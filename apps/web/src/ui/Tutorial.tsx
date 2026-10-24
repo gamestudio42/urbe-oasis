@@ -2,6 +2,8 @@ import { useStrings } from '../i18n';
 import type { GameSession } from '../state/session';
 import { useStore } from '../state/store';
 import { OASIS_TUTORIAL_TOOLS, tutorialChecks } from '../state/tutorial';
+import { ToolIcon } from './icons';
+import { InterfaceIcon } from './interfaceIcons';
 
 export function Tutorial({ session }: { session: GameSession }) {
   const t = useStrings(session.ui);
@@ -30,6 +32,7 @@ export function Tutorial({ session }: { session: GameSession }) {
               data-testid={`tutorial-tool-${tool}`}
               onClick={() => session.setTool(tool)}
             >
+              <ToolIcon id={tool} style={session.renderer.theme.style} />
               {t.tools[tool]}
             </button>
           ))}
@@ -40,6 +43,7 @@ export function Tutorial({ session }: { session: GameSession }) {
               data-testid="tutorial-resume"
               onClick={() => session.setSpeed(1)}
             >
+              <InterfaceIcon id="play" />
               {t.hud.speeds[1]}
             </button>
           )}

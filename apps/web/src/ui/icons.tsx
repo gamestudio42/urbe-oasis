@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import type { ThemeStyle } from '@theme/core';
 import type { ToolId } from '../tools/tools';
+import { AdobeIcon } from './adobeIcons';
 
 /**
  * Toolbar glyphs. Classic Urbe keeps the original municipal set. Neo Urbe (`cyber`) redraws
@@ -574,6 +575,7 @@ const CYBER: Partial<Record<ToolId, ReactElement>> = {
 };
 
 export function ToolIcon({ id, style = 'classic' }: { id: ToolId; style?: ThemeStyle }) {
+  if (style === 'adobe') return <AdobeIcon id={id} />;
   return (
     <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
       {style === 'cyber' ? (CYBER[id] ?? CLASSIC[id]) : CLASSIC[id]}

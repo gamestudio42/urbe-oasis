@@ -274,8 +274,20 @@ export const oasis: Theme = {
   colors,
 };
 
+/** Interface accents stay legible on the dark Oasis panels. */
+export const oasisIconCss: Readonly<Record<string, string>> = {
+  '--icon-ink': '#f3e6d0',
+  '--icon-neutral': '#f3e6d0',
+  '--icon-water': '#80c7bd',
+  '--icon-shade': '#b2c884',
+  '--icon-energy': '#e9c477',
+  '--icon-clay': '#e2a27f',
+  '--icon-stone': '#d4bb90',
+};
+
 /** CSS custom properties for the oasis shell. */
 export const oasisCss: Record<string, string> = {
+  ...oasisIconCss,
   '--bg': '#1c1410',
   '--panel': '#2a2118',
   '--panel-edge': '#6a5340',

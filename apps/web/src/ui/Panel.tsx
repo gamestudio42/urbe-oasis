@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { InterfaceIcon } from './interfaceIcons';
 
 export function Panel({
   title,
@@ -26,7 +27,7 @@ export function Panel({
           aria-label={closeLabel}
           title={closeLabel}
         >
-          ×
+          <InterfaceIcon id="close" fallback="×" />
         </button>
       </header>
       <div className="panel-body">{children}</div>

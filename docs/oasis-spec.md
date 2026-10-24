@@ -32,6 +32,26 @@ the tray; Escape first closes an open tray and returns focus to its category wit
 the selected tool. Keyboard shortcuts and tutorial actions use the same shared controller.
 The active tool remains visible above the dock. The classic toolbar is unchanged.
 
+### Interface icons
+
+The adobe theme has a complete collection for all 36 construction tools, separate category
+symbols and matching system controls. Palms, canals, spring houses, qanats, cisterns, arcades,
+windbreaks and caravanserais use their Oasis silhouettes instead of electronic metaphors.
+The 32-unit SVGs share two-unit strokes; cards display them at 32 px, categories at 28 px
+and supporting controls at 20 px. Selected tools have a check mark; locked tools retain their
+silhouette with a lock badge and the localized population requirement. Lock presentation does
+not change tool selection or command validation.
+
+Icon colors come from `oasisIconCss` in the injected theme, scoped to the app root. Functional
+accents support readable shapes and labels. The same definitions appear in the active tool,
+tutorial, chronicle, survival panel, audio, speed, navigation and save controls. SVGs are
+decorative and hidden from accessibility APIs; the controls keep their existing localized
+names, keyboard behavior and focus indicators. Classic and cyber retain their previous icons.
+When the inspector is open or the viewport is narrow, the chronicle follows the measured
+resource-panel height so wrapped labels and status messages cannot overlap it.
+Browser validation covers the full tool catalog, category identity, theme injection, selected
+and locked states, audio states, keyboard focus, narrow viewports and unchanged simulation hash.
+
 Adobe terrain uses smoothly interpolated deterministic color variation, sparse wind marks and
 small stones. Undeveloped tiles adjacent to real water receive decorative banks and reeds.
 These details are baked into terrain chunks, use theme colors and do not mutate world state,

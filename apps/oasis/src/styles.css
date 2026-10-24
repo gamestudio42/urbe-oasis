@@ -569,8 +569,8 @@ body,
   font-size: 11px;
 }
 .construction-dock svg {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
 }
 .construction-dock button[data-active='true'],
 .construction-dock button:hover {
@@ -596,8 +596,8 @@ body,
   font-size: 12px;
 }
 .construction-selection svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   flex: none;
 }
 .construction-selection span {
@@ -616,7 +616,7 @@ body,
   position: absolute;
   bottom: calc(100% + 12px);
   width: 100%;
-  max-height: min(380px, calc(100dvh - 240px));
+  max-height: min(440px, calc(100dvh - 240px));
   overflow-y: auto;
   scrollbar-width: thin;
   padding: 18px;
@@ -655,6 +655,7 @@ body,
   gap: 8px;
 }
 .construction-tool {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -667,10 +668,31 @@ body,
   color: var(--text);
   cursor: pointer;
 }
-.construction-tool > svg {
-  width: 27px;
-  height: 27px;
+.construction-tool > .construction-glyph {
+  display: block;
+  position: relative;
+  width: 32px;
+  height: 32px;
   flex: none;
+}
+.construction-glyph > svg:first-child {
+  width: 32px;
+  height: 32px;
+}
+.construction-glyph .construction-lock {
+  position: absolute;
+  right: -5px;
+  bottom: -4px;
+  background: var(--panel);
+  border-radius: 3px;
+  padding: 1px;
+  box-sizing: content-box;
+}
+.construction-check {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  color: var(--icon-water);
 }
 .construction-tool > span {
   display: flex;
@@ -685,13 +707,43 @@ body,
   font-size: 10px;
   color: var(--muted);
 }
-.construction-tool[data-locked='true'] > svg {
-  opacity: 0.45;
+.construction-tool[data-locked='true'] .construction-glyph > svg:first-child {
+  opacity: 0.65;
 }
 .construction-tool:hover,
 .construction-tool[aria-pressed='true'] {
   border-color: var(--accent);
   background: var(--panel-border);
+}
+.construction-tool[aria-pressed='true'] {
+  border-color: var(--icon-water);
+  box-shadow: inset 0 0 0 1px var(--icon-water);
+}
+
+/* Decorative pictograms accompany the same localized labels and actions. */
+.button:has(> .oasis-icon),
+.icon-button:has(> .oasis-icon),
+.oasis-focus,
+.oasis-resource > span,
+.oasis-policy > button > span,
+.chronicle-toggle > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.button:has(> .oasis-icon),
+.icon-button:has(> .oasis-icon) {
+  justify-content: center;
+}
+.tutorial-tools .oasis-icon {
+  width: 20px;
+  height: 20px;
+}
+.construction-tray header button,
+.chronicle-meta button,
+.oasis-policy-dialog header button {
+  display: grid;
+  place-items: center;
 }
 .oasis-construction button:focus-visible {
   outline: 2px solid var(--text);
@@ -725,8 +777,8 @@ body,
 }
 .app:has(.inspector) .oasis-chronicle {
   left: 20px;
-  top: 232px;
-  max-height: calc(100% - 420px);
+  top: calc(var(--oasis-status-bottom, 252px) + 12px);
+  max-height: calc(100% - var(--oasis-status-bottom, 252px) - 188px);
 }
 .app:has(.oasis-construction) .paused-banner {
   bottom: 57px;
@@ -787,7 +839,8 @@ body,
     width: calc(100% - 70px);
   }
   .oasis-chronicle {
-    top: 270px;
+    top: calc(var(--oasis-status-bottom, 258px) + 12px);
+    max-height: calc(100% - var(--oasis-status-bottom, 258px) - 188px);
   }
 }
 @media (min-width: 721px) and (max-width: 1180px) {

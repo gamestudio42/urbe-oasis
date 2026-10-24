@@ -3,24 +3,10 @@ import { PLACEABLE_SPECS, type PlaceableKind } from '@city/shared';
 import { formatNumber, useStrings } from '@oasis/web/i18n';
 import type { GameSession } from '@oasis/web/state/session';
 import { useStore } from '@oasis/web/state/store';
-import {
-  TOOL_GROUPS,
-  toolById,
-  toolsFor,
-  type ToolGroup,
-  type ToolId,
-} from '@oasis/web/tools/tools';
+import { TOOL_GROUPS, toolById, toolsFor, type ToolGroup } from '@oasis/web/tools/tools';
 import { costLabel } from '@oasis/web/ui/Toolbar';
 import { ToolIcon } from '@oasis/web/ui/icons';
-
-const GROUP_ICON: Record<ToolGroup, ToolId> = {
-  inspect: 'select',
-  transport: 'road',
-  zones: 'zoneResLight',
-  utilities: 'well',
-  services: 'school',
-  terrain: 'raise',
-};
+import { AdobeIcon, AdobeCategoryIcon } from '@oasis/web/ui/adobeIcons';
 
 /** A compact construction dock. All planning and execution remain in the shared controller. */
 export function OasisToolbar({ session }: { session: GameSession }) {
@@ -85,7 +71,7 @@ export function OasisToolbar({ session }: { session: GameSession }) {
                 buttons.current[id]?.focus();
               }}
             >
-              ×
+              <AdobeIcon id="close" size={20} />
             </button>
           </header>
           <div className="construction-tools">
@@ -112,7 +98,10 @@ export function OasisToolbar({ session }: { session: GameSession }) {
                       buttons.current[id]?.focus();
                     }}
                   >
-                    <ToolIcon id={tool.id} style={session.renderer.theme.style} />
+                    <span className="construction-glyph">
+                      <ToolIcon id={tool.id} style={session.renderer.theme.style} />
+                      {locked && <AdobeIcon id="lock" size={12} className="construction-lock" />}
+                    </span>
                     <span>
                       <strong>{t.tools[tool.id]}</strong>
                       <small>
@@ -122,6 +111,9 @@ export function OasisToolbar({ session }: { session: GameSession }) {
                       </small>
                     </span>
                     {tool.hotkey && <kbd>{tool.hotkey.toUpperCase()}</kbd>}
+                    {active === tool.id && (
+                      <AdobeIcon id="check" size={12} className="construction-check" />
+                    )}
                   </button>
                 );
               })}
@@ -149,7 +141,7 @@ export function OasisToolbar({ session }: { session: GameSession }) {
               } else setGroup(group === id ? null : id);
             }}
           >
-            <ToolIcon id={GROUP_ICON[id]} style={session.renderer.theme.style} />
+            <AdobeCategoryIcon id={id} />
             <span>{t.toolGroups[id]}</span>
           </button>
         ))}

@@ -3,9 +3,18 @@ import type { ReactNode } from 'react';
 import { formatMoney, formatNumber, months, useStrings } from '../i18n';
 import type { GameSession, PanelId } from '../state/session';
 import { useStore } from '../state/store';
+import { InterfaceIcon } from './interfaceIcons';
+import type { AdobeControlId } from './adobeIcons';
 
 const SPEEDS: Speed[] = [0, 1, 2, 3];
 const SPEED_ICONS = ['❚❚', '▶', '▶▶', '▶▶▶'] as const;
+const ADOBE_SPEEDS = ['pause', 'play', 'fast', 'fastest'] as const;
+const PANEL_ICONS: Record<PanelId, AdobeControlId> = {
+  budget: 'budget',
+  charts: 'charts',
+  overlays: 'layers',
+  system: 'settings',
+};
 
 export function Hud({ session, credit }: { session: GameSession; credit?: ReactNode }) {
   const t = useStrings(session.ui);
@@ -25,6 +34,7 @@ export function Hud({ session, credit }: { session: GameSession; credit?: ReactN
       data-testid={`open-${id}`}
       aria-pressed={panel === id}
     >
+      <InterfaceIcon id={PANEL_ICONS[id]} />
       {label}
     </button>
   );
@@ -87,7 +97,7 @@ export function Hud({ session, credit }: { session: GameSession; credit?: ReactN
             aria-pressed={speed === s}
             data-testid={`speed-${s}`}
           >
-            {SPEED_ICONS[s]}
+            <InterfaceIcon id={ADOBE_SPEEDS[s]} fallback={SPEED_ICONS[s]} />
           </button>
         ))}
       </div>

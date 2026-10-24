@@ -6,6 +6,7 @@ import type { GameSession } from '../state/session';
 import { useStore } from '../state/store';
 import { LocaleSelect } from './LocaleSelect';
 import { BrandLogo } from './Logo';
+import { AdobeIcon } from './adobeIcons';
 
 const SIZES = [64, 96, 128] as const;
 
@@ -85,6 +86,11 @@ export function MainMenu({
         <div className="menu-chrome-actions">
           <LocaleSelect session={session} className="menu-locale" />
           <SoundToggle
+            icon={
+              session.renderer.theme.style === 'adobe' ? (
+                <AdobeIcon id={muted ? 'mute' : 'sound'} size={20} />
+              ) : undefined
+            }
             muted={muted}
             onToggle={() => session.setMuted(!muted)}
             soundOn={m.soundOn}

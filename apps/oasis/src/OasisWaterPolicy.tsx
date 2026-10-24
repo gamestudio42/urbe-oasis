@@ -3,6 +3,7 @@ import type { GameSession } from '@oasis/web/state/session';
 import { useStore } from '@oasis/web/state/store';
 import { formatNumber } from '@oasis/web/i18n';
 import { oasisCopy } from './i18n';
+import { AdobeIcon } from '@oasis/web/ui/adobeIcons';
 
 /** The engine supplies both alternatives and the accrued cost. */
 export function OasisWaterPolicy({ session }: { session: GameSession }) {
@@ -29,7 +30,7 @@ export function OasisWaterPolicy({ session }: { session: GameSession }) {
         onClick={() => dialog.current?.showModal()}
       >
         <span>
-          {t.title} <span aria-hidden="true">↗</span>
+          <AdobeIcon id="settings" size={20} /> {t.title}
         </span>
         <strong data-active={policy.enabled}>{policy.enabled ? t.rationing : t.normal}</strong>
       </button>
@@ -48,7 +49,7 @@ export function OasisWaterPolicy({ session }: { session: GameSession }) {
             data-testid="oasis-policy-close"
             onClick={() => dialog.current?.close()}
           >
-            ×
+            <AdobeIcon id="close" size={20} />
           </button>
         </header>
         <p>{t.description}</p>
