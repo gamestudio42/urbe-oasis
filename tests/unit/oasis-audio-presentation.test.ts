@@ -1,6 +1,7 @@
 import { TICKS_PER_MONTH, type CityStats } from '@city/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TRACKS, composeBar, moodSpec, type Mood } from '../../apps/oasis/src/audio/composer';
+import { ramp } from '../../apps/oasis/src/audio/music';
 import { STORM_MOOD_TICKS, cityMood } from '../../apps/web/src/audio/mood';
 import { SoundBoard } from '../../apps/web/src/audio/sound';
 
@@ -141,5 +142,28 @@ describe('Oasis volume preferences', () => {
     expect(board.musicStatus().mood).toBe('calm');
     board.setMusicMood('storm');
     expect(board.musicStatus().mood).toBe('storm');
+  });
+});
+
+describe('portable music ramps', () => {
+  const param = (hold: boolean) => {
+    const calls: string[] = [];
+    const p = {
+      value: 0.4,
+      cancelScheduledValues: (t: number) => calls.push(`cancel ${t}`),
+      setValueAtTime: (v: number, t: number) => calls.push(`set ${v} ${t}`),
+      linearRampToValueAtTime: (v: number, t: number) => calls.push(`ramp ${v} ${t}`),
+      ...(hold ? { cancelAndHoldAtTime: (t: number) => calls.push(`hold ${t}`) } : {}),
+    };
+    return { p: p as unknown as AudioParam, calls };
+  };
+
+  it('holds the current value in browsers without cancelAndHoldAtTime (Firefox)', () => {
+    const firefox = param(false);
+    expect(() => ramp(firefox.p, 1, 2, 3)).not.toThrow();
+    expect(firefox.calls).toEqual(['cancel 2', 'set 0.4 2', 'ramp 1 5']);
+    const chromium = param(true);
+    ramp(chromium.p, 1, 2, 3);
+    expect(chromium.calls).toEqual(['hold 2', 'ramp 1 5']);
   });
 });

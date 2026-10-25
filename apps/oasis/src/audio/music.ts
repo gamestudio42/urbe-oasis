@@ -327,8 +327,18 @@ export class OasisMusic {
   }
 }
 
-function ramp(param: AudioParam, target: number, now: number, seconds: number): void {
-  param.cancelAndHoldAtTime(now);
+/**
+ * Glides from the current value. Firefox has no `cancelAndHoldAtTime`, and calling it there
+ * threw out of every track, pause and mood change; holding the current value is the portable
+ * equivalent.
+ */
+export function ramp(param: AudioParam, target: number, now: number, seconds: number): void {
+  if (typeof param.cancelAndHoldAtTime === 'function') param.cancelAndHoldAtTime(now);
+  else {
+    const current = param.value;
+    param.cancelScheduledValues(now);
+    param.setValueAtTime(current, now);
+  }
   param.linearRampToValueAtTime(target, now + seconds);
 }
 function impulse(ctx: AudioContext): AudioBuffer {
