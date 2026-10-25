@@ -378,8 +378,11 @@ the first minute while the simulation kept advancing. A repeat with the window i
 142.9 fps throughout on a high-refresh display, so that drop was Firefox throttling an
 unfocused window, not a render stall.
 
-**Not yet covered:** WebKit, whose Playwright build is installed but cannot start without the
-system libraries `libicu74` and `libxml2` (`sudo pnpm exec playwright install-deps`); other GPUs
+**Not yet covered:** WebKit. Playwright's fallback WebKit build targets Ubuntu 24.04 and links
+against ICU 74, `libxml2.so.2` and `libjxl.so.0.8`. This machine runs Ubuntu 25.10, which ships
+ICU 76 and `libxml2.so.16` and has no packages for the older versions, so
+`playwright install-deps` fails there. The official Playwright Docker image would run WebKit,
+but only headless (software rendering, useful for leaks rather than frame rate). Other GPUs
 and phones; sessions longer than ten minutes; and real players. The new E2E check
 `oasis-render-health` keeps the leak guard in CI: after warm-up, textures may not grow by more
 than 12 and display objects stay within bounds over 20 seconds at full speed.
