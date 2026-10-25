@@ -93,6 +93,15 @@ export interface ServiceTraceView {
 /** Larger networks still show their sources; only the conductor outline is capped. */
 const TRACE_TILE_LIMIT = 6000;
 
+export interface RenderStats {
+  chunks: number;
+  visibleChunks: number;
+  /** Every node under the world root, chunks and moving sprites included. */
+  displayObjects: number;
+  /** Generated sprite textures held by the factory cache. */
+  textures: number;
+}
+
 export interface PlacementPreview {
   kind: PlaceableKind;
   x: number;
@@ -221,6 +230,24 @@ export class GameRenderer {
 
   setInput(input: RendererInput): void {
     this.input = input;
+  }
+
+  /** Read-only renderer counts for quality checks: steady growth points to a leak. */
+  renderStats(): RenderStats {
+    let objects = 0;
+    const count = (node: Container) => {
+      objects++;
+      for (const child of node.children) count(child as Container);
+    };
+    count(this.root);
+    let visible = 0;
+    for (const c of this.chunkGrid.chunks) if (c.root.visible) visible++;
+    return {
+      chunks: this.chunkGrid.chunks.length,
+      visibleChunks: visible,
+      displayObjects: objects,
+      textures: this.factory?.cachedTextures ?? 0,
+    };
   }
 
   get fps(): number {
