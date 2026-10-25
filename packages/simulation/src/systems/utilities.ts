@@ -1,4 +1,5 @@
 import {
+  BALANCE,
   Infra,
   OASIS_RATIONING,
   OASIS_SHADE,
@@ -7,6 +8,7 @@ import {
   ZONE_SPECS,
   ZoneType,
   isZoneKind,
+  type BatteryState,
   type BuildingRecord,
   type PlaceableKind,
   type UtilityStats,
@@ -133,10 +135,13 @@ function settleCisterns(engine: SimulationEngine, conductors: Uint8Array): void 
     if (shortfall <= 0) {
       for (const bank of banks) {
         const entry = cisternCharge(engine, bank.id);
-        entry.charge = Math.min(1, entry.charge + OASIS_WATER.cisternDischarge);
+        const days = elapsedDays(engine, entry);
+        entry.charge = Math.min(1, entry.charge + OASIS_WATER.cisternChargePerDay * days);
+        entry.settledTick = engine.tick;
       }
       continue;
     }
+    for (const bank of banks) cisternCharge(engine, bank.id).settledTick = engine.tick;
     const stored = banks.map((bank) => {
       const entry = cisternCharge(engine, bank.id);
       return { bank, entry, water: Math.round(entry.charge * OASIS_WATER.cisternOutput) };
@@ -160,10 +165,17 @@ function settleCisterns(engine: SimulationEngine, conductors: Uint8Array): void 
   }
 }
 
-function cisternCharge(
-  engine: SimulationEngine,
-  id: number,
-): { buildingId: number; charge: number } {
+/**
+ * Whole days since a bank was last settled, capped at a month. Several refreshes on one day
+ * (construction commands) add nothing; a bank from an older save counts one day.
+ */
+function elapsedDays(engine: SimulationEngine, entry: { settledTick?: number }): number {
+  if (entry.settledTick === undefined) return 1;
+  const days = Math.floor((engine.tick - entry.settledTick) / BALANCE.clock.ticksPerDay);
+  return Math.max(0, Math.min(OASIS_WATER.cisternChargeDaysCap, days));
+}
+
+function cisternCharge(engine: SimulationEngine, id: number): BatteryState {
   const found = engine.oasis.cisterns.find((c) => c.buildingId === id);
   if (found) return found;
   const created = { buildingId: id, charge: 0 };
@@ -209,12 +221,15 @@ export function updateUtilities(
   const buildingId = w.buildingId;
   const powerConductors = new Uint8Array(w.tileCount);
   const waterConductors = new Uint8Array(w.tileCount);
+  // Oasis: an empty zoned lot carries water and shade as it already carries power, so a
+  // district is not cut off while a lot along the way waits for its building.
+  const zonesConduct = engine.ruleset === 'oasis';
   for (let i = 0; i < w.tileCount; i++) {
     const flags = infra[i] as number;
     const built = (buildingId[i] as number) !== 0;
-    if (built || (flags & Infra.PowerLine) !== 0 || (zone[i] as number) !== ZoneType.None)
-      powerConductors[i] = 1;
-    if (built || (flags & Infra.Pipe) !== 0) waterConductors[i] = 1;
+    const zoned = (zone[i] as number) !== ZoneType.None;
+    if (built || (flags & Infra.PowerLine) !== 0 || zoned) powerConductors[i] = 1;
+    if (built || (flags & Infra.Pipe) !== 0 || (zonesConduct && zoned)) waterConductors[i] = 1;
   }
   const power = solve(
     engine,
@@ -244,7 +259,12 @@ export function updateUtilities(
     const dataConductors = new Uint8Array(w.tileCount);
     for (let i = 0; i < w.tileCount; i++) {
       const built = (buildingId[i] as number) !== 0;
-      if (built || ((infra[i] as number) & Infra.Canal) !== 0) dataConductors[i] = 1;
+      if (
+        built ||
+        ((infra[i] as number) & Infra.Canal) !== 0 ||
+        (zone[i] as number) !== ZoneType.None
+      )
+        dataConductors[i] = 1;
     }
     data = solve(
       engine,
@@ -591,8 +611,14 @@ export function waterNetworkComponents(
   const infra = w.structure.infra;
   const buildingId = w.buildingId;
   const conductors = new Uint8Array(w.tileCount);
+  // Same conduction as the water solve, including empty Oasis lots.
+  const zonesConduct = engine.ruleset === 'oasis';
   for (let i = 0; i < w.tileCount; i++) {
-    if ((buildingId[i] as number) !== 0 || ((infra[i] as number) & Infra.Pipe) !== 0)
+    if (
+      (buildingId[i] as number) !== 0 ||
+      ((infra[i] as number) & Infra.Pipe) !== 0 ||
+      (zonesConduct && (w.zone[i] as number) !== ZoneType.None)
+    )
       conductors[i] = 1;
   }
   return walkComponents(engine, conductors, isSource ?? ((b) => oasisWaterOutput(engine, b) > 0));

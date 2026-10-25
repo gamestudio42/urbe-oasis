@@ -103,6 +103,9 @@ Everything below only runs with `ruleset: 'oasis'`. Formulas live in
 | Traffic      | An arcade eases congestion on the streets beside it              | New        | It counts while powered and online. The adobe theme does not draw drones.                     |
 | Journey      | Five chapters with treasury grants, checked at the month close   | New        | Only cities founded by the Oasis app. Goals and grants are original balance choices.          |
 | Journey      | A three-month dry season cuts wells and pumps to 60%             | New        | Starts one close after the shelter chapter; no random draw. Qanats and cisterns are spared.   |
+| Spring       | The spring stays within 8 tiles of the map centre               | New        | A step that would leave the range turns back. Balance choice from the 2026-10-25 pass.        |
+| Water        | Cisterns charge 1/240 of a bank per elapsed day of surplus      | New        | Replaces a per-refresh increment; repeated construction no longer charges reserves.           |
+| Networks     | Empty Oasis lots carry water and shade, as zones carry power    | New        | Removes the gap while a lot waits for its building; classic water is unchanged.               |
 
 ### Water-management decision
 

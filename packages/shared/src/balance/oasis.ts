@@ -24,6 +24,14 @@ export const OASIS_WATER = {
   cisternTicks: 240,
   /** Share of a cistern's stored energy released per tick while the grid is short. */
   cisternDischarge: 1 / 240,
+  /**
+   * Share of a bank a spare network fills per day since the bank was last settled: full in about
+   * eight months. It used to be added once per network refresh, which took years in a steady
+   * city and could be pumped by repeated construction.
+   */
+  cisternChargePerDay: 1 / 240,
+  /** Days of charge one settlement may add at most (a month). */
+  cisternChargeDaysCap: 30,
   /** Power a cistern bank can carry while discharging. */
   cisternOutput: 120,
   /** Demand above this fraction of supply starts degrading the district. */
@@ -144,6 +152,12 @@ export const OASIS_SHADE = {
   springMoveMonths: 6,
   /** Tiles the spring tries to move on its own schedule. */
   springStep: 5,
+  /**
+   * Chebyshev range around the map centre that the spring never leaves on its own: a step that
+   * would go further turns back. Without it the random walk carried the spring 35 tiles in ten
+   * years and stranded every spring house built around it.
+   */
+  springRange: 8,
 } as const;
 
 /**
@@ -192,11 +206,11 @@ export const OASIS_JOURNEY = {
   residents: 100,
   servedShare: 0.8,
   /**
-   * Chapter 2: this many powered cisterns already holding water, with water still serving
-   * `servedShare`. A cistern only charges while its network has spare water, so the goal asks
-   * for a surplus rather than a charge level (charging takes years of game time).
+   * Chapter 2: this many powered cisterns at least `reserveCharge` full, with water still serving
+   * `servedShare`. Cisterns charge only from spare water, about an eighth of a bank a month.
    */
   reserveBanks: 2,
+  reserveCharge: 0.25,
   /** Chapter 3: share of services under windbreak cover. */
   shelter: 0.5,
   /** Chapter 5: an operating caravanserai (staffed, powered and on a road). */

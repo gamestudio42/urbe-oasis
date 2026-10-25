@@ -394,6 +394,9 @@ class Validator {
       return {
         buildingId: this.int(b.buildingId, `state.oasis.cisterns[${k}].buildingId`, 1),
         charge: this.num(b.charge, `state.oasis.cisterns[${k}].charge`, 0, 1),
+        ...(b.settledTick === undefined
+          ? {}
+          : { settledTick: this.int(b.settledTick, `state.oasis.cisterns[${k}].settledTick`, 0) }),
       };
     });
     const storms = this.array(n.storms, 'state.oasis.storms').map((entry, k) => {

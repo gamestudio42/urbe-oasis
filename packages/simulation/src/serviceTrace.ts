@@ -128,7 +128,8 @@ function conductorMask(world: World, network: ServiceNetwork): Uint8Array {
     if (
       (world.buildingId[i] as number) !== 0 ||
       ((world.structure.infra[i] as number) & flag) !== 0 ||
-      (network === 'power' && (world.zone[i] as number) !== ZoneType.None)
+      // Oasis lots carry every network, built or not (the trace only serves Oasis cities).
+      (world.zone[i] as number) !== ZoneType.None
     )
       mask[i] = 1;
   }

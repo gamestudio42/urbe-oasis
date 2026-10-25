@@ -54,9 +54,18 @@ export function springNear(engine: SimulationEngine, b: BuildingRecord): boolean
 function relocate(engine: SimulationEngine, step: number, roll: Rng): void {
   const state = engine.oasis;
   const dir = roll.int(4);
-  const dx = dir === 0 ? step : dir === 1 ? -step : 0;
-  const dy = dir === 2 ? step : dir === 3 ? -step : 0;
+  let dx = dir === 0 ? step : dir === 1 ? -step : 0;
+  let dy = dir === 2 ? step : dir === 3 ? -step : 0;
   const size = engine.world.size - 1;
+  // The spring wanders around the centre it was born at, never away from it for good. A step
+  // that would leave the range turns back; one from a far older save may only come closer.
+  const centre = Math.floor(engine.world.size / 2);
+  const from = Math.max(Math.abs(state.springX - centre), Math.abs(state.springY - centre));
+  const to = Math.max(Math.abs(state.springX + dx - centre), Math.abs(state.springY + dy - centre));
+  if (to > OASIS_SHADE.springRange && to > from) {
+    dx = -dx;
+    dy = -dy;
+  }
   let x = clamp(state.springX + dx, 0, size);
   let y = clamp(state.springY + dy, 0, size);
   if (blocked(engine, x, y)) {
