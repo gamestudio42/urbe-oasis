@@ -6,6 +6,7 @@ import {
   type InfluenceLayer,
 } from '@city/shared';
 import { Connection, connectionMask, type World } from '@city/simulation';
+import { buildingDepth, staticDepth } from './depth';
 import { color, heatColor, goodColor, shade, tileHash, type Theme } from '@theme/core';
 import { Container, Sprite, type Graphics } from 'pixi.js';
 import { BRIDGE_DECK, BRIDGE_INSET, ROAD_INSET, isLandRoad } from './bridge';
@@ -579,13 +580,27 @@ export function drawWires(g: Graphics, theme: Theme, ctx: DrawContext, area: Chu
 }
 
 /** Rebuilds building, tree, pole and fire sprites of a chunk, depth-sorted. */
+/** Marks the sprites `buildObjects` owns, so a redraw never removes a moving one. */
+export const STATIC_LABEL = 'static';
+
 export function buildObjects(
   container: Container,
   ctx: DrawContext,
   factory: SpriteFactory,
   area: ChunkArea,
 ): void {
-  for (const child of container.removeChildren()) child.destroy();
+  // Moving sprites share this container and belong to the animation layer: keep them.
+  for (const child of [...container.children])
+    if (child.label === STATIC_LABEL) {
+      container.removeChild(child);
+      child.destroy();
+    }
+  const add = (sprite: Sprite, x: number, y: number, depth = staticDepth(x, y)) => {
+    sprite.label = STATIC_LABEL;
+    sprite.zIndex = depth;
+    container.addChild(sprite);
+  };
+  const footprintDepth = (b: BuildingRecord) => buildingDepth(b.x, b.y, Math.min(b.w, b.h));
   const w = ctx.world;
   const size = w.size;
   if (ctx.underground) {
@@ -601,7 +616,7 @@ export function buildObjects(
       const front = vertexToScreen(b.x + b.w, b.y + b.h, w.corners(x, y)[2]);
       sprite.position.set(front.x, front.y);
       sprite.alpha = 0.6;
-      container.addChild(sprite);
+      add(sprite, x, y, footprintDepth(b));
     });
     return;
   }
@@ -620,7 +635,7 @@ export function buildObjects(
         const front = vertexToScreen(b.x + b.w, b.y + b.h, w.corners(x, y)[2]);
         sprite.position.set(front.x, front.y);
         sprite.alpha = alpha;
-        container.addChild(sprite);
+        add(sprite, x, y, footprintDepth(b));
       }
     } else if ((w.trees[i] as number) > 0 || (adobe && canalPalm(w, x, y))) {
       const density = Math.max(1, w.trees[i] as number);
@@ -634,7 +649,7 @@ export function buildObjects(
       sprite.position.set(c.x, c.y + (bank > 0 ? 4 : 8));
       if (bank > 0) sprite.scale.set(0.7);
       sprite.alpha = alpha;
-      container.addChild(sprite);
+      add(sprite, x, y);
     }
     if (w.hasInfra(i, Infra.PowerLine)) {
       const tex = factory.pole();
@@ -643,7 +658,7 @@ export function buildObjects(
       const top = poleTop(w, x, y);
       sprite.position.set(top.x, top.y + 20);
       sprite.alpha = alpha;
-      container.addChild(sprite);
+      add(sprite, x, y);
     }
     if ((w.fire[i] as number) > 0) {
       const tex = factory.flame(ctx.animationFrame + x + y);
@@ -651,7 +666,7 @@ export function buildObjects(
       sprite.anchor.set(tex.anchorX, tex.anchorY);
       const c = tileLocalToScreen(tileQuad(w, x, y), 0.5, 0.5);
       sprite.position.set(c.x, c.y + 8);
-      container.addChild(sprite);
+      add(sprite, x, y);
     }
   });
 }
