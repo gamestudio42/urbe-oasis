@@ -32,7 +32,7 @@ export interface MonthMetrics {
   monthsInDebt: number;
   bankrupt: boolean;
   activeFires: number;
-  /** Neon bandwidth. Absent in a classic report so the classic row stays the same shape. */
+  /** Oasis shade. Absent in a classic report so the classic row stays the same shape. */
   shadeSupply?: number;
   shadeDemand?: number;
   shadeServed?: number;

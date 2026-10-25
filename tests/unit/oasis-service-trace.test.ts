@@ -180,13 +180,13 @@ describe('oasis service trace', () => {
     });
     expect(alone.sources).toEqual([]);
 
-    const hall = { kind: 'springHouse' as const, x: 12, y: 12 };
+    const house = { kind: 'springHouse' as const, x: 12, y: 12 };
     const start = [e.world.index(12, 12)];
-    const planned = traceService(ctx, 'shade', start, { tiles: start, building: hall });
+    const planned = traceService(ctx, 'shade', start, { tiles: start, building: house });
     expect(planned.sources).toMatchObject([{ planned: true, supply: 0, issue: 'NO_POWER' }]);
     run(e, { type: 'place', kind: 'windTurbine', x: 14, y: 12 });
     e.refreshUtilities();
-    const powered = traceService(context(e), 'shade', start, { tiles: start, building: hall });
+    const powered = traceService(context(e), 'shade', start, { tiles: start, building: house });
     expect(powered.sources).toMatchObject([
       { planned: true, supply: OASIS_SHADE.springSupplyDry, issue: 'NO_WATER' },
     ]);

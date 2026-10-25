@@ -17,7 +17,7 @@ export interface EngineSnapshot {
   rng: [number, number, number, number];
   heights: Uint8Array;
   /**
-   * Structure and influence layers. `linked` is the neon data service and is absent in a classic
+   * Structure and influence layers. `linked` is the Oasis shade service and is absent in a classic
    * snapshot, so classic hashes do not gain a layer.
    */
   layers: Record<SnapshotLayer, Uint8Array> & { linked?: Uint8Array };
@@ -30,6 +30,6 @@ export interface EngineSnapshot {
   disastersEnabled: boolean;
   networksDirty: boolean;
   lastMilestone: number;
-  /** Neon systems state; absent in classic cities. */
+  /** Oasis systems state; absent in classic cities. */
   oasis?: OasisState;
 }

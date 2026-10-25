@@ -12,8 +12,8 @@ import {
 import { describe, expect, it } from 'vitest';
 
 /**
- * A flat neon city with the standard town plus a corporate HQ, which is the simplest building
- * the intrusion pass can target: a non-zone service with jobs in the neon ruleset.
+ * A flat Oasis city with the standard town plus a caravanserai, the simplest building a
+ * sandstorm can target: a non-zone service with jobs in the Oasis ruleset.
  */
 function hackTown(seed = 'neon-hack'): SimulationEngine {
   const e = createEngine({
@@ -31,14 +31,14 @@ function hackTown(seed = 'neon-hack'): SimulationEngine {
   return e;
 }
 
-/** The corporate HQ, the service the intrusion pass can target. */
+/** The caravanserai, the service a sandstorm can target. */
 function serviceOf(e: SimulationEngine): BuildingRecord | undefined {
   return [...e.buildings.values()].find(
     (b) => !isZoneKind(b.kind) && !b.abandoned && PLACEABLE_SPECS[b.kind].jobs > 0,
   );
 }
 
-describe('neon storms', () => {
+describe('Oasis storms', () => {
   it('only rolls once per month', () => {
     const e = hackTown();
     const first = updateStorms(e);
@@ -58,7 +58,7 @@ describe('neon storms', () => {
     expect(OASIS_STORM.maxChance).toBeLessThanOrEqual(1);
   });
 
-  it('takes a hacked service offline for the configured window', () => {
+  it('takes a buried service offline for the configured window', () => {
     const e = hackTown();
     const service = serviceOf(e);
     expect(service).toBeDefined();

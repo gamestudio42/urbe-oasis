@@ -27,18 +27,18 @@ export interface DiagnoseContext {
   power: UtilityStats;
   /** Reused between calls when available; built from `world` otherwise. */
   roads?: RoadNetwork;
-  /** Neon-only hints; omitted by the classic UI. */
+  /** Oasis-only hints; omitted by the classic UI. */
   oasis?: {
     /** District is above the grid overload threshold. */
     parched: boolean;
     /** Caravan that owns the lot, if any. */
     owner: string | null;
-    /** Service is offline because of an intrusion. */
-    hacked: boolean;
+    /** Service is offline, buried by a sandstorm. */
+    buried: boolean;
     /** No windbreak node covers this tile. */
     unguarded: boolean;
-    /** Drone lanes cross this district. */
-    drones: boolean;
+    /** The city has an operating arcade easing nearby traffic. */
+    arcades: boolean;
   };
 }
 
@@ -75,12 +75,12 @@ export function diagnoseTile(ctx: DiagnoseContext, x: number, y: number): Proble
   if (w.hasInfra(i, Infra.Rubble)) add('RUBBLE', 3);
   if ((w.flood[i] as number) > 0) add('FLOODED', 3);
 
-  const neon = ctx.oasis;
-  if (neon?.hacked) add('BURIED', 3);
-  if (neon?.parched) add('WATER_STRESS', 2);
-  if (neon?.owner) add('CARAVAN_LOT', 1);
-  if (neon?.unguarded) add('NO_WINDBREAK', 1);
-  if (neon?.drones) add('ARCADE', 0);
+  const oasis = ctx.oasis;
+  if (oasis?.buried) add('BURIED', 3);
+  if (oasis?.parched) add('WATER_STRESS', 2);
+  if (oasis?.owner) add('CARAVAN_LOT', 1);
+  if (oasis?.unguarded) add('NO_WINDBREAK', 1);
+  if (oasis?.arcades) add('ARCADE', 0);
 
   if (building && !isZoneKind(building.kind)) {
     const spec = PLACEABLE_SPECS[building.kind];
@@ -122,13 +122,13 @@ export function diagnoseTile(ctx: DiagnoseContext, x: number, y: number): Proble
 
   const density = w.zoneDensity[i] as number;
   const watered = w.watered[i] === 1;
-  const neonCity = neon !== undefined;
+  const oasisCity = oasis !== undefined;
   const linked = w.linked[i] === 1;
   if (!watered && density === ZoneDensity.Dense) {
     const capped = building ? building.level >= BALANCE.zones.maxLevelWithoutWater : false;
     add('NO_WATER_FOR_LEVEL', capped ? 2 : 1);
   }
-  if (neonCity && !linked) {
+  if (oasisCity && !linked) {
     const capped = building ? building.level >= OASIS_SHADE.maxLevelWithoutShade : false;
     add('NO_SHADE', capped ? 2 : 1);
   }
@@ -154,7 +154,7 @@ export function diagnoseTile(ctx: DiagnoseContext, x: number, y: number): Proble
   if (
     building &&
     !building.abandoned &&
-    building.level >= maxLevel(density, watered, neonCity, linked)
+    building.level >= maxLevel(density, watered, oasisCity, linked)
   ) {
     add('MAX_LEVEL', 0);
   }

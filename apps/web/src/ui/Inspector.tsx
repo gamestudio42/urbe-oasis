@@ -85,7 +85,7 @@ function inspect(session: GameSession, x: number, y: number): Snapshot | null {
         power: stats.power,
         ...(roads ? { roads } : {}),
         ...(stats.oasis && session.ruleset === 'oasis'
-          ? { oasis: neonHints(session, stats, x, y) }
+          ? { oasis: oasisHints(session, stats, x, y) }
           : {}),
       },
       x,
@@ -96,10 +96,10 @@ function inspect(session: GameSession, x: number, y: number): Snapshot | null {
 }
 
 /**
- * Neon-only inspector hints. The stats carry the city-wide counters; ownership and an active
- * intrusion are read from the mirror building, so the inspector never asks the worker again.
+ * Oasis-only inspector hints. The stats carry the city-wide counters; caravan ownership and a
+ * buried service are read from the mirror building, so the inspector never asks the worker again.
  */
-function neonHints(
+function oasisHints(
   session: GameSession,
   stats: CityStats,
   x: number,
@@ -108,13 +108,13 @@ function neonHints(
   const world = session.client.world;
   const id = world ? (world.buildingId[y * world.size + x] as number) : 0;
   const building = id === 0 ? undefined : session.client.buildings.get(id);
-  const neon = stats.oasis;
+  const oasis = stats.oasis;
   return {
-    parched: (neon?.parched ?? 0) > 0,
+    parched: (oasis?.parched ?? 0) > 0,
     owner: building?.owner === undefined ? null : `#${building.owner}`,
-    hacked: (building?.offline ?? 0) > 0,
-    unguarded: (neon?.windbreak ?? 0) < 0.5,
-    drones: (neon?.arcades ?? 0) > 0,
+    buried: (building?.offline ?? 0) > 0,
+    unguarded: (oasis?.windbreak ?? 0) < 0.5,
+    arcades: (oasis?.arcades ?? 0) > 0,
   };
 }
 

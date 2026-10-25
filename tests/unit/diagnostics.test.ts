@@ -73,8 +73,8 @@ describe('diagnoseTile', () => {
   });
 });
 
-describe('diagnoseTile neon hints', () => {
-  it('reports the neon-only problems when the context supplies them', () => {
+describe('diagnoseTile Oasis hints', () => {
+  it('reports the Oasis-only problems when the context supplies them', () => {
     const e = flatCity('diag-neon', 48);
     e.execute({ type: 'road', x0: 2, y0: 10, x1: 20, y1: 10 });
     const s = e.stats();
@@ -85,7 +85,7 @@ describe('diagnoseTile neon hints', () => {
         demand: s.demand,
         taxes: s.taxes,
         power: s.power,
-        oasis: { parched: true, owner: '#2', hacked: true, unguarded: true, drones: true },
+        oasis: { parched: true, owner: '#2', buried: true, unguarded: true, arcades: true },
       },
       5,
       9,
@@ -96,7 +96,7 @@ describe('diagnoseTile neon hints', () => {
     expect(problems).toContain('NO_WINDBREAK');
   });
 
-  it('keeps the classic diagnosis free of neon codes', () => {
+  it('keeps the classic diagnosis free of Oasis codes', () => {
     const e = flatCity('diag-classic', 48);
     const s = e.stats();
     const problems = diagnoseTile(

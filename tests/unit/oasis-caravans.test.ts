@@ -8,7 +8,7 @@ import {
 } from '@city/simulation';
 import { describe, expect, it } from 'vitest';
 
-/** A flat neon city with the standard grown town, so there are lots and services to take over. */
+/** A flat Oasis city with the standard grown town, so there are lots and services for the caravans. */
 function corpTown(): SimulationEngine {
   const e = createEngine({
     seed: 'neon-corp',
@@ -20,14 +20,14 @@ function corpTown(): SimulationEngine {
   e.disastersEnabled = false;
   buildTown(e);
   const road = e.execute({ type: 'road', x0: 40, y0: 20, x1: 48, y1: 20 });
-  const hall = e.execute({ type: 'place', kind: 'caravanserai', x: 47, y: 21 });
-  if (!road.ok || !hall.ok) {
-    throw new Error(`road ${road.reason ?? 'ok'} hall ${hall.reason ?? 'ok'}`);
+  const house = e.execute({ type: 'place', kind: 'caravanserai', x: 47, y: 21 });
+  if (!road.ok || !house.ok) {
+    throw new Error(`road ${road.reason ?? 'ok'} house ${house.reason ?? 'ok'}`);
   }
   return e;
 }
 
-describe('neon caravans', () => {
+describe('Oasis caravans', () => {
   it('founds exactly one set of caravans and never duplicates it', () => {
     const e = corpTown();
     expect(initCaravans(e)).toBe(OASIS_CARAVAN.count);
@@ -36,7 +36,7 @@ describe('neon caravans', () => {
     expect(e.oasis.caravans.map((c) => c.quadrant)).toEqual([0, 1, 2, 3]);
   });
 
-  it('gives every corporation cash and a preferred quadrant', () => {
+  it('gives every caravan house cash and a preferred quadrant', () => {
     const e = corpTown();
     initCaravans(e);
     for (const corp of e.oasis.caravans) {
@@ -73,7 +73,7 @@ describe('neon caravans', () => {
     }
   });
 
-  it('reports the owning corporation by name', () => {
+  it('reports the owning caravan house by name', () => {
     const e = corpTown();
     e.runMonths(24);
     const owned = [...e.buildings.values()].find((b) => b.owner !== undefined);

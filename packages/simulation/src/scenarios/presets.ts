@@ -54,19 +54,19 @@ export const SIM_PRESETS: Record<string, SimPreset> = {
     },
   },
   'oasis-balanced': {
-    description: 'Neon town: the balanced city plus a canal spine and two springHouses',
+    description: 'Oasis town: the balanced city plus a canal spine and two spring houses',
     defaultSize: 64,
     create(seed, size) {
       const engine = createEngine({
         seed,
         size,
-        name: 'Neon',
+        name: 'Oasis',
         ruleset: 'oasis',
         terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
       });
       engine.disastersEnabled = false;
       addServices(engine, buildTown(engine, { pumps: 8 }));
-      addNeonData(engine);
+      addShadeSpine(engine);
       return { engine, onMonth: (e) => void maintainTown(e) };
     },
   },
@@ -176,13 +176,13 @@ export const SIM_PRESETS: Record<string, SimPreset> = {
 };
 
 /**
- * Fiber along the town's water spine, plus two springHouses.
- * The south hall touches the coal plant. The north hall touches the pump column.
- * A short spur makes that cable visible; the pumps already conduct data.
- * The south hall is placed first, so a search with both online starts there.
- * Only the neon preset calls this; `buildTown` stays shared with the classic scenarios.
+ * A canal along the town's water spine, plus two spring houses.
+ * The south spring house touches the coal plant. The north one touches the pump column.
+ * A short spur makes that canal visible; the pumps already conduct shade.
+ * The south one is placed first, so a search with both online starts there.
+ * Only the Oasis preset calls this; `buildTown` stays shared with the classic scenarios.
  */
-function addNeonData(engine: SimulationEngine): void {
+function addShadeSpine(engine: SimulationEngine): void {
   run(engine, { type: 'canal', x0: 7, y0: 17, x1: 43, y1: 17 });
   run(engine, { type: 'canal', x0: 7, y0: 22, x1: 47, y1: 22 });
   run(engine, { type: 'canal', x0: 43, y0: 18, x1: 43, y1: 21 });

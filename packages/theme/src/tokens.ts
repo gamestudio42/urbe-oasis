@@ -142,7 +142,7 @@ export const COLOR_TOKENS = [
   'park.ground',
   'park.pond',
 
-  // Neon placeables: power grid, security and the aerial layer.
+  // Oasis placeables: water grid, windbreaks, arcades, caravanserai and shade sources.
   'qanat.wall',
   'qanat.roof',
   'qanat.coil',

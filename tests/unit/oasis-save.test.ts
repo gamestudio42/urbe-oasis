@@ -8,12 +8,12 @@ import {
 import { SimulationEngine, createEngine } from '@city/simulation';
 import { describe, expect, it } from 'vitest';
 
-/** A small neon city with the extra state the envelope has to carry. */
-function neonCity(): SimulationEngine {
+/** A small Oasis city with the extra state the envelope has to carry. */
+function oasisCity(): SimulationEngine {
   const e = createEngine({
     seed: 'neon-save',
     size: 48,
-    name: 'Neon',
+    name: 'Oasis',
     ruleset: 'oasis',
     terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
     funds: 200_000,
@@ -27,13 +27,13 @@ function neonCity(): SimulationEngine {
 }
 
 const meta = { population: 0, funds: 200_000, savedAt: '2026-01-01T00:00:00.000Z' };
-const neonOptions = { format: OASIS_SAVE_FORMAT };
+const oasisOptions = { format: OASIS_SAVE_FORMAT };
 
-describe('neon save envelope', () => {
-  it('keeps the ruleset and the neon state across a round trip', () => {
-    const e = neonCity();
-    const file = encodeSave(e.serialize(), meta, neonOptions);
-    const decoded = decodeSave(stringifySave(file), neonOptions);
+describe('Oasis save envelope', () => {
+  it('keeps the ruleset and the Oasis state across a round trip', () => {
+    const e = oasisCity();
+    const file = encodeSave(e.serialize(), meta, oasisOptions);
+    const decoded = decodeSave(stringifySave(file), oasisOptions);
     expect(decoded.ok).toBe(true);
     if (!decoded.ok) return;
     expect(decoded.snapshot.ruleset).toBe('oasis');
@@ -41,12 +41,12 @@ describe('neon save envelope', () => {
     expect(decoded.snapshot.oasis?.caravans.length).toBeGreaterThan(0);
   });
 
-  it('preserves cistern charge and corporation capital', () => {
-    const e = neonCity();
+  it('preserves cistern charge and caravan house capital', () => {
+    const e = oasisCity();
     const cisterns = e.oasis.cisterns.map((b) => ({ ...b }));
     const corps = e.oasis.caravans.map((c) => ({ ...c }));
-    const file = encodeSave(e.serialize(), meta, neonOptions);
-    const decoded = decodeSave(stringifySave(file), neonOptions);
+    const file = encodeSave(e.serialize(), meta, oasisOptions);
+    const decoded = decodeSave(stringifySave(file), oasisOptions);
     expect(decoded.ok).toBe(true);
     if (!decoded.ok) return;
     expect(decoded.snapshot.oasis?.cisterns).toEqual(cisterns);
@@ -61,7 +61,7 @@ describe('neon save envelope', () => {
     });
     const file = encodeSave(e.serialize(), meta);
     // The decoder accepts the known city formats, so the file opens...
-    const decoded = decodeSave(stringifySave(file), neonOptions);
+    const decoded = decodeSave(stringifySave(file), oasisOptions);
     expect(decoded.ok).toBe(true);
     if (!decoded.ok) return;
     // ...and the file's own ruleset decides how the city runs, not the app that opened it.
@@ -69,7 +69,7 @@ describe('neon save envelope', () => {
   });
 
   it('rejects a file that is not a city save', () => {
-    const decoded = decodeSave(stringifySave({ format: 'something-else', state: {} }), neonOptions);
+    const decoded = decodeSave(stringifySave({ format: 'something-else', state: {} }), oasisOptions);
     expect(decoded.ok).toBe(false);
   });
 
@@ -90,16 +90,16 @@ describe('neon save envelope', () => {
     for (const b of decoded.snapshot.buildings) expect('linked' in b).toBe(false);
   });
 
-  it('loads a neon file that predates the data layer', () => {
-    const e = neonCity();
+  it('loads a Oasis file that predates the data layer', () => {
+    const e = oasisCity();
     e.execute({ type: 'canal', x0: 4, y0: 14, x1: 12, y1: 14 });
     e.refreshUtilities();
     const snap = e.serialize();
     expect(snap.layers.linked).toBeDefined();
     delete snap.layers.linked;
     snap.networksDirty = false;
-    const file = encodeSave(snap, meta, neonOptions);
-    const decoded = decodeSave(stringifySave(file), neonOptions);
+    const file = encodeSave(snap, meta, oasisOptions);
+    const decoded = decodeSave(stringifySave(file), oasisOptions);
     expect(decoded.ok).toBe(true);
     if (!decoded.ok) return;
     expect(decoded.snapshot.layers.linked).toBeUndefined();
@@ -109,9 +109,9 @@ describe('neon save envelope', () => {
   });
 
   it('restores an identical city after a save and load cycle', () => {
-    const e = neonCity();
-    const file = encodeSave(e.serialize(), meta, neonOptions);
-    const decoded = decodeSave(stringifySave(file), neonOptions);
+    const e = oasisCity();
+    const file = encodeSave(e.serialize(), meta, oasisOptions);
+    const decoded = decodeSave(stringifySave(file), oasisOptions);
     expect(decoded.ok).toBe(true);
     if (!decoded.ok) return;
     const restored = SimulationEngine.fromSnapshot(decoded.snapshot);
@@ -120,7 +120,7 @@ describe('neon save envelope', () => {
   });
 
   it('round-trips the spires above the classic level cap', () => {
-    const e = neonCity();
+    const e = oasisCity();
     const zone = e.buildings.add({
       kind: 'residential',
       x: 20,
@@ -140,8 +140,8 @@ describe('neon save envelope', () => {
       offline: 0,
       attractiveness: 0,
     });
-    const file = encodeSave(e.serialize(), meta, neonOptions);
-    const decoded = decodeSave(stringifySave(file), neonOptions);
+    const file = encodeSave(e.serialize(), meta, oasisOptions);
+    const decoded = decodeSave(stringifySave(file), oasisOptions);
     expect(decoded.ok).toBe(true);
     if (!decoded.ok) return;
     const kept = decoded.snapshot.buildings.find((b) => b.id === zone.id);

@@ -116,10 +116,10 @@ export function shelterCoverage(engine: SimulationEngine): number {
 export function tickStorms(engine: SimulationEngine): void {
   if (engine.oasis.storms.length === 0) return;
   let changed = false;
-  for (const intrusion of engine.oasis.storms) {
-    intrusion.ticks--;
-    if (intrusion.ticks > 0) continue;
-    const b = engine.buildings.get(intrusion.buildingId);
+  for (const storm of engine.oasis.storms) {
+    storm.ticks--;
+    if (storm.ticks > 0) continue;
+    const b = engine.buildings.get(storm.buildingId);
     if (b && b.offline > 0) {
       b.offline = 0;
       engine.buildings.touch(b);
@@ -145,7 +145,7 @@ function cityPopulation(engine: SimulationEngine): number {
   return total;
 }
 
-/** Diagnostic: is this building currently under an active intrusion? */
+/** Diagnostic: is this building currently buried by a sandstorm? */
 export function activeStorm(engine: SimulationEngine, id: number): boolean {
   return engine.oasis.storms.some((i) => i.buildingId === id && i.ticks > 0);
 }

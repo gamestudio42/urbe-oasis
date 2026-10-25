@@ -29,9 +29,9 @@ describe('oasis spring and evaporation', () => {
     expect(e.execute({ type: 'place', kind: 'springHouse', x: 8, y: 4 }).ok).toBe(true);
     expect(e.execute({ type: 'place', kind: 'well', x: 7, y: 4 }).ok).toBe(true);
     e.refreshUtilities();
-    const hall = e.buildings.ofKind('springHouse')[0];
-    expect(hall?.powered).toBe(true);
-    expect(hall?.watered).toBe(true);
+    const house = e.buildings.ofKind('springHouse')[0];
+    expect(house?.powered).toBe(true);
+    expect(house?.watered).toBe(true);
     expect(e.stats().oasis?.data.supply).toBe(OASIS_SHADE.springSupply);
   });
 
@@ -43,7 +43,7 @@ describe('oasis spring and evaporation', () => {
       terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
       funds: 50_000,
     });
-    const hall = e.buildings.add({
+    const house = e.buildings.add({
       kind: 'springHouse',
       x: 1,
       y: 1,
@@ -62,8 +62,8 @@ describe('oasis spring and evaporation', () => {
       offline: 0,
       attractiveness: 0,
     });
-    expect(shadeSupply(hall, false)).toBe(0);
-    expect(shadeSupply(hall, true)).toBe(OASIS_SHADE.springSupplyDry);
+    expect(shadeSupply(house, false)).toBe(0);
+    expect(shadeSupply(house, true)).toBe(OASIS_SHADE.springSupplyDry);
   });
 
   it('evaporates an unshaded well and keeps a shaded one', () => {

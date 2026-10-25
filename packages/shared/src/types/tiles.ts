@@ -28,7 +28,7 @@ export const Infra = {
   PowerLine: 2,
   Pipe: 4,
   Rubble: 8,
-  /** Neon data network. Stays unset in a classic city, so the infra bytes do not change. */
+  /** Oasis canal (shade network). Stays unset in a classic city, so the infra bytes do not change. */
   Canal: 16,
 } as const;
 export type InfraFlag = (typeof Infra)[keyof typeof Infra];
@@ -76,12 +76,12 @@ export interface Tile {
   road: boolean;
   powerLine: boolean;
   waterPipe: boolean;
-  /** Neon canal tile. False in a classic city. */
+  /** Oasis canal tile. False in a classic city. */
   canal: boolean;
   rubble: boolean;
   powered: boolean;
   watered: boolean;
-  /** Neon data service. False in a classic city. */
+  /** Oasis shade service. False in a classic city. */
   linked: boolean;
   fire: number;
   flood: number;

@@ -125,7 +125,7 @@ export function planToolCommand(ctx: PlanContext, command: ToolCommand): ToolPla
       forTiles(ctx.world, lPath(command), plan, (i) => planPipe(ctx, i, plan));
       break;
     case 'canal':
-      forTiles(ctx.world, lPath(command), plan, (i) => planFiber(ctx, i, plan));
+      forTiles(ctx.world, lPath(command), plan, (i) => planCanal(ctx, i, plan));
       break;
     case 'zone':
       forTiles(ctx.world, rectTiles(command), plan, (i) =>
@@ -214,7 +214,7 @@ function planPipe(ctx: PlanContext, i: number, plan: PlanBuilder): void {
 }
 
 /** Same placement rules as a pipe. Classic cities reject the command so the bit stays unset. */
-function planFiber(ctx: PlanContext, i: number, plan: PlanBuilder): void {
+function planCanal(ctx: PlanContext, i: number, plan: PlanBuilder): void {
   if ((ctx.ruleset ?? 'classic') !== 'oasis') return plan.reject(i, RejectReason.Invalid);
   if (ctx.world.hasInfra(i, Infra.Canal)) return plan.reject(i, RejectReason.AlreadyBuilt);
   plan.accept(i, OASIS_SHADE.canalCost);

@@ -79,7 +79,8 @@ packages/bridge/   worker clock + RPC inbox
 packages/view-iso/ isometric camera, picking, chunk grid
 packages/chrome/   Store, boot/pause/toasts, i18n helpers, audio graph, IndexedDB
 packages/simulation/src/systems/oasis/
-                   Neon ruleset: grid, corporations, intrusion, air traffic, vertical
+                   Oasis ruleset: water grid, caravans, sandstorms, arcades, spring,
+                   journey, rationing and building heights
 packages/theme/    Colourless Theme interface
 packages/theme-urbe/  Classic palette
 packages/theme-oasis/ Desert palette, CSS tokens and audio parameters

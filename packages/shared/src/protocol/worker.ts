@@ -85,7 +85,7 @@ export interface FullState {
   structure: Record<StructureLayer, Uint8Array>;
   influence: Record<InfluenceLayer, Uint8Array>;
   buildingId: Int32Array;
-  /** Neon data service. Zeros in a classic city; not part of the simulation hash. */
+  /** Oasis shade service. Zeros in a classic city; not part of the simulation hash. */
   linked: Uint8Array;
   buildings: BuildingRecord[];
   stats: CityStats;

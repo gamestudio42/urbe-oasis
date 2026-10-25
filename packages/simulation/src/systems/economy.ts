@@ -102,7 +102,7 @@ export function computeMonthlyReport(
   const ex = report.expenses;
   ex.transport = (roads * up.road + bridges * up.bridge) * (f.transport / 100);
   ex.power = lines * up.powerLine;
-  // Fiber upkeep only exists in a neon city. A classic map never sets the bit, and adding zero
+  // Canal upkeep only exists in an Oasis city. A classic map never sets the bit, and adding zero
   // would still be a no-op, but the branch keeps the classic assignment byte-identical.
   if (engine.ruleset === 'oasis' && canals > 0) ex.power += canals * OASIS_SHADE.canalUpkeep;
   ex.water = pipes * up.pipe;
