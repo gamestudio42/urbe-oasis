@@ -368,8 +368,18 @@ because the simulation worker and the software rasteriser compete for the CPU. U
 results only for leak trends, not for fluidity. Turning animations off, or pausing during the
 views, did not make the 64-tile city consistently faster, so the cost is not street life.
 
-**Not yet covered:** Firefox and WebKit, whose Playwright builds (`firefox-1555`, `webkit-2370`)
-are not installed here (`pnpm exec playwright install firefox webkit`); other GPUs and phones;
-sessions longer than ten minutes; and real players. The new E2E check `oasis-render-health`
-keeps the leak guard in CI: after warm-up, textures may not grow by more than 12 and display
-objects stay within bounds over 20 seconds at full speed.
+**Headed Firefox 157 (same machine):** the first run found a real bug. The Oasis score called
+`AudioParam.cancelAndHoldAtTime`, which Firefox does not implement, so every track, pause and
+mood change threw, and even a speed change failed. The ramp now holds the current value
+portably. After the fix, every view of both cities holds about 59 fps (p50 17 ms, at most 2.4%
+of frames over 33 ms). Display objects and textures follow the same pattern as in Chromium, with
+no leak; Firefox does not report the JS heap. One three-minute session dropped to 0.8 fps after
+the first minute while the simulation kept advancing. A repeat with the window in focus held
+142.9 fps throughout on a high-refresh display, so that drop was Firefox throttling an
+unfocused window, not a render stall.
+
+**Not yet covered:** WebKit, whose Playwright build is installed but cannot start without the
+system libraries `libicu74` and `libxml2` (`sudo pnpm exec playwright install-deps`); other GPUs
+and phones; sessions longer than ten minutes; and real players. The new E2E check
+`oasis-render-health` keeps the leak guard in CI: after warm-up, textures may not grow by more
+than 12 and display objects stay within bounds over 20 seconds at full speed.
