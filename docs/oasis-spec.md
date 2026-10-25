@@ -249,14 +249,14 @@ reads as monthly revenue. At most one chapter completes per close. A completed c
 | #   | Chapter       | Goal at the month close                                                             | Grant                                                           |
 | --- | ------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | 1   | First quarter | at least 100 residents, with water and shade each serving at least 80% of consumers | $2,000                                                          |
-| 2   | Reserves      | water still serving 80%, and two powered, online cisterns holding water             | $2,500                                                          |
+| 2   | Reserves      | water still serving 80%, and two powered, online cisterns at least 25% full         | $2,500                                                          |
 | 3   | Shelter       | windbreak cover of at least 50% of services                                         | $3,000                                                          |
 | 4   | Dry season    | survive the drought below                                                           | $5,000 if water service averaged at least 75%, otherwise $1,000 |
 | 5   | Caravan road  | an operating caravanserai (staffed, so powered and on a road)                       | $4,000                                                          |
 
-The reserves goal asks for cisterns that hold water rather than a charge level. A cistern only
-charges while its network has spare water, at 1/240 of a bank per utility refresh, so a charge
-target would take years of game time. Holding any water proves a surplus. The commerce goal is
+The reserves goal asks for two cisterns at least a quarter full. A cistern charges only while its
+network has spare water, at `cisternChargePerDay` (1/240 of a bank per day), so a surplus fills
+the quarter in about two months. The commerce goal is
 an operating caravanserai, because caravan receipts depend on vacant serviced lots that a
 player does not directly control.
 
@@ -279,12 +279,14 @@ scenario presets have no journey, so their state shape, hashes and balance are u
 engine ignores the option. The decoder validates the chapter (0–5), one completion month per
 completed chapter, the drought months (0–3), the served sum and the outcome (−1, 0 or 1).
 `CityStats.oasis.journey` mirrors the chapter, the drought countdown, months left, mean service,
-outcome, cisterns holding water and staffed caravanserais. The mirror-world service trace applies
+outcome, cisterns at least a quarter full and staffed caravanserais. The mirror-world service trace applies
 the same drought cut to wells and pumps.
 
 The `oasis-journey` preset runs the balanced town with $30,000 extra capital and an automated
 player. That player adds qanats and cisterns beside the pumps, windbreaks beside services and a
-caravanserai beside a school.
+caravanserai beside a school. While shade supply is short, it also plants up to three palms a
+month beside the canals. The `oasis-founding` preset plays the founding tutorial on Normal funds,
+with no services, for measuring the early economy.
 
 ### Presentation
 
@@ -301,6 +303,11 @@ five locales.
 ## Shade
 
 Canals (`Infra.Canal`) and buildings conduct shade, the same way pipes conduct water.
+In Oasis cities an empty zoned lot also conducts water and shade, as every zoned lot already
+conducts power, so a district is not cut off while a lot along the way waits for its building.
+Built lots conducted already; this only removes that temporary gap. Pipes and canals are still
+what bring a source to a district. The water components used by stress and cascades, and the
+mirror-world service trace, use the same conduction.
 A palm supplies `palmSupply` (80) with no power and no water. A spring house supplies
 `springSupply` (400) when it is powered, watered and within `springRadius` (20 tiles,
 Chebyshev) of the spring. If it has only the spring or only water, it supplies
@@ -317,7 +324,11 @@ Shade is solved after water, so the shade flag used for evaporation is the one f
 previous pass.
 
 A powered, online cistern charges while its water component has spare supply, and that stored
-water stays out of the offer. When demand passes the base supply, the cistern releases only the missing water, up
+water stays out of the offer. Each settlement adds `cisternChargePerDay` (1/240 of a bank) per
+whole day since the bank was last settled, capped at `cisternChargeDaysCap` (30) days, and records
+the tick on the bank (`settledTick`). A spare network therefore fills a bank in about eight
+months. Several refreshes on one day, such as repeated construction, add nothing. A bank from an
+older save without `settledTick` counts one day on its first settlement. When demand passes the base supply, the cistern releases only the missing water, up
 to `charge * cisternOutput`, and the charge falls by the same share. A component whose demand
 reaches `overloadThreshold` (0.9) of its supply is parched. If that component has a qanat, one
 qanat goes offline for `cascadeOutageDays` and the collapse notice fires. With no qanat, a share
@@ -384,7 +395,12 @@ deactivation with accrued cost retained, and a smaller viewport.
 
 The spring starts at the map centre (the first open tile on a ring around it).
 Every `springMoveMonths` (6) it steps up to `springStep` (5) tiles. A sandstorm that
-lands nudges it 2 tiles. The roll comes from a generator seeded by the city seed and
+lands nudges it 2 tiles. It never leaves `springRange` (8 tiles, Chebyshev) of the map centre on
+its own: a step that would end further out and further than before goes the opposite way, with
+the same random draw. A spring from an older save that is already further out can only move
+closer. Spring houses within 12 tiles of the centre therefore always stay within
+`springRadius`. Before this bound, the spring drifted 35 tiles in ten years of the reference
+city and stranded both of its spring houses. The roll comes from a generator seeded by the city seed and
 the month, so it does not consume the caravan and storm stream.
 
 The position is on `CityStats.oasis.spring` and drawn by the renderer.

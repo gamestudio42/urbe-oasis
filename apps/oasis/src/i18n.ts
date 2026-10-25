@@ -1306,7 +1306,7 @@ const JOURNEY_EN = {
     },
     {
       title: 'Reserves',
-      action: 'Keep water at 80% and get two powered cisterns holding water.',
+      action: 'Keep water at 80% and fill two powered cisterns to at least a quarter.',
       why: 'A cistern stores only spare water. Add a qanat or well first, then connect the cistern to power and pipes.',
     },
     {
@@ -1329,7 +1329,7 @@ const JOURNEY_EN = {
     residents: 'Residents',
     water: 'Water service',
     shade: 'Shade service',
-    reserves: 'Cisterns holding water',
+    reserves: 'Cisterns a quarter full',
     shelter: 'Services sheltered',
     caravanserai: 'Caravanserai staffed',
   },
@@ -1364,7 +1364,7 @@ const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
       },
       {
         title: 'Reservas',
-        action: 'Mantenha a água em 80% e tenha duas cisternas energizadas guardando água.',
+        action: 'Mantenha a água em 80% e encha duas cisternas energizadas até pelo menos um quarto.',
         why: 'A cisterna só guarda água que sobra. Construa um qanat ou poço antes, depois ligue a cisterna à energia e aos canos.',
       },
       {
@@ -1387,7 +1387,7 @@ const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
       residents: 'Moradores',
       water: 'Abastecimento de água',
       shade: 'Cobertura de sombra',
-      reserves: 'Cisternas com água',
+      reserves: 'Cisternas com 25%+',
       shelter: 'Serviços abrigados',
       caravanserai: 'Caravançará funcionando',
     },
@@ -1419,7 +1419,7 @@ const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
       },
       {
         title: 'Reservas',
-        action: 'Mantén el agua al 80% y consigue dos cisternas con energía que guarden agua.',
+        action: 'Mantén el agua al 80% y llena dos cisternas con energía al menos hasta un cuarto.',
         why: 'La cisterna solo guarda agua sobrante. Construye antes un qanat o pozo y luego conecta la cisterna a la energía y las tuberías.',
       },
       {
@@ -1442,7 +1442,7 @@ const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
       residents: 'Habitantes',
       water: 'Servicio de agua',
       shade: 'Cobertura de sombra',
-      reserves: 'Cisternas con agua',
+      reserves: 'Cisternas con 25%+',
       shelter: 'Servicios protegidos',
       caravanserai: 'Caravasar en servicio',
     },
@@ -1475,7 +1475,7 @@ const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
       },
       {
         title: 'Réserves',
-        action: 'Gardez l’eau à 80 % et ayez deux citernes alimentées qui stockent de l’eau.',
+        action: 'Gardez l’eau à 80 % et remplissez deux citernes alimentées au moins au quart.',
         why: 'Une citerne ne stocke que l’eau en surplus. Construisez d’abord un qanat ou un puits, puis reliez la citerne à l’énergie et aux canalisations.',
       },
       {
@@ -1498,7 +1498,7 @@ const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
       residents: 'Habitants',
       water: 'Service d’eau',
       shade: 'Couverture d’ombre',
-      reserves: 'Citernes avec de l’eau',
+      reserves: 'Citernes à 25 %+',
       shelter: 'Services abrités',
       caravanserai: 'Caravansérail actif',
     },
@@ -1531,7 +1531,7 @@ const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
       },
       {
         title: 'Reserven',
-        action: 'Halte die Wasserversorgung bei 80 % und fülle zwei versorgte Zisternen.',
+        action: 'Halte die Wasserversorgung bei 80 % und fülle zwei versorgte Zisternen mindestens zu einem Viertel.',
         why: 'Eine Zisterne speichert nur überschüssiges Wasser. Baue zuerst ein Qanat oder einen Brunnen und schließe die Zisterne dann an Strom und Rohre an.',
       },
       {
@@ -1554,7 +1554,7 @@ const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
       residents: 'Einwohner',
       water: 'Wasserversorgung',
       shade: 'Schattenabdeckung',
-      reserves: 'Zisternen mit Wasser',
+      reserves: 'Zisternen mit 25 %+',
       shelter: 'Geschützte Dienste',
       caravanserai: 'Karawanserei in Betrieb',
     },

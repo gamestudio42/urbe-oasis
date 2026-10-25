@@ -17,6 +17,8 @@ export interface BatteryState {
   buildingId: number;
   /** Fraction of a full charge. */
   charge: number;
+  /** Tick of the last settlement, for charging by elapsed days. Absent in older saves. */
+  settledTick?: number;
 }
 
 /** A live intrusion against one service building. */

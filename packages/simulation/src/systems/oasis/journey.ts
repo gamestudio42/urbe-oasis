@@ -55,12 +55,19 @@ export function chapterGoalMet(engine: SimulationEngine, chapter: number): boole
   }
 }
 
-/** Powered, online cisterns that hold some water. */
+/** Powered, online cisterns at least `reserveCharge` full. */
 export function storingBanks(engine: SimulationEngine): number {
   let count = 0;
   for (const entry of engine.oasis.cisterns) {
     const b = engine.buildings.get(entry.buildingId);
-    if (b && b.kind === 'cistern' && b.powered && b.offline === 0 && entry.charge > 0) count++;
+    if (
+      b &&
+      b.kind === 'cistern' &&
+      b.powered &&
+      b.offline === 0 &&
+      entry.charge >= OASIS_JOURNEY.reserveCharge
+    )
+      count++;
   }
   return count;
 }

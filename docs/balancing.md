@@ -386,3 +386,81 @@ but only headless (software rendering, useful for leaks rather than frame rate).
 and phones; sessions longer than ten minutes; and real players. The new E2E check
 `oasis-render-health` keeps the leak guard in CI: after warm-up, textures may not grow by more
 than 12 and display objects stay within bounds over 20 seconds at full speed.
+
+## Oasis balance pass: early economy, shade at scale and cisterns (2026-10-25)
+
+Three questions from the overall review, measured with `pnpm sim` (reports in `reports/balance/`).
+
+```sh
+pnpm sim --preset oasis-founding --months 60 --seeds 1,2,3 --out reports/balance/oasis-founding
+pnpm sim --preset oasis-balanced --months 120 --seeds 1,2,3 --out reports/balance/oasis-balanced
+pnpm sim --preset oasis-journey --months 120 --seeds 1,2,3 --out reports/balance/oasis-journey
+pnpm sim --preset oasis-rationing --months 120 --seeds 1,2,3 --out reports/balance/oasis-rationing
+pnpm bench --out reports/bench/oasis-balance.json
+```
+
+**Early economy.** The reference town (`oasis-balanced`) ran in debt for its first four or five
+years. That came from the preset itself: it opens police, fire, health and education in month 1,
+about $380 a month before anyone lives there, and at about $0.30 of tax per resident a month it
+breaks even only near 2,000 residents. The classic `balanced` town follows the same curve with
+the same shared constants, so no tax or upkeep was changed. The new `oasis-founding` preset
+follows the founding tutorial on Normal funds: an edge road, a small quarter, four turbines,
+three wells, a canal and a palm, and no services. Its automated player follows the guide,
+adding a palm or a well only when supply is short and two cisterns after the first chapter.
+On seeds 1–3 it reaches 100 residents in month 7. The treasury never drops below about $6,800
+(it opens at $10,000 and spends about $2,500 on the start) and ends at $12,700–12,960 after five
+years, with 2 palms and 4–5 wells. It completes chapter 1 in month 7 and the reserves chapter in
+month 10. Recommendation for players and the guide: open services as the city passes roughly a
+thousand residents, not on day one.
+
+Building the founding preset exposed a connectivity rule that cost far more than money: an
+empty zoned lot carried power but not water or shade. A pipe and canal led to an industrial
+strip whose first column had no buildings yet, and in seed 2, eleven workshops stayed cut off
+for two years, so chapter 1 waited until month 27 while the automated player bought palms that
+could not reach them. **Empty Oasis lots now carry water and shade**, as they already carried power.
+Built lots always conducted, so finished districts are unaffected; only the temporary gap goes.
+In the scripted reference town this is neutral within seed variance (120 months, seeds 1–3:
+populations 2496 / 2759 / 2357 with the change against 2967 / 2561 / 2741 without it; means
+2537 and 2756, a difference smaller than the spread between seeds).
+
+**Shade in grown cities.** The reference town's shade fell from 84% to 44% after five years and
+stayed there. The cause was the spring, not the shade constants. It took a random step of up
+to five tiles every six months with nothing to bring it back, and in seed 1 it drifted from
+(32, 28) to (30, 63), 35 tiles in ten years. Both spring houses fell outside `springRadius` (20)
+and dropped from 400 to 120 shade each. **The spring now stays within `springRange` (8) of the
+map centre**: a step that would leave the range turns back, with the same random draw. Spring
+houses within 12 tiles of the centre always keep it. The reference town's spring houses sit
+about 15 tiles out, at the eastern edge, so they still lose it at times (shade 520–800); that is
+the intended tension, and building nearer the centre avoids it. When the journey's automated
+player also keeps shade like a player reading the coverage figure (up to three palms a month
+beside the canals while supply is short), 12–15 palms hold shade at 95–100% for 6,471–8,016
+residents after ten years, with monthly balances of +$908 to +$1,264. Shade scales with modest
+investment once its sources stay valid.
+
+**Cisterns.** A bank gained 1/240 of a charge per network refresh. A steady city refreshes about
+once a month, so the journey city's three banks held 33% after five years (seed `probe`). The
+legacy optional goal "cisterns half full" was close to unreachable, and repeated construction,
+which refreshes on every command, could pump reserves. **Banks now gain `cisternChargePerDay`
+(1/240) per whole day since their last settlement**, capped at 30 days a settlement, recorded on
+the bank as `settledTick`. Several refreshes on one day add nothing. The same city's banks reach
+75% six months after building and stay full under surplus, and they drain and refill in the
+founding city when supply runs short. With charging that works, journey chapter 2 now asks for
+two powered cisterns at least a quarter full (`reserveCharge` 0.25), reached two months after
+building them.
+
+**Results after the pass (120 months, seeds 1–3 unless noted):**
+
+| Preset | Populations | Funds | Notes |
+|---|---|---|---|
+| `oasis-founding` (60 months) | 537 / 557 / 527 | 12958 / 12738 / 12805 | chapters 1–2 by month 7 and 10 |
+| `oasis-balanced` | 2496 / 2759 / 2357 | 4152 / 9121 / 110 | was 2538 / 2372 / 2587 and 5027 / 1670 / 5495 |
+| `oasis-journey` | 7330 / 8016 / 6471 | 105938 / 92513 / 88574 | all five chapters by month 11–13 |
+| `oasis-rationing` | 2615 / 2742 / 2367 | 644 / 3410 / −2871 | seed 3 bankrupt (seed 2 before); continuous rationing remains a stress case |
+
+Classic cities are unchanged: every change sits behind the Oasis ruleset, and the classic `grid`
+reference hashes still match. The Oasis reference hashes in `tests/fixtures/performance-replay.json`
+were regenerated for `oasis-grid` and `oasis-rationing`. The save/load replay inside that test
+still passes, so determinism holds. The simulation benchmark (classic grid city) still reports
+**`FAIL: heavyTicks`**, with traffic p95 8.17 ms and utility refresh p95 8.80 ms against 8 ms. None
+of these rules run there, and earlier checkpoints recorded the same failure; it is variation on
+this shared machine.

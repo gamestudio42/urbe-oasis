@@ -1,4 +1,12 @@
-import { PLACEABLE_SPECS, defaultJourneyState, isZoneKind, type PlaceableKind } from '@city/shared';
+import {
+  Infra,
+  PLACEABLE_SPECS,
+  ZoneDensity,
+  ZoneType,
+  defaultJourneyState,
+  isZoneKind,
+  type PlaceableKind,
+} from '@city/shared';
 import { createEngine, type SimulationEngine } from '../engine';
 import { addServices, buildTown, flatCity, maintainTown, recoverCity, run } from './builders';
 import { buildGridCity, maintainGrid } from './grid';
@@ -60,6 +68,25 @@ export const SIM_PRESETS: Record<string, SimPreset> = {
       addServices(engine, buildTown(engine, { pumps: 8 }));
       addNeonData(engine);
       return { engine, onMonth: (e) => void maintainTown(e) };
+    },
+  },
+  'oasis-founding': {
+    description:
+      'A tutorial-sized Oasis start on Normal funds, with no services, whose player follows the guide',
+    defaultSize: 64,
+    create(seed, size) {
+      const engine = createEngine({
+        seed,
+        size,
+        name: 'Oasis',
+        ruleset: 'oasis',
+        difficulty: 'normal',
+        journey: true,
+        terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
+      });
+      engine.disastersEnabled = false;
+      buildFounding(engine);
+      return { engine, onMonth: (e) => followGuide(e) };
     },
   },
   'oasis-journey': {
@@ -185,6 +212,34 @@ function playJourney(engine: SimulationEngine): void {
     placeBeside(engine, 'windbreak', services, 8);
   }
   if (chapter >= 4) placeBeside(engine, 'caravanserai', engine.buildings.ofKind('school'), 1);
+  keepShade(engine);
+}
+
+/**
+ * Shade upkeep a player reading the coverage figure would do: while supply is short, up to three
+ * palms a month on free tiles beside the canals, scanned in tile order.
+ */
+function keepShade(engine: SimulationEngine): void {
+  const shade = engine.stats().oasis?.data;
+  if (!shade || shade.served >= 0.85 || shade.supply >= shade.demand) return;
+  const w = engine.world;
+  let placed = 0;
+  for (let i = 0; i < w.tileCount && placed < 3; i++) {
+    if (!w.hasInfra(i, Infra.Canal)) continue;
+    const x = w.xOf(i);
+    const y = w.yOf(i);
+    for (const [dx, dy] of [
+      [0, -1],
+      [1, 0],
+      [0, 1],
+      [-1, 0],
+    ] as const) {
+      if (engine.execute({ type: 'place', kind: 'palm', x: x + dx, y: y + dy }).ok) {
+        placed++;
+        break;
+      }
+    }
+  }
 }
 
 function placeBeside(
@@ -204,4 +259,51 @@ function placeBeside(
       }
     }
   }
+}
+
+/** The founding tutorial's settlement: an edge road, a small quarter, wind, wells and a palm. */
+function buildFounding(engine: SimulationEngine): void {
+  const zone = (z: ZoneType, x0: number, y0: number, x1: number, y1: number) =>
+    run(engine, { type: 'zone', zone: z, density: ZoneDensity.Light, x0, y0, x1, y1 });
+  run(engine, { type: 'road', x0: 0, y0: 30, x1: 34, y1: 30 });
+  run(engine, { type: 'road', x0: 20, y0: 23, x1: 20, y1: 36 });
+  zone(ZoneType.Residential, 21, 24, 26, 29);
+  zone(ZoneType.Commercial, 21, 31, 26, 33);
+  zone(ZoneType.Industrial, 28, 31, 33, 33);
+  for (const y of [24, 26, 28]) run(engine, { type: 'place', kind: 'windTurbine', x: 27, y });
+  run(engine, { type: 'place', kind: 'windTurbine', x: 34, y: 31 });
+  for (const y of [25, 27, 29]) run(engine, { type: 'place', kind: 'well', x: 27, y });
+  run(engine, { type: 'pipe', x0: 21, y0: 23, x1: 27, y1: 23 });
+  // The workshops sit a tile apart from the shops: a short pipe and canal join them to both
+  // networks (shade travels only through canals and buildings).
+  run(engine, { type: 'pipe', x0: 27, y0: 31, x1: 27, y1: 33 });
+  run(engine, { type: 'canal', x0: 27, y0: 31, x1: 27, y1: 33 });
+  run(engine, { type: 'canal', x0: 21, y0: 23, x1: 27, y1: 23 });
+  run(engine, { type: 'place', kind: 'palm', x: 28, y: 23 });
+}
+
+/**
+ * What a player reading the guide does: a palm along the canal while shade misses the 80% goal
+ * for lack of supply, a well while water does, and two cisterns once the first quarter holds. Fixed positions keep
+ * the run deterministic; a spot that is taken is skipped.
+ */
+function followGuide(engine: SimulationEngine): void {
+  const stats = engine.stats();
+  const shaded = stats.oasis?.data;
+  const funds = engine.economy.funds;
+  // More sources only help when supply is short; a disconnected lot needs a canal or pipe.
+  if (shaded && shaded.served < 0.8 && shaded.supply < shaded.demand * 1.2 && funds > 600) {
+    for (let x = 29; x < 40; x++)
+      if (engine.execute({ type: 'place', kind: 'palm', x, y: 23 }).ok) {
+        run(engine, { type: 'canal', x0: 28, y0: 22, x1: x, y1: 22 });
+        break;
+      }
+  }
+  // Wells go beside the shops, whose zone carries power, so each one is powered and connected.
+  if (stats.water.served < 0.8 && stats.water.supply < stats.water.demand * 1.2 && funds > 600) {
+    for (let x = 21; x <= 26; x++)
+      if (engine.execute({ type: 'place', kind: 'well', x, y: 34 }).ok) break;
+  }
+  if ((engine.oasis.journey?.chapter ?? 0) >= 1 && engine.buildings.ofKind('cistern').length < 2)
+    for (const y of [25, 27]) run(engine, { type: 'place', kind: 'cistern', x: 28, y });
 }
