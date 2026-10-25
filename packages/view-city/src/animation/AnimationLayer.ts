@@ -3,6 +3,7 @@ import type { World } from '@city/simulation';
 import type { Theme } from '@theme/core';
 import { Container, Sprite } from 'pixi.js';
 import { roadSurfaceLift } from '../bridge';
+import { actorDepth } from '../depth';
 import { tileLocalToScreen, tileQuad, vertexToScreen } from '../iso';
 import type { SpriteFactory } from '../sprites';
 import { FireDispatch, type FireView, type StationFootprint } from './fireDispatch';
@@ -469,7 +470,7 @@ export class AnimationLayer {
       const p = tileLocalToScreen(tileQuad(world, x, y), u, v);
       sprite.position.set(p.x, p.y - roadSurfaceLift(world, x, y, u, v));
       sprite.scale.set(WALKER_SCALE);
-      sprite.zIndex = x + u + y + v;
+      sprite.zIndex = actorDepth(x, y, u, v);
       sprite.alpha = alpha;
       sprite.visible = show;
     }
@@ -504,7 +505,7 @@ export class AnimationLayer {
       // North and east read as walking right on screen; south and west as walking left.
       const heading = headingAt(camel.travelIn, camel.travelOut, camel.t);
       sprite.scale.set((heading === 0 || heading === 1 ? 1 : -1) * CAMEL_SCALE, CAMEL_SCALE);
-      sprite.zIndex = x + u + y + v;
+      sprite.zIndex = actorDepth(x, y, u, v);
       sprite.alpha = alpha * camel.alpha;
       sprite.visible = show && camel.alpha > 0;
     }
@@ -549,7 +550,7 @@ export class AnimationLayer {
       const { u, v: lv } = lanePoint(v.travelIn, v.travelOut, v.t);
       const p = tileLocalToScreen(tileQuad(world, x, y), u, lv);
       sprite.position.set(p.x, p.y - roadSurfaceLift(world, x, y, u, lv));
-      sprite.zIndex = x + u + y + lv;
+      sprite.zIndex = actorDepth(x, y, u, lv);
       sprite.alpha = alpha;
       sprite.visible = show;
     };
@@ -587,7 +588,7 @@ export class AnimationLayer {
       if (sprite.parent !== layer) layer.addChild(sprite);
       const p = tileLocalToScreen(tileQuad(world, tx, ty), pose.x - tx, pose.y - ty);
       sprite.position.set(p.x, p.y);
-      sprite.zIndex = pose.x + pose.y;
+      sprite.zIndex = actorDepth(tx, ty, pose.x - tx, pose.y - ty);
       sprite.alpha = alpha;
       sprite.visible = show;
     }

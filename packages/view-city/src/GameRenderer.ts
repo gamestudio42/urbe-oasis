@@ -344,6 +344,8 @@ export class GameRenderer {
     for (const c of this.chunkGrid.chunks) c.root.destroy({ children: true });
     this.chunkLayer.removeChildren();
     const order = this.chunkGrid.rebuild(world.size, (area) => {
+      // Buildings and everything that moves among them share one container sorted by depth.
+      const objects = layer(new Container({ sortableChildren: true }), 'objects');
       const chunk: Chunk = {
         area,
         root: new Container(),
@@ -352,24 +354,23 @@ export class GameRenderer {
         boats: layer(new Container({ sortableChildren: true }), 'boats'),
         roads: layer(new Graphics(), 'roads'),
         overlay: layer(new Graphics(), 'overlay'),
-        vehicles: layer(new Container({ sortableChildren: true }), 'vehicles'),
-        objects: layer(new Container(), 'objects'),
+        vehicles: objects,
+        objects,
         wires: layer(new Graphics(), 'wires'),
         bounds: { x: 0, y: 0, width: 0, height: 0 },
         dirty: true,
         overlayDirty: true,
         hasFire: false,
       };
-      // Boats on a span sit under roads; boats in open water sit with the cars,
-      // so a hull in front of a bridge is not painted under the deck. Cars stay
-      // under objects so a building in front of a street hides them.
+      // Boats on a span sit under roads; boats in open water sit with the cars, so a hull
+      // in front of a bridge is not painted under the deck. Cars, walkers and camels share
+      // the objects layer, so a wall hides them only when it stands in front (see depth.ts).
       chunk.root.addChild(
         chunk.ground,
         chunk.water,
         chunk.boats,
         chunk.roads,
         chunk.overlay,
-        chunk.vehicles,
         chunk.objects,
         chunk.wires,
       );

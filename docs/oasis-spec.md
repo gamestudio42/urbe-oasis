@@ -231,8 +231,11 @@ own seeded generator, never the engine's random stream:
   bank, chosen by tile hash so it never flickers. Dry canals stay bare, so the palms show where
   shade flows. They supply nothing to the simulation.
 
-Colours come from the `walker.*` and `camel.*` theme tokens. Street-life sprites share the
-vehicle layer and its depth order. Hub staffing changes now reach the mirror world, so a staffed
+Colours come from the `walker.*` and `camel.*` theme tokens. Cars, walkers, camels and boats
+share each chunk's object layer with buildings, trees and poles, sorted by isometric depth
+(`depth.ts`): a square building is keyed at `x + y + size - 1`, between its north-west and
+south-east neighbours, so anyone on its south or east sidewalk is drawn whole in front of the wall
+and anyone north or west of it stays behind. Hub staffing changes now reach the mirror world, so a staffed
 caravanserai never reads as idle after an outage.
 
 ## Journey
