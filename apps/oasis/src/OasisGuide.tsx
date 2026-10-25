@@ -17,8 +17,8 @@ export function OasisGuide({ session }: { session: GameSession }) {
   const step = useStore(session.ui, (s) => s.tutorial);
   const revision = useStore(session.ui, (s) => s.cityRevision);
   const ruleset = useStore(session.ui, (s) => s.stats?.ruleset);
-  if (ruleset !== 'oasis') return <Tutorial session={session} />;
   const chapter = useStore(session.ui, (s) => s.stats?.oasis?.journey?.chapter ?? -1);
+  if (ruleset !== 'oasis') return <Tutorial session={session} />;
   // A new chapter remounts the card so its heading is announced again.
   return (
     <GuideCard key={`${revision}:${step ?? 'goals'}:${chapter}`} session={session} step={step} />

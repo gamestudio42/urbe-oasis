@@ -59,7 +59,7 @@ export default defineConfig(
   {
     files: [
       'apps/web/src/**/*.{ts,tsx}',
-      'apps/neon/src/**/*.{ts,tsx}',
+      'apps/oasis/src/**/*.{ts,tsx}',
       'packages/chrome/src/**/*.{ts,tsx}',
     ],
     extends: [reactHooks.configs.flat['recommended-latest']],
@@ -71,7 +71,7 @@ export default defineConfig(
       'tests/**/*.ts',
       '*.config.{js,ts}',
       'apps/web/vite.config.ts',
-      'apps/neon/vite.config.ts',
+      'apps/oasis/vite.config.ts',
     ],
     languageOptions: { globals: globals.node },
   },
