@@ -11,7 +11,7 @@ import { RUNWAY } from '../hubSprites';
 import { DRONE_MIN_ZOOM, DroneTraffic, dronePose } from './drones';
 import { HubTraffic, boatPose, flightState } from './hubs';
 import { createRandom } from './random';
-import { headingAt, lanePoint, worldRoadView, type RoadView } from './roads';
+import { headingAt, lanePoint, routeBfs, worldRoadView, type RoadView } from './roads';
 import { SmokeSim, puffLook, smokeVents } from './smoke';
 import { VehicleSim, type Vehicle } from './vehicles';
 import { CaravanSim, caravanRoute, type CaravanRoute } from './caravans';
@@ -789,17 +789,35 @@ export function streetLife(
   return { ...roads, footfall, stalls };
 }
 
-/** One route per staffed caravanserai with a road door, in building order. */
+/**
+ * One route per staffed caravanserai with a road door, in building order, then one leg from
+ * each boarding caravan stop to the next stop the roads reach.
+ */
 export function caravanRoutes(
   world: World,
   roads: RoadView,
   buildings: Map<number, BuildingRecord>,
 ): CaravanRoute[] {
   const routes: CaravanRoute[] = [];
+  const stops: number[][] = [];
   for (const b of buildings.values()) {
+    if (b.kind === 'caravanStop' && b.occupancy > 0) {
+      const doors = frontage(world, roads, b);
+      if (doors.length > 0) stops.push(doors);
+    }
     if (b.kind !== 'caravanserai' || b.occupancy <= 0 || b.abandoned) continue;
     const route = caravanRoute(roads, frontage(world, roads, b));
     if (route) routes.push(route);
   }
+  for (let k = 0; k < stops.length; k++) {
+    const from = stops[k] as number[];
+    const to = new Set(stops[(k + 1) % stops.length]);
+    if (stops.length < 2) break;
+    const path = routeBfs(roads, from, (i) => to.has(i), STOP_LEG_LENGTH);
+    if (path && path.length >= 3) routes.push({ size: world.size, path });
+  }
   return routes;
 }
+
+/** Longest road leg drawn between two caravan stops. */
+const STOP_LEG_LENGTH = 64;

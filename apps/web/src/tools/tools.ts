@@ -124,6 +124,7 @@ export const TOOLS: readonly ToolDef[] = [
   placeDef('windbreak', 'services'),
   placeDef('arcade', 'transport'),
   placeDef('caravanserai', 'services'),
+  placeDef('caravanStop', 'transport'),
   placeDef('springHouse', 'utilities'),
   placeDef('palm', 'utilities'),
   // Oasis era works, one of each per city, unlocked by era titles.

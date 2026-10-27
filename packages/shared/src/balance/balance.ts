@@ -197,6 +197,13 @@ export const PLACEABLE_SPECS: Record<PlaceableKind, PlaceableSpec> = {
     landValue: 40,
     landValueRadius: 10,
   }),
+  // Oasis caravan routes. Riders and capacity live in OASIS_TRANSIT.
+  caravanStop: placeable({
+    size: 1,
+    cost: 300,
+    upkeep: 15,
+    requiresRoad: true,
+  }),
   palaceGarden: placeable({
     size: 3,
     cost: 80000,

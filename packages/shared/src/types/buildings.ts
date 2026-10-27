@@ -26,6 +26,8 @@ export const PLACEABLE_KINDS = [
   'rechargeBasin',
   'grandBazaar',
   'palaceGarden',
+  // Oasis caravan routes: stops that carry commuters off the roads.
+  'caravanStop',
 ] as const;
 export type PlaceableKind = (typeof PLACEABLE_KINDS)[number];
 
@@ -41,6 +43,7 @@ export const OASIS_PLACEABLE_KINDS = [
   'rechargeBasin',
   'grandBazaar',
   'palaceGarden',
+  'caravanStop',
 ] as const;
 export type OasisPlaceableKind = (typeof OASIS_PLACEABLE_KINDS)[number];
 

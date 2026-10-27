@@ -287,6 +287,20 @@ export const OASIS_ERA_WORKS = {
   gardenShadeDry: 450,
 } as const;
 
+/**
+ * Caravan routes: public transport on the road network. A trip from a home beside one stop to a
+ * destination beside another stop rides the caravans for part of its length instead of the
+ * road. See docs/oasis-spec.md, "Caravan routes".
+ */
+export const OASIS_TRANSIT = {
+  /** Chebyshev radius, in tiles, of the road tiles a stop serves. */
+  stopRadius: 5,
+  /** Share of a served trip that rides instead of driving. */
+  riderShare: 0.5,
+  /** Riders one stop boards per month; demand beyond it drives. */
+  stopCapacity: 400,
+} as const;
+
 /** Ranks of the era; `rank === ERA_RANKS` means every rank is reached. */
 export const ERA_RANKS = OASIS_ERA.ranks.length;
 
@@ -301,6 +315,7 @@ export const OASIS_BALANCE = {
   journey: OASIS_JOURNEY,
   era: OASIS_ERA,
   eraWorks: OASIS_ERA_WORKS,
+  transit: OASIS_TRANSIT,
   rationing: OASIS_RATIONING,
 } as const;
 

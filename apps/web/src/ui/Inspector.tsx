@@ -255,6 +255,15 @@ export function Inspector({
             {hub && (
               <HubFacts building={b} spec={hub} regional={s.regional} t={t} locale={locale} />
             )}
+            {b.kind === 'caravanStop' && (
+              <>
+                <dt>{n.hub.riders}</dt>
+                <dd data-testid="stop-riders">
+                  {formatNumber(b.occupancy, locale)} / {formatNumber(b.capacity, locale)}
+                  <small className="fact-note">{n.hub.ridersNote}</small>
+                </dd>
+              </>
+            )}
             <dt>{n.age}</dt>
             <dd>
               {b.age} {n.months}

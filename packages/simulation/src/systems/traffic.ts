@@ -9,6 +9,7 @@ import {
 } from '@city/shared';
 import type { SimulationEngine } from '../engine';
 import { arcadeRelief } from './oasis/arcades';
+import { boardRiders, boardingStop, transitCatchment, type TransitTrip } from './oasis/transit';
 import type { World } from '../world/world';
 import { MinHeap } from './heap';
 import type { RoadNetwork } from './roads';
@@ -292,14 +293,29 @@ export function updateTraffic(engine: SimulationEngine, roads: RoadNetwork): Tra
     access[i] = Math.round(value * 255);
   }
 
-  // Trip assignment along shortest-path trees.
+  // Trip assignment along shortest-path trees. Oasis caravan routes carry part of the trips
+  // whose two ends lie beside different stops.
   const flow = new Float32Array(w.tileCount);
+  const catchment =
+    engine.ruleset === 'oasis' && engine.buildings.ofKind('caravanStop').length > 0
+      ? transitCatchment(engine, roads)
+      : null;
+  const riding: TransitTrip[] = [];
+  const trip = (tree: PathTree, start: number, amount: number) => {
+    const stop = catchment ? boardingStop(catchment, tree, start) : 0;
+    if (stop > 0) riding.push({ start, tree, amount, stop });
+    else addTrips(flow, tree, start, amount);
+  };
   for (const b of engine.buildings.values()) {
     if (b.kind !== 'residential' || b.abandoned || b.occupancy <= 0) continue;
     const road = roads.accessRoad[w.index(b.x, b.y)] as number;
     if (road < 0) continue;
-    addTrips(flow, jobs, road, labor * b.occupancy);
-    addTrips(flow, shops, road, t.shoppingRate * b.occupancy);
+    trip(jobs, road, labor * b.occupancy);
+    trip(shops, road, t.shoppingRate * b.occupancy);
+  }
+  if (catchment) {
+    const riders = boardRiders(engine, catchment, riding);
+    riding.forEach((r, k) => addTrips(flow, r.tree, r.start, r.amount - (riders[k] as number)));
   }
   const funding = engine.economy.funding.transport / 100;
   // Arcades relieve the road network before the capacity limit is applied.

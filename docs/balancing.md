@@ -612,3 +612,26 @@ The heaviest stage is the Oasis utility refresh, at 43% of the budget. The class
 every earlier checkpoint. The Oasis hash differs from
 `e51be040` because later Oasis rule changes alter that workload. CI still runs `pnpm bench --months 12` without
 `--strict`, because shared runners are too noisy for an absolute budget.
+
+## Oasis caravan routes checkpoint (2026-10-27)
+
+```sh
+pnpm sim --preset oasis-journey --months 240 --seeds 1,2,3 --out reports/transit
+```
+
+The scripted player opens six caravan stops once its south district stands (months 77, 81 and 90).
+The stops fill to about their capacity: 2,362, 2,395 and 2,308 riders of 2,400. Compared with the
+power follow-up run above:
+
+| Seed | Capital | Congestion (before → after) | Population (before → after) | Funds |
+| ---- | ------- | --------------------------- | --------------------------- | ----- |
+| 1    | 94      | 0.780 → 0.735               | 14237 → 15690               | 60238 |
+| 2    | 93      | 0.808 → 0.757               | 14126 → 15790               | 68499 |
+| 3    | 122     | 0.784 → 0.716               | 13690 → 14728               | 38454 |
+
+- **Dry seasons:** every season is held. The larger cities draw more water, so seed 2's last two
+  seasons serve 82% and 78%, just above the 75% target.
+- **Control:** `oasis-balanced` builds no stops, and a city without stops keeps its exact trip
+  flows.
+- **Cost:** six stops cost $1,800 and $90 a month, cheap for the relief they give. Stop capacity is
+  the lever if routes should cost more.
