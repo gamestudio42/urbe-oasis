@@ -129,10 +129,7 @@ export class CityClient {
   }
 
   runTicks(ticks: number): Promise<void> {
-    return this.rpc.request(
-      (id) => this.send({ type: 'runTicks', id, ticks }),
-      () => undefined,
-    );
+    return this.rpc.request((id) => this.send({ type: 'runTicks', id, ticks }), () => undefined);
   }
 
   snapshot(): Promise<EngineSnapshot> {

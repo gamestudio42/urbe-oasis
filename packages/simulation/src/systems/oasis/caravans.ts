@@ -1,4 +1,9 @@
-import { CARAVAN_NAMES, OASIS_CARAVAN, isZoneKind, type BuildingRecord } from '@city/shared';
+import {
+  CARAVAN_NAMES,
+  OASIS_CARAVAN,
+  isZoneKind,
+  type BuildingRecord,
+} from '@city/shared';
 import type { SimulationEngine } from '../../engine';
 import { monthIndex } from '../../time';
 

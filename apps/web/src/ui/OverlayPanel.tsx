@@ -34,11 +34,7 @@ function Legend({ mode, t, theme }: { mode: OverlayMode; t: Strings; theme: Them
   if (mode === 'power' || mode === 'water' || mode === 'data') {
     const on = color(
       theme,
-      mode === 'power'
-        ? 'overlay.powerOn'
-        : mode === 'water'
-          ? 'overlay.waterOn'
-          : 'overlay.dataOn',
+      mode === 'power' ? 'overlay.powerOn' : mode === 'water' ? 'overlay.waterOn' : 'overlay.dataOn',
     );
     const off = color(theme, 'overlay.unserved');
     return (
@@ -54,9 +50,7 @@ function Legend({ mode, t, theme }: { mode: OverlayMode; t: Strings; theme: Them
       <span
         className="legend-bar"
         style={{
-          background: gradient(
-            isGoodOverlay(mode) ? (v) => goodColor(theme, v) : (v) => heatColor(theme, v),
-          ),
+          background: gradient(isGoodOverlay(mode) ? (v) => goodColor(theme, v) : (v) => heatColor(theme, v)),
         }}
       />
       <span>{o.high}</span>

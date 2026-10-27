@@ -65,14 +65,11 @@ export const fr = {
     pipe: 'Glissez pour tracer. Vue souterraine activée.',
     canal: 'Glissez pour tracer, comme une canalisation. Vue souterraine activée.',
     zoneResLight: 'Glissez un rectangle sur un terrain plat.',
-    zoneResDense:
-      'Glissez un rectangle sur un terrain plat. Il faut de l’eau pour dépasser le niveau 2.',
+    zoneResDense: 'Glissez un rectangle sur un terrain plat. Il faut de l’eau pour dépasser le niveau 2.',
     zoneComLight: 'Glissez un rectangle sur un terrain plat.',
-    zoneComDense:
-      'Glissez un rectangle sur un terrain plat. Il faut de l’eau pour dépasser le niveau 2.',
+    zoneComDense: 'Glissez un rectangle sur un terrain plat. Il faut de l’eau pour dépasser le niveau 2.',
     zoneIndLight: 'Glissez un rectangle sur un terrain plat.',
-    zoneIndDense:
-      'Glissez un rectangle sur un terrain plat. Il faut de l’eau pour dépasser le niveau 2.',
+    zoneIndDense: 'Glissez un rectangle sur un terrain plat. Il faut de l’eau pour dépasser le niveau 2.',
     dezone: 'Glissez pour retirer les zones vides.',
     demolish: 'Retire une couche par parcelle : bâtiment, route/ligne, zone, arbres.',
     level: 'Glissez : aplanit à la hauteur de la première parcelle.',
@@ -93,22 +90,16 @@ export const fr = {
       'Sur la côte, avec une route. Emplois industriels, valorise le front de mer et relie la ville à la région.',
     airport:
       'Terrain plat 4×4, avec une route. Emplois commerciaux et liaison régionale, mais le bruit dévalue les alentours.',
-    qanat:
-      'A placer pres des lignes electriques. Alimente son composant de reseau ; un quartier surcharge peut cascader.',
+    qanat: 'A placer pres des lignes electriques. Alimente son composant de reseau ; un quartier surcharge peut cascader.',
     cistern: 'Amortit le quartier pendant une panne et se recharge quand le reseau est stable.',
     windbreak: "Couvre un rayon de 6 lots. A besoin d'énergie et d'un lien de données.",
     arcade: 'Une rue couverte. Allège le trafic alentour. Demande une route.',
-    caravanserai:
-      'Les caravanes s’y retrouvent. Elles achètent les lots ombragés ou arrosés et paient la caisse.',
-    springHouse:
-      "Fournit de la bande passante. Le plein débit a besoin d'énergie et d'eau pour le refroidissement.",
+    caravanserai: 'Les caravanes s’y retrouvent. Elles achètent les lots ombragés ou arrosés et paient la caisse.',
+    springHouse: "Fournit de la bande passante. Le plein débit a besoin d'énergie et d'eau pour le refroidissement.",
     palm: "Une petite source de bande passante. A besoin d'énergie, pas d'eau.",
-    rechargeBasin:
-      'Débloqué par le titre de Bourg. Recharge la nappe : pendant les saisons sèches de l’ère, les qanats ne subissent que la moitié de la baisse. A besoin d’énergie.',
-    grandBazaar:
-      'Débloqué par le titre de Ville. Un grand marché couvert : beaucoup d’emplois commerciaux et un terrain plus cher. Doit être au bord d’une route.',
-    palaceGarden:
-      'Débloqué par le titre de Capitale de l’oasis. Une ombre dense, plus forte avec l’eau courante, et un terrain plus cher. A besoin d’énergie.',
+    rechargeBasin: 'Débloqué par le titre de Bourg. Recharge la nappe : pendant les saisons sèches de l’ère, les qanats ne subissent que la moitié de la baisse. A besoin d’énergie.',
+    grandBazaar: 'Débloqué par le titre de Ville. Un grand marché couvert : beaucoup d’emplois commerciaux et un terrain plus cher. Doit être au bord d’une route.',
+    palaceGarden: 'Débloqué par le titre de Capitale de l’oasis. Une ombre dense, plus forte avec l’eau courante, et un terrain plus cher. A besoin d’énergie.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Inspecter',
@@ -308,18 +299,14 @@ export const fr = {
     delete: 'Supprimer',
     confirmDelete: (name: string) => `Supprimer la sauvegarde « ${name} » ?`,
     autosave: 'Sauvegarde automatique',
-    autosaveHint:
-      'La ville est sauvegardée automatiquement chaque minute de jeu et au retour au menu.',
+    autosaveHint: 'La ville est sauvegardée automatiquement chaque minute de jeu et au retour au menu.',
     saved: 'Ville sauvegardée.',
     loaded: (name: string) => `${name} chargée.`,
-    migrated: (version: number) =>
-      `Sauvegarde de la version ${version} convertie vers la version actuelle.`,
+    migrated: (version: number) => `Sauvegarde de la version ${version} convertie vers la version actuelle.`,
     exported: 'Fichier exporté.',
     slotInfo: (population: string, funds: string) => `${population} hab. · ${funds}`,
-    quota:
-      'Plus de place pour sauvegarder. Supprimez d’anciennes sauvegardes ou exportez la ville.',
-    unavailable:
-      'Le stockage du navigateur n’est pas disponible (mode privé ?). Utilisez Exporter un fichier.',
+    quota: 'Plus de place pour sauvegarder. Supprimez d’anciennes sauvegardes ou exportez la ville.',
+    unavailable: 'Le stockage du navigateur n’est pas disponible (mode privé ?). Utilisez Exporter un fichier.',
     missing: 'Les données de cette sauvegarde sont introuvables. Elle a été retirée de la liste.',
     failed: 'Impossible de sauvegarder la ville.',
     loadFailed: 'Impossible de charger la ville :',
@@ -370,8 +357,7 @@ export const fr = {
     debtWarning: (months: number) =>
       `Caisse négative depuis ${months} ${months === 1 ? 'mois' : 'mois'}. Après 12 mois, la ville fait faillite.`,
     bankrupt: 'La ville est en faillite : aucun chantier tant que la caisse n’est pas positive.',
-    taxHint:
-      'Au-dessus de 7 %, la demande baisse ; en dessous, elle croît, mais les recettes diminuent.',
+    taxHint: 'Au-dessus de 7 %, la demande baisse ; en dessous, elle croît, mais les recettes diminuent.',
   },
   charts: {
     title: 'Historique de la ville',
@@ -390,12 +376,7 @@ export const fr = {
       crime: 'Criminalité',
       landValue: 'Valeur foncière',
     },
-    tabs: {
-      people: 'Population',
-      money: 'Finances',
-      demand: 'Demande',
-      environment: 'Environnement',
-    },
+    tabs: { people: 'Population', money: 'Finances', demand: 'Demande', environment: 'Environnement' },
   },
   overlayPanel: {
     title: 'Cartes thématiques',

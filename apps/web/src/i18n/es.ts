@@ -90,20 +90,16 @@ export const es = {
       'En la costa, con carretera. Empleo industrial, revaloriza el litoral y une la ciudad a la región.',
     airport:
       'Área plana 4×4, con carretera. Empleo comercial y enlace regional, pero el ruido devalúa el entorno.',
-    qanat:
-      'Colocalo junto a lineas electricas. Alimenta su componente de red; un distrito sobrecargado puede caer en cascada.',
+    qanat: 'Colocalo junto a lineas electricas. Alimenta su componente de red; un distrito sobrecargado puede caer en cascada.',
     cistern: 'Amortigua el distrito durante un apagon y se recarga mientras la red es estable.',
     windbreak: 'Cubre un radio de 6 solares. Necesita energía y un enlace de datos.',
     arcade: 'Una calle cubierta. Alivia el tráfico cercano. Necesita una carretera.',
     caravanserai: 'Las caravanas se reúnen aquí. Compran lotes con sombra o agua y pagan la caja.',
     springHouse: 'Aporta ancho de banda. La capacidad plena necesita energía y agua para enfriar.',
     palm: 'Una fuente pequeña de banda. Necesita energía, no agua.',
-    rechargeBasin:
-      'Se desbloquea con el título de Villa. Recarga el acuífero: en las sequías de la era, los qanats sufren la mitad del recorte. Necesita energía.',
-    grandBazaar:
-      'Se desbloquea con el título de Ciudad. Un gran mercado cubierto: muchos empleos de comercio y suelo más valioso. Necesita carretera.',
-    palaceGarden:
-      'Se desbloquea con el título de Capital del oasis. Sombra densa, mayor con agua por tubería, y suelo más valioso. Necesita energía.',
+    rechargeBasin: 'Se desbloquea con el título de Villa. Recarga el acuífero: en las sequías de la era, los qanats sufren la mitad del recorte. Necesita energía.',
+    grandBazaar: 'Se desbloquea con el título de Ciudad. Un gran mercado cubierto: muchos empleos de comercio y suelo más valioso. Necesita carretera.',
+    palaceGarden: 'Se desbloquea con el título de Capital del oasis. Sombra densa, mayor con agua por tubería, y suelo más valioso. Necesita energía.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Inspeccionar',
@@ -306,14 +302,11 @@ export const es = {
     autosaveHint: 'La ciudad se guarda automáticamente cada minuto de juego y al volver al menú.',
     saved: 'Ciudad guardada.',
     loaded: (name: string) => `${name} cargada.`,
-    migrated: (version: number) =>
-      `Partida de la versión ${version} convertida a la versión actual.`,
+    migrated: (version: number) => `Partida de la versión ${version} convertida a la versión actual.`,
     exported: 'Archivo exportado.',
     slotInfo: (population: string, funds: string) => `${population} hab. · ${funds}`,
-    quota:
-      'No hay espacio para guardar. Elimina partidas antiguas o exporta la ciudad a un archivo.',
-    unavailable:
-      'El almacenamiento del navegador no está disponible (¿modo privado?). Usa Exportar archivo.',
+    quota: 'No hay espacio para guardar. Elimina partidas antiguas o exporta la ciudad a un archivo.',
+    unavailable: 'El almacenamiento del navegador no está disponible (¿modo privado?). Usa Exportar archivo.',
     missing: 'No se encontraron los datos de esta partida. Se quitó de la lista.',
     failed: 'No se pudo guardar la ciudad.',
     loadFailed: 'No se pudo cargar la ciudad:',
@@ -498,8 +491,7 @@ export const es = {
       `El oasis alcanzó el título ${rank} de 3. El consejo concedió ${reward}.`,
     droughtHeldGrant: (reward: string) =>
       `La estación seca terminó y la ciudad mantuvo el agua. El consejo concedió ${reward}.`,
-    debt: (months: number) =>
-      `Las arcas llevan ${months} ${months === 1 ? 'mes' : 'meses'} en números rojos.`,
+    debt: (months: number) => `Las arcas llevan ${months} ${months === 1 ? 'mes' : 'meses'} en números rojos.`,
     bankrupt: '¡La ciudad quebró! Ajusta impuestos y gastos para recuperar la caja.',
     recovered: 'Las finanzas de la ciudad se han recuperado.',
     milestone: (population: string) => `Hito alcanzado: ¡${population} habitantes!`,

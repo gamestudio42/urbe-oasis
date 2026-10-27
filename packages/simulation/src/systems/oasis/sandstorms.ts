@@ -1,4 +1,9 @@
-import { OASIS_STORM, PLACEABLE_SPECS, isZoneKind, type BuildingRecord } from '@city/shared';
+import {
+  OASIS_STORM,
+  PLACEABLE_SPECS,
+  isZoneKind,
+  type BuildingRecord,
+} from '@city/shared';
 import type { SimulationEngine } from '../../engine';
 import { nudgeSpring } from './spring';
 import { monthIndex } from '../../time';
@@ -127,8 +132,8 @@ export function tickStorms(engine: SimulationEngine): void {
 
 /** Drops storms whose building was demolished or destroyed. */
 function expireStorms(engine: SimulationEngine): void {
-  engine.oasis.storms = engine.oasis.storms.filter(
-    (i) => engine.buildings.get(i.buildingId) !== undefined,
+  engine.oasis.storms = engine.oasis.storms.filter((i) =>
+    engine.buildings.get(i.buildingId) !== undefined,
   );
 }
 

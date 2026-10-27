@@ -154,10 +154,7 @@ export function toolById(id: ToolId): ToolDef {
   return tool;
 }
 
-export function toolByHotkey(
-  key: string,
-  ruleset: 'classic' | 'oasis' = 'classic',
-): ToolDef | undefined {
+export function toolByHotkey(key: string, ruleset: 'classic' | 'oasis' = 'classic'): ToolDef | undefined {
   return toolsFor(ruleset).find((tool) => tool.hotkey === key);
 }
 

@@ -51,36 +51,34 @@ export function Toolbar({ session }: { session: GameSession }) {
     <nav className="toolbar" aria-label={t.ui.tools} data-testid="toolbar">
       {TOOL_GROUPS.map((group) => (
         <div key={group} className="tool-group" role="group" aria-label={t.toolGroups[group]}>
-          {tools
-            .filter((tool) => tool.group === group)
-            .map((tool) => {
-              const spec =
-                tool.id in PLACEABLE_SPECS ? PLACEABLE_SPECS[tool.id as PlaceableKind] : undefined;
-              const locked = Boolean(spec && spec.minPopulation > population);
-              const cost = costLabel(tool, t, locale);
-              const title = [
-                t.tools[tool.id],
-                cost,
-                locked && spec ? t.hud.unlockAt(formatNumber(spec.minPopulation, locale)) : null,
-                tool.hotkey ? `${t.ui.shortcut}: ${tool.hotkey.toUpperCase()}` : null,
-              ]
-                .filter(Boolean)
-                .join(' — ');
-              return (
-                <button
-                  key={tool.id}
-                  type="button"
-                  className={`tool-button${active === tool.id ? ' active' : ''}${locked ? ' locked' : ''}`}
-                  title={title}
-                  aria-label={t.tools[tool.id]}
-                  aria-pressed={active === tool.id}
-                  data-testid={`tool-${tool.id}`}
-                  onClick={() => session.setTool(tool.id)}
-                >
-                  <ToolIcon id={tool.id} style={session.renderer.theme.style} />
-                </button>
-              );
-            })}
+          {tools.filter((tool) => tool.group === group).map((tool) => {
+            const spec =
+              tool.id in PLACEABLE_SPECS ? PLACEABLE_SPECS[tool.id as PlaceableKind] : undefined;
+            const locked = Boolean(spec && spec.minPopulation > population);
+            const cost = costLabel(tool, t, locale);
+            const title = [
+              t.tools[tool.id],
+              cost,
+              locked && spec ? t.hud.unlockAt(formatNumber(spec.minPopulation, locale)) : null,
+              tool.hotkey ? `${t.ui.shortcut}: ${tool.hotkey.toUpperCase()}` : null,
+            ]
+              .filter(Boolean)
+              .join(' — ');
+            return (
+              <button
+                key={tool.id}
+                type="button"
+                className={`tool-button${active === tool.id ? ' active' : ''}${locked ? ' locked' : ''}`}
+                title={title}
+                aria-label={t.tools[tool.id]}
+                aria-pressed={active === tool.id}
+                data-testid={`tool-${tool.id}`}
+                onClick={() => session.setTool(tool.id)}
+              >
+                <ToolIcon id={tool.id} style={session.renderer.theme.style} />
+              </button>
+            );
+          })}
         </div>
       ))}
     </nav>

@@ -87,8 +87,7 @@ export const en = {
     school: 'Raises education and land value.',
     hospital: 'Raises health and land value.',
     park: 'Raises nearby land value and cuts pollution.',
-    marina:
-      'On the coast, with a road. Industrial jobs, raises the waterfront and links the city to the region.',
+    marina: 'On the coast, with a road. Industrial jobs, raises the waterfront and links the city to the region.',
     airport:
       'Flat 4×4 area, with a road. Commercial jobs and a regional link, but the noise lowers nearby land value.',
     qanat: 'Brings water where there is no river. Needs power.',
@@ -98,12 +97,9 @@ export const en = {
     caravanserai: 'Caravans meet here. They buy shaded or watered lots and pay the treasury.',
     springHouse: 'Full shade near the spring, with water. A dry hall only trickles.',
     palm: 'A small shade tree. No power and no water.',
-    rechargeBasin:
-      'Unlocked by the Town title. Refills the water table: in era dry seasons qanats take half the cut. Needs power.',
-    grandBazaar:
-      'Unlocked by the City title. A great covered market: many shop jobs and higher land value. Needs a road.',
-    palaceGarden:
-      'Unlocked by the Oasis capital title. Deep shade, fuller with piped water, and higher land value. Needs power.',
+    rechargeBasin: 'Unlocked by the Town title. Refills the water table: in era dry seasons qanats take half the cut. Needs power.',
+    grandBazaar: 'Unlocked by the City title. A great covered market: many shop jobs and higher land value. Needs a road.',
+    palaceGarden: 'Unlocked by the Oasis capital title. Deep shade, fuller with piped water, and higher land value. Needs power.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Inspect',
@@ -303,8 +299,7 @@ export const en = {
     delete: 'Delete',
     confirmDelete: (name: string) => `Delete the save "${name}"?`,
     autosave: 'Autosave',
-    autosaveHint:
-      'The city is saved automatically every minute of play and when you return to the menu.',
+    autosaveHint: 'The city is saved automatically every minute of play and when you return to the menu.',
     saved: 'City saved.',
     loaded: (name: string) => `${name} loaded.`,
     migrated: (version: number) => `Save from version ${version} converted to the current version.`,
@@ -496,8 +491,7 @@ export const en = {
       `The oasis reached title ${rank} of 3. The council granted ${reward}.`,
     droughtHeldGrant: (reward: string) =>
       `The dry season is over and the city held its water. The council granted ${reward}.`,
-    debt: (months: number) =>
-      `The treasury has been in the red for ${months} ${months === 1 ? 'month' : 'months'}.`,
+    debt: (months: number) => `The treasury has been in the red for ${months} ${months === 1 ? 'month' : 'months'}.`,
     bankrupt: 'The city went bankrupt! Raise taxes and cut spending to recover.',
     recovered: 'City finances have recovered.',
     milestone: (population: string) => `Milestone: ${population} residents!`,
