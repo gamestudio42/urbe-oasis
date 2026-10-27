@@ -476,6 +476,10 @@ export const fr = {
       `La saison sèche commence : puits et pompes donneront moins d’eau pendant ${months} mois.`,
     droughtHeld: 'La saison sèche est finie. La ville a gardé l’eau.',
     droughtShort: 'La saison sèche est finie. Beaucoup de foyers ont manqué d’eau.',
+    eraRank: (rank: number, reward: string) =>
+      `L’oasis a atteint le titre ${rank} sur 3. Le conseil a accordé ${reward}.`,
+    droughtHeldGrant: (reward: string) =>
+      `La saison sèche est finie et la ville a gardé l’eau. Le conseil a accordé ${reward}.`,
     debt: (months: number) => `Les caisses sont dans le rouge depuis ${months} mois.`,
     bankrupt: 'La ville a fait faillite ! Ajustez impôts et dépenses pour redresser la caisse.',
     recovered: 'Les finances de la ville se sont rétablies.',

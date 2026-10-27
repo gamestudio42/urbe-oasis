@@ -64,6 +64,13 @@ export {
 export {
   chapterGoalMet,
   droughtActive,
+  droughtFactor,
+  eraDroughtFactor,
+  eraDroughtLength,
+  eraDroughtReward,
+  eraRankMet,
+  qanatDroughtFactor,
+  qanatFactor,
   journeySummary,
   updateJourney,
 } from './systems/oasis/journey';

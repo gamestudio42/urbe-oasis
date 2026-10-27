@@ -8,6 +8,7 @@ import { costLabel } from '@oasis/web/ui/Toolbar';
 import { ToolIcon } from '@oasis/web/ui/icons';
 import { AdobeIcon } from '@oasis/web/ui/adobeIcons';
 import { oasisJourneyCopy } from './i18n';
+import { OasisEra, eraHeading } from './OasisEra';
 
 type Journey = NonNullable<NonNullable<CityStats['oasis']>['journey']>;
 
@@ -82,6 +83,7 @@ function rows(stats: CityStats, journey: Journey, locale: Locale): Row[] {
 /** The collapsed guide's title and subtitle while the journey runs. */
 export function journeyHeading(journey: Journey, locale: Locale): { small: string; title: string } {
   const copy = oasisJourneyCopy(locale);
+  if (journey.chapter >= JOURNEY_CHAPTERS && journey.era) return eraHeading(journey.era, locale);
   if (journey.chapter >= JOURNEY_CHAPTERS) return { small: copy.label, title: copy.done };
   return {
     small: `${copy.label} · ${copy.progress(formatNumber(journey.chapter + 1, locale))}`,
@@ -106,6 +108,8 @@ export function OasisJourney({
   if (!stats?.oasis) return null;
   const copy = oasisJourneyCopy(locale);
   const money = (v: number) => formatMoney(v, locale);
+  if (journey.chapter >= JOURNEY_CHAPTERS && journey.era)
+    return <OasisEra session={session} era={journey.era} />;
   if (journey.chapter >= JOURNEY_CHAPTERS)
     return (
       <div className="oasis-journey" data-testid="oasis-journey" data-chapter={journey.chapter}>

@@ -464,3 +464,29 @@ still passes, so determinism holds. The simulation benchmark (classic grid city)
 **`FAIL: heavyTicks`**, with traffic p95 8.17 ms and utility refresh p95 8.80 ms against 8 ms. None
 of these rules run there, and earlier checkpoints recorded the same failure; it is variation on
 this shared machine.
+
+## Oasis era checkpoint (2026-10-26)
+
+The era follows the journey, so only journey cities run it. The control must stay identical.
+
+```sh
+pnpm sim --preset oasis-balanced --months 120 --seeds 1,2,3 --out reports/era-control
+pnpm sim --preset oasis-journey --months 120 --seeds 1,2,3 --out reports/era
+```
+
+The control matches the balance pass exactly: populations 2496 / 2759 / 2357 and funds
+4152 / 9121 / 110. The journey preset completes the journey by month 12–13. Its era calendar:
+
+| Seed | Town | City | Dry seasons (start month, grant)                     | Population | Funds  |
+| ---- | ---- | ---- | ---------------------------------------------------- | ---------- | ------ |
+| 1    | 16   | 34   | 31 ($3,000), 58 ($4,500), 85 ($6,000), 113 ($7,500)  | 7962       | 129901 |
+| 2    | 16   | 32   | 32 ($3,000), 59 ($4,500), 86 ($6,000), 114 ($7,500)  | 7952       | 132174 |
+| 3    | 17   | 37   | 32 ($3,000), 59 ($4,500), 86 ($6,000), 114 ($7,500)  | 6730       | 118350 |
+
+Every seed holds all four dry seasons. No seed reaches Capital in ten years: seeds 1 and 2 end
+just under 8,000 residents. By the fourth season (wells at 40%, qanats at 70%, four months) the
+scripted player's supply is close to demand, with about 6% to spare, so later seasons, at the
+35% floor and up to six months, will need more qanats or cisterns. Water and shade both end at
+100% served. The scripted player builds as soon as a goal opens, so this pace does not predict a
+human player's pace.
+

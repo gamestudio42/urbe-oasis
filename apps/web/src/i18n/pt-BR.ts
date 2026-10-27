@@ -478,6 +478,10 @@ export const ptBR = {
       `Começou a estação seca: poços e bombas darão menos água por ${months} meses.`,
     droughtHeld: 'A estação seca acabou. A cidade manteve a água correndo.',
     droughtShort: 'A estação seca acabou. Muitas casas ficaram sem água.',
+    eraRank: (rank: number, reward: string) =>
+      `O oásis alcançou o título ${rank} de 3. O conselho concedeu ${reward}.`,
+    droughtHeldGrant: (reward: string) =>
+      `A estação seca acabou e a cidade manteve a água. O conselho concedeu ${reward}.`,
     debt: (months: number) => `Cofres no vermelho há ${months} ${months === 1 ? 'mês' : 'meses'}.`,
     bankrupt: 'A cidade faliu! Ajuste impostos e gastos para recuperar o caixa.',
     recovered: 'As finanças da cidade se recuperaram.',

@@ -103,6 +103,9 @@ Everything below only runs with `ruleset: 'oasis'`. Formulas live in
 | Traffic      | An arcade eases congestion on the streets beside it              | New        | It counts while powered and online. The adobe theme does not draw drones.                     |
 | Journey      | Five chapters with treasury grants, checked at the month close   | New        | Only cities founded by the Oasis app. Goals and grants are original balance choices.          |
 | Journey      | A three-month dry season cuts wells and pumps to 60%             | New        | Starts one close after the shelter chapter; no random draw. Qanats and cisterns are spared.   |
+| Era          | After the journey, three titles with grants at 1,500 / 4,000 / 8,000 residents | New | Goals add water, shade, shelter and charged cisterns. Original balance choices. |
+| Era          | Dry seasons every two years grow longer and harsher, with a grant when held | New | Fixed calendar, no random draw. Wells and pumps from 55% down to 35%. |
+| Era          | Era dry seasons also cut qanats, at half the well cut | New | Keeps qanats from making late dry seasons trivial; cisterns stay spared. |
 | Spring       | The spring stays within 8 tiles of the map centre               | New        | A step that would leave the range turns back. Balance choice from the 2026-10-25 pass.        |
 | Water        | Cisterns charge 1/240 of a bank per elapsed day of surplus      | New        | Replaces a per-refresh increment; repeated construction no longer charges reserves.           |
 | Networks     | Empty Oasis lots carry water and shade, as zones carry power    | New        | Removes the gap while a lot waits for its building; classic water is unchanged.               |

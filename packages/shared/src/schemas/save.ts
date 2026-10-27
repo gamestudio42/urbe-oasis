@@ -9,10 +9,16 @@ import {
   type SaveMigration,
 } from '@shell/kernel';
 import { BALANCE, DEPARTMENTS, TICKS_PER_MONTH } from '../balance/balance';
-import { JOURNEY_CHAPTERS, OASIS_JOURNEY, OASIS_SAVE_MAX_LEVEL } from '../balance/oasis';
+import {
+  ERA_RANKS,
+  JOURNEY_CHAPTERS,
+  OASIS_ERA,
+  OASIS_JOURNEY,
+  OASIS_SAVE_MAX_LEVEL,
+} from '../balance/oasis';
 import type { DisasterKind } from '../commands/commands';
 import { PLACEABLE_KINDS, ZONE_BUILDING_KINDS, type BuildingRecord } from '../types/buildings';
-import type { JourneyState, OasisState } from '../types/oasis';
+import type { EraState, JourneyState, OasisState } from '../types/oasis';
 import { isRuleset } from '../types/ruleset';
 import { EXPENSE_CATEGORIES } from '../types/stats';
 import { INFLUENCE_LAYERS, STRUCTURE_LAYERS } from '../types/tiles';
@@ -476,6 +482,43 @@ class Validator {
         1000 * OASIS_JOURNEY.droughtMonths,
       ),
       droughtOutcome: this.int(j.droughtOutcome, `${path}.droughtOutcome`, -1, 1),
+      ...(j.era === undefined ? {} : { era: this.era(j.era, `${path}.era`) }),
+    };
+  }
+
+  era(value: unknown, path: string): EraState {
+    const e = this.record(value, path);
+    const rank = this.int(e.rank, `${path}.rank`, 0, ERA_RANKS);
+    const rankMonths = this.array(e.rankMonths, `${path}.rankMonths`).map((month, k) =>
+      this.int(month, `${path}.rankMonths[${k}]`, 0),
+    );
+    if (rankMonths.length !== rank)
+      this.error(`${path}.rankMonths`, 'expected one month per rank reached');
+    const droughts = this.int(e.droughts, `${path}.droughts`, 0);
+    return {
+      rank,
+      rankMonths,
+      droughts,
+      nextDrought: this.int(e.nextDrought, `${path}.nextDrought`, 0),
+      droughtMonthsLeft: this.int(
+        e.droughtMonthsLeft,
+        `${path}.droughtMonthsLeft`,
+        0,
+        OASIS_ERA.droughtLongest,
+      ),
+      droughtLength: this.int(
+        e.droughtLength,
+        `${path}.droughtLength`,
+        0,
+        OASIS_ERA.droughtLongest,
+      ),
+      droughtServed: this.int(
+        e.droughtServed,
+        `${path}.droughtServed`,
+        0,
+        1000 * OASIS_ERA.droughtLongest,
+      ),
+      held: this.int(e.held, `${path}.held`, 0, droughts),
     };
   }
 

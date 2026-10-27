@@ -132,6 +132,28 @@ export interface CityStats {
       reserves: number;
       /** Staffed caravanserais, for the caravan road chapter. */
       caravanserais: number;
+      /** The era after the journey; absent until the last chapter completes. */
+      era?: {
+        /** Ranks reached, 0..3. */
+        rank: number;
+        /** Mean cistern charge across powered banks, and how many are powered. */
+        banks: number;
+        charge: number;
+        /** Era dry seasons started, and how many the city held on through. */
+        droughts: number;
+        held: number;
+        /** Months until the next dry season starts (0: it starts at the next close); -1 while one runs. */
+        droughtIn: number;
+        /** Month closes left in the running dry season; 0 when none runs. */
+        droughtMonthsLeft: number;
+        /** Length and well/pump factor of the running dry season, or of the next one. */
+        droughtLength: number;
+        droughtFactor: number;
+        /** Mean water service over the running dry season's closes, 0..1; -1 before the first. */
+        droughtServed: number;
+        /** Grant for holding on through the running (or next) dry season. */
+        droughtReward: number;
+      };
     };
   };
 }
@@ -172,7 +194,8 @@ export type SimEvent =
   | { type: 'springMoved'; x: number; y: number }
   | { type: 'journeyChapter'; chapter: number; reward: number }
   | { type: 'droughtStarted'; months: number }
-  | { type: 'droughtEnded'; held: boolean; served: number }
+  | { type: 'droughtEnded'; held: boolean; served: number; reward?: number }
+  | { type: 'eraRank'; rank: number; reward: number }
   | { type: 'arcadeOpen'; x: number; y: number };
 
 export type ProblemCode =
