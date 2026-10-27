@@ -559,17 +559,28 @@ of $60,000. Then it builds each work once its title is earned and $20,000 would 
 
 | Seed | Titles (month) | Basin | Bazaar | Garden | Population | Funds |
 | ---- | -------------- | ----- | ------ | ------ | ---------- | ----- |
-| 1    | 16, 37, 99     | 89    | 131    | 235    | 10768      | 18930 |
-| 2    | 16, 32, 97     | 96    | 130    | 232    | 11142      | 29757 |
-| 3    | 17, 38, 121    | 109   | 147    | —      | 10847      | 93501 |
+| 1    | 16, 37, 100    | 92    | 130    | 205    | 14237      | 48081 |
+| 2    | 16, 32, 97     | 96    | 132    | 206    | 14126      | 53566 |
+| 3    | 17, 39, 113    | 109   | 147    | 218    | 13690      | 38467 |
 
-- **Dry seasons:** every season is held. Once the basin runs, late seasons serve 94–100% instead of
+- **Dry seasons:** every season is held. Once the basin runs, late seasons serve 87–100% instead of
   78–98%. Buying the basin is the intended answer to the falling water table.
-- **Capital:** arrives in months 97–121, later than the 88–107 of the previous checkpoint, because
+- **Capital:** arrives in months 97–113, later than the 88–107 of the previous checkpoint, because
   upkeep now slows saving.
 - **Control:** `oasis-balanced` is unchanged (2496 / 2759 / 2357). It has none of the newly
   charged placeables.
 - **At 120 months:** populations 9108 / 9812 / 8291 and funds $61,566 / $62,368 / $33,441.
 
-Open point: 63–71 lots stand abandoned at month 240, up from 24–42, and commercial demand ends
-near 0.2. Not investigated yet.
+**Abandoned lots (follow-up).** The first run of this checkpoint ended with 63–71 abandoned lots.
+The cause was the scripted player, not a rule. `maintainTown` adds gas plants only on six fixed
+slots. Five held gas plants and the spring house covered the sixth, so supply stayed at 2,800 from
+month 96. Around month 141, demand passed supply and 6–10% of buildings lost power. Lots that stay
+dark are abandoned, so the count jumped. The Oasis journey player now adds a gas plant beside the
+existing plants whenever demand passes 85% of supply. The classic `maintainTown` is unchanged.
+With that fix, no lot is abandoned at month 240, every building is powered, the population reaches
+13,700–14,200, and all three works are built on every seed. The table above is from that run.
+
+**Commercial demand near 0.18 is by design.** It rises when the bazaar opens. A hub adds
+`hubMarketPerJob` (2) of commercial market per job but only one job to the commercial count, and
+the bazaar reaches its 600-job cap. That leaves about 600 jobs of unmet market. The scripted player
+never zones more shops, so the signal stays; a player would answer it with new commercial zones.

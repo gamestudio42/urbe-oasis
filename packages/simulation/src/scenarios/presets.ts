@@ -105,8 +105,11 @@ export const SIM_PRESETS: Record<string, SimPreset> = {
       return {
         engine: run.engine,
         onMonth: (e) => {
+          const plants = e.buildings.ofKind('gasPlant').length;
           run.onMonth(e);
           playJourney(e);
+          // Stats refresh at the next day, so only add power when the town's slots added none.
+          if (e.buildings.ofKind('gasPlant').length === plants) keepPower(e);
         },
       };
     },
@@ -227,6 +230,17 @@ function playJourney(engine: SimulationEngine): void {
   keepShade(engine);
   growDistrict(engine);
   buildWorks(engine);
+}
+
+/**
+ * Power once the town's fixed plant slots are full (a spring house takes one): a gas plant
+ * beside the existing plants, which conduct power to it, whenever demand passes 85% of supply.
+ */
+function keepPower(engine: SimulationEngine): void {
+  const power = engine.stats().power;
+  if (power.demand <= 0.85 * power.supply) return;
+  const plants = [...engine.buildings.ofKind('coalPlant'), ...engine.buildings.ofKind('gasPlant')];
+  placeBeside(engine, 'gasPlant', plants, engine.buildings.ofKind('gasPlant').length + 1);
 }
 
 /**
