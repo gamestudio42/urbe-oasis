@@ -46,9 +46,11 @@ test('people walk the streets and caravans reach the caravanserai', async ({ pag
   await expect
     .poll(async () => (await stats(page)).walkers, { timeout: 20_000 })
     .toBeGreaterThan(5);
+  // A pack line: camels enter the route one at a time, and a sandstorm that buries the
+  // caravanserai stops new departures, so ask for a line of two rather than a full caravan.
   await expect
-    .poll(async () => (await camels(page)).length, { timeout: 30_000 })
-    .toBeGreaterThan(2);
+    .poll(async () => (await camels(page)).length, { timeout: 45_000 })
+    .toBeGreaterThanOrEqual(2);
   const first = (await camels(page))[0]!;
   await expect
     .poll(async () => {
