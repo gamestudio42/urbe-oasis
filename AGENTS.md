@@ -90,6 +90,7 @@ packages/view-city/  Renderer, sprites and animation layer (theme injected)
   cyberSprites.ts     Cyberpunk civic, utility, marina and power-pole silhouettes
   cyberZoneSprites.ts Cyberpunk houses, shops and factories
   utilitySprites.ts   Power plants, wind turbines, pumps and wells
+  eraWorkSprites.ts   Oasis era works: recharge basin, grand bazaar, palace garden
 apps/oasis/        Urbe Oasis web app (port 5180): theme, ruleset, copy and music
 apps/web/src/      City UI the oasis app boots
   ui/         React screens and panels: boot screen, logo, menu, HUD, pause overlay,

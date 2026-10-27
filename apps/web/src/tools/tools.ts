@@ -126,6 +126,10 @@ export const TOOLS: readonly ToolDef[] = [
   placeDef('caravanserai', 'services'),
   placeDef('springHouse', 'utilities'),
   placeDef('palm', 'utilities'),
+  // Oasis era works, one of each per city, unlocked by era titles.
+  placeDef('rechargeBasin', 'utilities'),
+  placeDef('grandBazaar', 'services'),
+  placeDef('palaceGarden', 'services'),
   def('demolish', 'terrain', 'rect', (a) => ({ type: 'demolish', ...a }), { hotkey: 'b' }),
   def('level', 'terrain', 'rect', (a) => ({ type: 'level', ...a }), { hotkey: 'n' }),
   def('raise', 'terrain', 'rect', (a) => ({ type: 'raise', ...a }), { hotkey: 'h' }),
@@ -150,7 +154,10 @@ export function toolById(id: ToolId): ToolDef {
   return tool;
 }
 
-export function toolByHotkey(key: string, ruleset: 'classic' | 'oasis' = 'classic'): ToolDef | undefined {
+export function toolByHotkey(
+  key: string,
+  ruleset: 'classic' | 'oasis' = 'classic',
+): ToolDef | undefined {
   return toolsFor(ruleset).find((tool) => tool.hotkey === key);
 }
 

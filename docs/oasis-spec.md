@@ -315,9 +315,11 @@ caravanserai beside a school. While shade supply is short, it also plants up to 
 month beside the canals. In the era it builds the cistern banks the next title asks for, adds a
 windbreak beside up to two uncovered services a month while shelter is below that title's goal,
 and adds two qanats beside the pumps in each dry-season month that leaves water short. Once the
-city is a City with $60,000 in the treasury, it builds a south district once: a second avenue at
+city is a City with $40,000 in the treasury, it builds a south district once: a second avenue at
 row 33 with dense shops and workshops north of it and dense homes south of it, zoned flush with
-the old blocks so power crosses, with a pipe and a canal along two rows. The `oasis-founding` preset plays the founding tutorial on Normal funds,
+the old blocks so power crosses, with a pipe and a canal along two rows. After that district, it
+builds each era work once its title is earned and $20,000 would remain: the basin and the garden
+beside the pumps or qanats, the bazaar beside a service on a road. The `oasis-founding` preset plays the founding tutorial on Normal funds,
 with no services, for measuring the early economy.
 
 ### Presentation
@@ -368,6 +370,24 @@ months, leaves wells at 35% and qanats at 48%, and pays $12,000. Wells reach the
 fifth season, but the water table keeps falling for two more, so a city that only matched the
 fifth season comes up short later. `droughtStarted` and `droughtEnded` (with `reward` when held) report
 it, and both mark the networks dirty.
+
+### Era works
+
+Three Oasis-only works give the late treasury a use. Each answers one era pressure, and each
+comes with a high upkeep. They are 3×3, and a city may build one of each. The plan step rejects a
+work with `NEEDS_TITLE` until the city holds its title (`OASIS_ERA_WORKS.rank`), and in a classic
+city or one with no era. It rejects a second one with `ONE_PER_CITY`.
+
+| Work           | Title   | Cost    | Upkeep (line)    | Effect                                                                                                                 |
+| -------------- | ------- | ------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Recharge basin | Town    | $30,000 | $300 (water)     | While powered and online, era dry seasons cut qanats by `basinQanatCut` (½) of their usual share                       |
+| Grand bazaar   | City    | $50,000 | $500 (transport) | Commercial hub on a road: 120 jobs (up to 600), land value +40 within 10 tiles                                         |
+| Palace garden  | Capital | $80,000 | $800 (parks)     | While powered and online: 1,500 shade, or 450 when the water network does not reach it; land value +50 within 10 tiles |
+
+With a basin, the qanat factor is `1 − (1 − f) × s × 0.5`. `CityStats` reports that factor, so
+the era card and the service trace show the relieved cut. The era card names the work the next
+title unlocks. In the construction dock, a locked work shows the title it needs, and a built
+one shows that the city already has it.
 
 ### Era state and presentation
 

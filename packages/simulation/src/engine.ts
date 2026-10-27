@@ -344,6 +344,10 @@ export class SimulationEngine {
       bankrupt: this.economy.bankrupt,
       population,
       ruleset: this.ruleset,
+      ...(this.ruleset === 'oasis' && this.oasis.journey?.era
+        ? { eraRank: this.oasis.journey.era.rank }
+        : {}),
+      has: (kind) => this.buildings.ofKind(kind).length > 0,
     };
   }
 

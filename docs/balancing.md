@@ -540,3 +540,36 @@ Open points:
   shared economy, not the era.
 - **Abandoned lots.** 24–42 lots stand abandoned at month 240, after the south district
   fills. The cause is not investigated yet.
+
+## Oasis era works checkpoint (2026-10-27)
+
+This pass gives late-game money a use and fixes how Oasis upkeep is charged.
+
+```sh
+pnpm sim --preset oasis-journey --months 240 --seeds 1,2,3 --out reports/works
+pnpm sim --preset oasis-balanced --months 120 --seeds 1,2,3 --out reports/works-control
+```
+
+The previous checkpoint ended twenty years with $380,000–$410,000 in the treasury. Most of that
+came from a bug: qanats, cisterns, windbreaks, arcades and caravanserais had an upkeep in their
+specs that the budget never charged. They now pay it on the water, parks and transport lines.
+The three era works are the money sink: a recharge basin, a grand bazaar and a palace garden.
+The scripted player expands into the south district first, which it now does at $40,000 instead
+of $60,000. Then it builds each work once its title is earned and $20,000 would remain.
+
+| Seed | Titles (month) | Basin | Bazaar | Garden | Population | Funds |
+| ---- | -------------- | ----- | ------ | ------ | ---------- | ----- |
+| 1    | 16, 37, 99     | 89    | 131    | 235    | 10768      | 18930 |
+| 2    | 16, 32, 97     | 96    | 130    | 232    | 11142      | 29757 |
+| 3    | 17, 38, 121    | 109   | 147    | —      | 10847      | 93501 |
+
+- **Dry seasons:** every season is held. Once the basin runs, late seasons serve 94–100% instead of
+  78–98%. Buying the basin is the intended answer to the falling water table.
+- **Capital:** arrives in months 97–121, later than the 88–107 of the previous checkpoint, because
+  upkeep now slows saving.
+- **Control:** `oasis-balanced` is unchanged (2496 / 2759 / 2357). It has none of the newly
+  charged placeables.
+- **At 120 months:** populations 9108 / 9812 / 8291 and funds $61,566 / $62,368 / $33,441.
+
+Open point: 63–71 lots stand abandoned at month 240, up from 24–42, and commercial demand ends
+near 0.2. Not investigated yet.

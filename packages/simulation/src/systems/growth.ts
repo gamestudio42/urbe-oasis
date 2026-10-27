@@ -95,12 +95,7 @@ export function attractiveness(
   );
 }
 
-export function maxLevel(
-  density: number,
-  watered: boolean,
-  oasis = false,
-  linked = true,
-): number {
+export function maxLevel(density: number, watered: boolean, oasis = false, linked = true): number {
   const z = BALANCE.zones;
   const cap = density === ZoneDensity.Dense ? z.maxLevelDense : z.maxLevelLight;
   const classic = watered ? cap : Math.min(cap, z.maxLevelWithoutWater);
@@ -250,7 +245,8 @@ function updateBuilding(
     oasis,
     oasis && w.linked[i] === 1,
   );
-  const threshold = g.upgradeThresholds[b.level] ?? g.upgradeThresholds[g.upgradeThresholds.length - 1];
+  const threshold =
+    g.upgradeThresholds[b.level] ?? g.upgradeThresholds[g.upgradeThresholds.length - 1];
   if (
     b.level < cap &&
     b.occupancy >= g.upgradeOccupancy * b.capacity &&

@@ -22,6 +22,10 @@ export const PLACEABLE_KINDS = [
   'caravanserai',
   'springHouse',
   'palm',
+  // Oasis era works: one of each per city, unlocked by an era title.
+  'rechargeBasin',
+  'grandBazaar',
+  'palaceGarden',
 ] as const;
 export type PlaceableKind = (typeof PLACEABLE_KINDS)[number];
 
@@ -34,11 +38,22 @@ export const OASIS_PLACEABLE_KINDS = [
   'caravanserai',
   'springHouse',
   'palm',
+  'rechargeBasin',
+  'grandBazaar',
+  'palaceGarden',
 ] as const;
 export type OasisPlaceableKind = (typeof OASIS_PLACEABLE_KINDS)[number];
 
 export function isOasisPlaceable(kind: BuildingKind): kind is OasisPlaceableKind {
   return (OASIS_PLACEABLE_KINDS as readonly string[]).includes(kind);
+}
+
+/** Era works, in the order the era titles unlock them. */
+export const ERA_WORK_KINDS = ['rechargeBasin', 'grandBazaar', 'palaceGarden'] as const;
+export type EraWorkKind = (typeof ERA_WORK_KINDS)[number];
+
+export function isEraWork(kind: BuildingKind): kind is EraWorkKind {
+  return (ERA_WORK_KINDS as readonly string[]).includes(kind);
 }
 
 export type BuildingKind = ZoneBuildingKind | PlaceableKind;

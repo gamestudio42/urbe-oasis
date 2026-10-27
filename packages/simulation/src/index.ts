@@ -71,6 +71,7 @@ export {
   eraRankMet,
   qanatDroughtFactor,
   eraQanatFactor,
+  basinOperating,
   journeySummary,
   updateJourney,
 } from './systems/oasis/journey';

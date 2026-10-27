@@ -1582,6 +1582,9 @@ const ERA_EN = {
   intro:
     'The journey is over. Grow without losing water, shade and shelter, and keep reserves for the dry seasons that come back harsher each time.',
   next: (title: string) => `Next title: ${title}`,
+  unlocks: (work: string) => `Unlocks the era work: ${work}`,
+  needsTitle: (title: string) => `Needs the ${title} title`,
+  built: 'Built: one per city',
   capital: 'Every title reached. The oasis is a capital; keep it alive through each dry season.',
   rows: {
     residents: 'Residents',
@@ -1609,6 +1612,9 @@ const ERA_COPY: Record<Locale, typeof ERA_EN> = {
     intro:
       'A jornada terminou. Cresça sem perder água, sombra e abrigo, e guarde reservas para as estações secas, que voltam mais duras a cada vez.',
     next: (title) => `Próximo título: ${title}`,
+    unlocks: (work) => `Libera a grande obra: ${work}`,
+    needsTitle: (title) => `Exige o título ${title}`,
+    built: 'Construída: uma por cidade',
     capital:
       'Todos os títulos alcançados. O oásis é uma capital; mantenha-o vivo a cada estação seca.',
     rows: {
@@ -1634,6 +1640,9 @@ const ERA_COPY: Record<Locale, typeof ERA_EN> = {
     intro:
       'El viaje terminó. Crece sin perder agua, sombra y refugio, y guarda reservas para las estaciones secas, que vuelven más duras cada vez.',
     next: (title) => `Próximo título: ${title}`,
+    unlocks: (work) => `Desbloquea la gran obra: ${work}`,
+    needsTitle: (title) => `Requiere el título ${title}`,
+    built: 'Construida: una por ciudad',
     capital:
       'Todos los títulos alcanzados. El oasis es una capital; mantenlo vivo en cada estación seca.',
     rows: {
@@ -1659,6 +1668,9 @@ const ERA_COPY: Record<Locale, typeof ERA_EN> = {
     intro:
       'Le voyage est terminé. Grandissez sans perdre l’eau, l’ombre et l’abri, et gardez des réserves pour les saisons sèches, plus dures à chaque retour.',
     next: (title) => `Prochain titre : ${title}`,
+    unlocks: (work) => `Débloque le grand ouvrage : ${work}`,
+    needsTitle: (title) => `Demande le titre ${title}`,
+    built: 'Construit : un par ville',
     capital:
       'Tous les titres atteints. L’oasis est une capitale ; gardez-la vivante à chaque saison sèche.',
     rows: {
@@ -1684,6 +1696,9 @@ const ERA_COPY: Record<Locale, typeof ERA_EN> = {
     intro:
       'Die Reise ist vorbei. Wachse, ohne Wasser, Schatten und Schutz zu verlieren, und halte Reserven für die Trockenzeiten bereit, die jedes Mal härter zurückkehren.',
     next: (title) => `Nächster Titel: ${title}`,
+    unlocks: (work) => `Schaltet das Großprojekt frei: ${work}`,
+    needsTitle: (title) => `Braucht den Titel ${title}`,
+    built: 'Gebaut: eins pro Stadt',
     capital:
       'Alle Titel erreicht. Die Oase ist eine Hauptstadt; halte sie in jeder Trockenzeit am Leben.',
     rows: {

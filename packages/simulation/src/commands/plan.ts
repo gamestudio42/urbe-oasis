@@ -1,15 +1,18 @@
 import {
   BALANCE,
   Infra,
+  OASIS_ERA_WORKS,
   OASIS_SHADE,
   PLACEABLE_SPECS,
   RejectReason,
   ZoneDensity,
   ZoneType,
+  isEraWork,
   isZoneKind,
   type Area,
   type BuildingRecord,
   type CommandPreview,
+  type EraWorkKind,
   type PlaceableKind,
   type Ruleset,
   type TileRejection,
@@ -27,6 +30,10 @@ export interface PlanContext {
   readonly population: number;
   /** Absent means classic, so a canal command cannot slip into a city that has no data rules. */
   readonly ruleset?: Ruleset;
+  /** Oasis era title (0 = Village); absent before the era, which keeps every era work locked. */
+  readonly eraRank?: number;
+  /** True when the city already has a building of this kind (one era work of each per city). */
+  has?(kind: PlaceableKind): boolean;
 }
 
 /** What demolish removes on a tile, decided at planning time. */
@@ -330,9 +337,15 @@ function planPlace(
     plan.reject(-1, RejectReason.OutOfBounds);
     return;
   }
-  if (spec.minPopulation > 0 && ctx.population < spec.minPopulation) {
+  const locked =
+    spec.minPopulation > 0 && ctx.population < spec.minPopulation
+      ? RejectReason.Locked
+      : isEraWork(kind)
+        ? eraWorkLock(ctx, kind)
+        : null;
+  if (locked) {
     for (let y = y0; y < y0 + spec.size; y++) {
-      for (let x = x0; x < x0 + spec.size; x++) plan.reject(w.index(x, y), RejectReason.Locked);
+      for (let x = x0; x < x0 + spec.size; x++) plan.reject(w.index(x, y), locked);
     }
     return;
   }
@@ -364,6 +377,13 @@ function planPlace(
   ) {
     plan.reject(origin, RejectReason.NeedsRoad);
   }
+}
+
+/** Why an era work cannot be placed yet: a missing title, or the city already has one. */
+function eraWorkLock(ctx: PlanContext, kind: EraWorkKind): RejectReason | null {
+  if (ctx.ruleset !== 'oasis' || (ctx.eraRank ?? -1) < OASIS_ERA_WORKS.rank[kind])
+    return RejectReason.NeedsTitle;
+  return ctx.has?.(kind) ? RejectReason.OnePerCity : null;
 }
 
 /** True when a neighbour of the square footprint matches `pred`. */

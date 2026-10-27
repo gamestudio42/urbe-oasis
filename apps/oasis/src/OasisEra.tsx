@@ -1,6 +1,12 @@
 import { useState } from 'react';
-import { ERA_RANKS, OASIS_ERA, type CityStats } from '@city/shared';
-import { formatMoney, formatNumber, type Locale } from '@oasis/web/i18n';
+import {
+  ERA_RANKS,
+  ERA_WORK_KINDS,
+  OASIS_ERA,
+  OASIS_ERA_WORKS,
+  type CityStats,
+} from '@city/shared';
+import { formatMoney, formatNumber, useStrings, type Locale } from '@oasis/web/i18n';
 import type { GameSession } from '@oasis/web/state/session';
 import { useStore } from '@oasis/web/state/store';
 import { AdobeIcon } from '@oasis/web/ui/adobeIcons';
@@ -68,6 +74,7 @@ export function eraHeading(era: Era, locale: Locale): { small: string; title: st
 export function OasisEra({ session, era }: { session: GameSession; era: Era }) {
   const locale = useStore(session.ui, (s) => s.locale);
   const stats = useStore(session.ui, (s) => s.stats);
+  const t = useStrings(session.ui);
   const [pending, setPending] = useState(false);
   if (!stats?.oasis) return null;
   const copy = oasisEraCopy(locale);
@@ -75,6 +82,7 @@ export function OasisEra({ session, era }: { session: GameSession; era: Era }) {
   const money = (v: number) => formatMoney(v, locale);
   const pct = (v: number) => `${formatNumber(Math.round(v * 100), locale)}%`;
   const goal = OASIS_ERA.ranks[era.rank];
+  const work = ERA_WORK_KINDS.find((kind) => OASIS_ERA_WORKS.rank[kind] === era.rank + 1);
   const rows = rankRows(stats, era, locale);
   const running = era.droughtMonthsLeft > 0;
   const policy = stats.oasis.waterPolicy;
@@ -104,6 +112,11 @@ export function OasisEra({ session, era }: { session: GameSession; era: Era }) {
           <p className="oasis-journey-reward">
             <AdobeIcon id="budget" size={16} /> {copy.reward}: <b>{money(goal.reward)}</b>
           </p>
+          {work && (
+            <p className="oasis-journey-reward" data-testid="oasis-era-work">
+              <AdobeIcon id={work} size={16} /> {copy.unlocks(t.buildings[work])}
+            </p>
+          )}
         </>
       )}
       <div

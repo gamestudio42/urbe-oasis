@@ -101,7 +101,10 @@ interface PortFootprint {
  * away from the building and along the street. Walking only outward from one corner stops on
  * the first tile of a normal avenue, which is too short to count as a lane.
  */
-function scanPort(w: World, port: PortFootprint): {
+function scanPort(
+  w: World,
+  port: PortFootprint,
+): {
   best: ArcadeLane | null;
   byHeading: Map<number, ArcadeLane>;
 } {

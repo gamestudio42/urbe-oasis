@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { PLACEABLE_SPECS, type PlaceableKind } from '@city/shared';
+import { OASIS_ERA_WORKS, PLACEABLE_SPECS, isEraWork, type PlaceableKind } from '@city/shared';
 import { formatNumber, useStrings } from '@oasis/web/i18n';
 import type { GameSession } from '@oasis/web/state/session';
 import { useStore } from '@oasis/web/state/store';
@@ -8,6 +8,7 @@ import { costLabel } from '@oasis/web/ui/Toolbar';
 import { ToolIcon } from '@oasis/web/ui/icons';
 import { AdobeIcon, AdobeCategoryIcon } from '@oasis/web/ui/adobeIcons';
 import { OasisConstructionReceipt } from './OasisConstructionFeedback';
+import { oasisEraCopy } from './i18n';
 
 /** A compact construction dock. All planning and execution remain in the shared controller. */
 export function OasisToolbar({ session }: { session: GameSession }) {
@@ -16,6 +17,8 @@ export function OasisToolbar({ session }: { session: GameSession }) {
   const active = useStore(session.ui, (s) => s.tool);
   const population = useStore(session.ui, (s) => s.stats?.population ?? 0);
   const ruleset = useStore(session.ui, (s) => s.stats?.ruleset ?? 'classic');
+  const eraRank = useStore(session.ui, (s) => s.stats?.oasis?.journey?.era?.rank ?? -1);
+  const eraCopy = oasisEraCopy(locale);
   const [group, setGroup] = useState<ToolGroup | null>(null);
   const host = useRef<HTMLDivElement>(null);
   const buttons = useRef<Partial<Record<ToolGroup, HTMLButtonElement | null>>>({});
@@ -103,7 +106,18 @@ export function OasisToolbar({ session }: { session: GameSession }) {
                   tool.id in PLACEABLE_SPECS
                     ? PLACEABLE_SPECS[tool.id as PlaceableKind]
                     : undefined;
-                const locked = Boolean(spec && spec.minPopulation > population);
+                // An era work waits for its title, and the city builds one of each.
+                const work = isEraWork(tool.id as PlaceableKind)
+                  ? (tool.id as keyof typeof OASIS_ERA_WORKS.rank)
+                  : null;
+                const workLock = work
+                  ? eraRank < OASIS_ERA_WORKS.rank[work]
+                    ? eraCopy.needsTitle(eraCopy.titles[OASIS_ERA_WORKS.rank[work]]!)
+                    : session.client.hasBuilding(work)
+                      ? eraCopy.built
+                      : null
+                  : null;
+                const locked = Boolean(spec && spec.minPopulation > population) || !!workLock;
                 const cost = costLabel(tool, t, locale);
                 return (
                   <button
@@ -126,9 +140,10 @@ export function OasisToolbar({ session }: { session: GameSession }) {
                     <span>
                       <strong>{t.tools[tool.id]}</strong>
                       <small>
-                        {locked && spec
-                          ? t.hud.unlockAt(formatNumber(spec.minPopulation, locale))
-                          : cost}
+                        {workLock ??
+                          (locked && spec
+                            ? t.hud.unlockAt(formatNumber(spec.minPopulation, locale))
+                            : cost)}
                       </small>
                     </span>
                     {tool.hotkey && <kbd>{tool.hotkey.toUpperCase()}</kbd>}

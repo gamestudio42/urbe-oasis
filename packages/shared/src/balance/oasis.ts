@@ -273,6 +273,20 @@ export const OASIS_ERA = {
   droughtRewardSteps: 6,
 } as const;
 
+/**
+ * Era works: one of each per city, each unlocked by an era title. They give late-game money a
+ * use, and each answers one era pressure. See docs/oasis-spec.md, "Era works".
+ */
+export const OASIS_ERA_WORKS = {
+  /** Era rank (title) each work needs: Town, City, Capital. */
+  rank: { rechargeBasin: 1, grandBazaar: 2, palaceGarden: 3 },
+  /** Share of an era dry season's qanat cut left while a recharge basin operates. */
+  basinQanatCut: 0.5,
+  /** Shade of a palace garden while powered, online and watered, and while not watered. */
+  gardenShade: 1500,
+  gardenShadeDry: 450,
+} as const;
+
 /** Ranks of the era; `rank === ERA_RANKS` means every rank is reached. */
 export const ERA_RANKS = OASIS_ERA.ranks.length;
 
@@ -286,6 +300,7 @@ export const OASIS_BALANCE = {
   shade: OASIS_SHADE,
   journey: OASIS_JOURNEY,
   era: OASIS_ERA,
+  eraWorks: OASIS_ERA_WORKS,
   rationing: OASIS_RATIONING,
 } as const;
 

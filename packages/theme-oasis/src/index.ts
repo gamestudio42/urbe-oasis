@@ -177,6 +177,12 @@ const OASIS_OVERRIDES: Record<string, number> = {
   'caravanserai.signGlow': 0xc4784a,
   'caravanserai.spire': 0x8d5a3c,
   'caravanserai.beacon': 0xc4512c,
+  // Era works: dressed limestone, sand roofs, a glazed dome, striped awnings, blue tile.
+  'works.stone': 0xd8c09a,
+  'works.roof': 0xeadbb6,
+  'works.dome': 0x2f8a8f,
+  'works.cloth': 0xb8462e,
+  'works.tile': 0x2c6f9e,
 
   // Civic: fired clay, sand roofs, a small gold opening. Each keeps one cue.
   'hospital.wall': 0xc4896a,

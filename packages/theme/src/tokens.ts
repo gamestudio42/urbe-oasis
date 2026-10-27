@@ -176,6 +176,12 @@ export const COLOR_TOKENS = [
   'caravanserai.signGlow',
   'caravanserai.spire',
   'caravanserai.beacon',
+  // Era works: recharge basin, grand bazaar and palace garden.
+  'works.stone',
+  'works.roof',
+  'works.dome',
+  'works.cloth',
+  'works.tile',
 
   // Vegetation and power poles.
   'tree.trunk',

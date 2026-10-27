@@ -54,6 +54,9 @@ export const de = {
     caravanserai: 'Karawanserei',
     springHouse: 'Quellhaus',
     palm: 'Palme',
+    rechargeBasin: 'Versickerungsbecken',
+    grandBazaar: 'Großer Basar',
+    palaceGarden: 'Palastgarten',
   } satisfies Record<ToolId, string>,
   toolHints: {
     select: 'Klicke ein Grundstück an, um Details zu sehen.',
@@ -62,11 +65,14 @@ export const de = {
     pipe: 'Ziehen zum Zeichnen. Untergrundansicht ist an.',
     canal: 'Ziehen zum Zeichnen, wie eine Leitung. Untergrundansicht ist an.',
     zoneResLight: 'Ziehe ein Rechteck auf ebenem Gelände.',
-    zoneResDense: 'Ziehe ein Rechteck auf ebenem Gelände. Braucht Wasser, um über Stufe 2 zu wachsen.',
+    zoneResDense:
+      'Ziehe ein Rechteck auf ebenem Gelände. Braucht Wasser, um über Stufe 2 zu wachsen.',
     zoneComLight: 'Ziehe ein Rechteck auf ebenem Gelände.',
-    zoneComDense: 'Ziehe ein Rechteck auf ebenem Gelände. Braucht Wasser, um über Stufe 2 zu wachsen.',
+    zoneComDense:
+      'Ziehe ein Rechteck auf ebenem Gelände. Braucht Wasser, um über Stufe 2 zu wachsen.',
     zoneIndLight: 'Ziehe ein Rechteck auf ebenem Gelände.',
-    zoneIndDense: 'Ziehe ein Rechteck auf ebenem Gelände. Braucht Wasser, um über Stufe 2 zu wachsen.',
+    zoneIndDense:
+      'Ziehe ein Rechteck auf ebenem Gelände. Braucht Wasser, um über Stufe 2 zu wachsen.',
     dezone: 'Ziehen, um leere Zonen zu entfernen.',
     demolish: 'Entfernt eine Schicht pro Grundstück: Gebäude, Straße/Leitung, Zone, Bäume.',
     level: 'Ziehen: ebnet auf die Höhe des ersten Grundstücks.',
@@ -87,13 +93,21 @@ export const de = {
       'An der Küste, mit Straße. Industriearbeitsplätze, wertet das Ufer auf und verbindet die Stadt mit der Region.',
     airport:
       'Ebenes 4×4-Areal, mit Straße. Gewerbearbeitsplätze und regionale Anbindung, aber der Lärm senkt den Bodenwert.',
-    qanat: 'Neben Stromleitungen platzieren. Versorgt seine Netzinsel; ein uberlastetes Viertel kann kaskadieren.',
+    qanat:
+      'Neben Stromleitungen platzieren. Versorgt seine Netzinsel; ein uberlastetes Viertel kann kaskadieren.',
     cistern: 'Puffert das Viertel bei einem Brownout und ladt sich bei stabilem Netz wieder auf.',
     windbreak: 'Deckt einen Radius von 6 Grundstucken ab. Braucht Strom und eine Datenverbindung.',
     arcade: 'Eine überdachte Straße. Entlastet den Verkehr daneben. Braucht eine Straße.',
-    caravanserai: 'Karawanen treffen sich hier. Sie kaufen schattige oder bewässerte Grundstücke und zahlen die Kasse.',
+    caravanserai:
+      'Karawanen treffen sich hier. Sie kaufen schattige oder bewässerte Grundstücke und zahlen die Kasse.',
     springHouse: 'Liefert Bandbreite. Volle Leistung braucht Strom und Wasser zur Kühlung.',
     palm: 'Eine kleine Bandbreitenquelle. Braucht Strom, kein Wasser.',
+    rechargeBasin:
+      'Freigeschaltet mit dem Titel Dorf. Füllt das Grundwasser auf: In Trockenzeiten der Ära verlieren Qanate nur die Hälfte. Braucht Strom.',
+    grandBazaar:
+      'Freigeschaltet mit dem Titel Stadt. Ein großer überdachter Markt: viele Handelsjobs und höherer Bodenwert. Muss an einer Straße liegen.',
+    palaceGarden:
+      'Freigeschaltet mit dem Titel Hauptstadt der Oase. Dichter Schatten, mehr mit Leitungswasser, und höherer Bodenwert. Braucht Strom.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Untersuchen',
@@ -119,6 +133,8 @@ export const de = {
     LOCKED: 'Noch nicht genug Einwohner für dieses Gebäude.',
     NEEDS_WATER: 'Muss ans Wasser grenzen.',
     NEEDS_ROAD: 'Muss an einer Straße liegen.',
+    NEEDS_TITLE: 'Dieses Großprojekt braucht einen höheren Ära-Titel.',
+    ONE_PER_CITY: 'Die Stadt hat dieses Großprojekt schon.',
     INVALID: 'Ungültige Aktion.',
   } satisfies Record<RejectReason, string>,
   buildings: {
@@ -144,6 +160,9 @@ export const de = {
     caravanserai: 'Karawanserei',
     springHouse: 'Quellhaus',
     palm: 'Palme',
+    rechargeBasin: 'Versickerungsbecken',
+    grandBazaar: 'Großer Basar',
+    palaceGarden: 'Palastgarten',
   } satisfies Record<BuildingKind, string>,
   zones: {
     residential: 'Wohngebiet',
@@ -288,14 +307,17 @@ export const de = {
     delete: 'Löschen',
     confirmDelete: (name: string) => `Spielstand „${name}“ löschen?`,
     autosave: 'Autospeichern',
-    autosaveHint: 'Die Stadt wird jede Spielminute und beim Zurückkehren ins Menü automatisch gespeichert.',
+    autosaveHint:
+      'Die Stadt wird jede Spielminute und beim Zurückkehren ins Menü automatisch gespeichert.',
     saved: 'Stadt gespeichert.',
     loaded: (name: string) => `${name} geladen.`,
-    migrated: (version: number) => `Spielstand der Version ${version} auf die aktuelle Version umgewandelt.`,
+    migrated: (version: number) =>
+      `Spielstand der Version ${version} auf die aktuelle Version umgewandelt.`,
     exported: 'Datei exportiert.',
     slotInfo: (population: string, funds: string) => `${population} Einw. · ${funds}`,
     quota: 'Kein Speicherplatz. Lösche alte Spielstände oder exportiere die Stadt in eine Datei.',
-    unavailable: 'Der Browserspeicher ist nicht verfügbar (privater Modus?). Nutze Datei exportieren.',
+    unavailable:
+      'Der Browserspeicher ist nicht verfügbar (privater Modus?). Nutze Datei exportieren.',
     missing: 'Die Daten dieses Spielstands fehlen. Er wurde aus der Liste entfernt.',
     failed: 'Die Stadt konnte nicht gespeichert werden.',
     loadFailed: 'Die Stadt konnte nicht geladen werden:',
@@ -480,7 +502,8 @@ export const de = {
       `Die Oase hat Titel ${rank} von 3 erreicht. Der Rat gewährt ${reward}.`,
     droughtHeldGrant: (reward: string) =>
       `Die Trockenzeit ist vorbei, und die Stadt hielt das Wasser. Der Rat gewährt ${reward}.`,
-    debt: (months: number) => `Die Kasse ist seit ${months} ${months === 1 ? 'Monat' : 'Monaten'} im Minus.`,
+    debt: (months: number) =>
+      `Die Kasse ist seit ${months} ${months === 1 ? 'Monat' : 'Monaten'} im Minus.`,
     bankrupt: 'Die Stadt ist bankrott! Passe Steuern und Ausgaben an, um die Kasse zu retten.',
     recovered: 'Die Stadtfinanzen haben sich erholt.',
     milestone: (population: string) => `Meilenstein: ${population} Einwohner!`,

@@ -142,6 +142,21 @@ export function computeMonthlyReport(
       case 'palm':
         ex.power += spec.upkeep;
         break;
+      // The other Oasis placeables, booked where a player would look for them.
+      case 'qanat':
+      case 'cistern':
+      case 'rechargeBasin':
+        ex.water += spec.upkeep;
+        break;
+      case 'windbreak':
+      case 'palaceGarden':
+        ex.parks += spec.upkeep;
+        break;
+      case 'arcade':
+      case 'caravanserai':
+      case 'grandBazaar':
+        ex.transport += spec.upkeep;
+        break;
     }
   }
   let expenses = 0;
