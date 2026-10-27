@@ -10,6 +10,7 @@ export {
   type ChunkRecord,
   type Rect,
 } from './chunks';
+export { TAP_SLOP, TouchGestures, type GestureAction } from './gestures';
 export {
   HEIGHT_STEP,
   pickTile,

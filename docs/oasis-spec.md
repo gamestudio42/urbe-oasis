@@ -47,8 +47,8 @@ reserve button selects the cistern tool, and the spring button recentres the sur
 The three resource indicators have equal content widths and internal spacing in a 600 px
 desktop panel, and share label, value and detail rows. Wrapped translations or
 empty-state values expand their shared row, keeping adjacent indicators aligned without
-truncating telemetry. On phone widths, the indicators stack with labels on the left and
-values and details on the right. Browser checks cover empty and populated cities at narrow
+truncating telemetry. At 600 px and below, the three indicators stay side by side with
+the icon above the label, and the supply and cistern details are hidden. Browser checks cover empty and populated cities at narrow
 and wide sizes.
 
 The Oasis construction dock groups tools into six named categories. Opening a category shows
@@ -105,10 +105,37 @@ The Oasis top bar fits its width instead of scrolling from 720 px upward. At 148
 the budget, charts, maps and menu buttons show only their icons. Their labels remain as
 accessible names and tooltips. Stat labels stack above their values, the city name truncates,
 and debt badges give way to the red funds value. At 960 px and below, the studio mark is hidden
-and the gaps narrow. At 760 px and below, the bar padding narrows too. Narrower phones keep
-horizontal scrolling as a last resort. Breakpoints leave room for wider fallback system fonts,
+and the gaps narrow. At 760 px and below, the bar padding narrows too. At 600 px and below the
+bar takes two rows (see below). Breakpoints leave room for wider fallback system fonts,
 such as DejaVu Sans on Linux. Browser checks cover pt-BR and German from 1600 px to 720 px,
 including each breakpoint edge. The classic HUD is unchanged.
+
+### Phones and touch
+
+Upright phones (600 px wide and below) get a 92 px top bar in two rows: the city, funds,
+population and demand above, and the speeds and panel buttons below. The spring coordinates
+are hidden; the survival card keeps its "find the spring" action. Elements below the bar read
+its height from `--hud-bottom`. The pressed pause button replaces the paused banner, and
+toasts appear under the survival card. Below 360 px the speed and panel buttons narrow so the
+second row never wraps. Phones held sideways (500 px tall and below, landscape) keep a one-row
+bar without the spring or studio mark. The survival card becomes a strip without its heading,
+the chronicle sits beside the audio controls, the minimap is hidden, and the dock is shorter.
+The guide sits above the dock on the left. On touch screens (`pointer: coarse`), hotkey hints
+and the cursor readout are hidden.
+
+On the map, `TouchGestures` (`@shell/view-iso`) turns touches into camera moves and tool
+input, without the DOM:
+
+- A touch that moves less than `TAP_SLOP` (10 px) is a tap: it selects with the inspector, or
+  places with a footprint tool.
+- One finger that moves further pans the map. With a path or rectangle tool (roads, pipes,
+  zones, canals) it draws from where it landed instead.
+- A second finger cancels a drawing in progress and pans and pinch-zooms around the midpoint
+  of the two fingers. The sequence stays a camera gesture until every finger lifts.
+
+Mouse and keyboard input are unchanged. Browser checks cover 390×844, 320×568, 844×390 and
+667×375 with touch enabled: the controls stay inside the screen without overlapping, and tap,
+pan, pinch, drawing a road and cancelling a stroke with a second finger all work.
 
 ### Management panels
 
