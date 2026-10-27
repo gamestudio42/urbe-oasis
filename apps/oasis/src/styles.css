@@ -1780,10 +1780,13 @@ body,
   .oasis-resource > small {
     display: none;
   }
+  /* Columns share the width equally; a word that cannot fit breaks rather than widen one. */
   .oasis-resource > span {
     flex-direction: column;
     gap: 2px;
-    overflow-wrap: normal;
+    min-width: 0;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
   .app:has(.oasis-construction) .city-audio {
     top: calc(var(--hud-bottom, 52px) + 8px);
@@ -1811,6 +1814,9 @@ body,
 @media (max-width: 360px) {
   .app:has(.oasis-construction) .hud {
     column-gap: 6px;
+  }
+  .oasis-resource > span {
+    font-size: 10px;
   }
   .app:has(.oasis-construction) .speed-controls {
     gap: 2px;
@@ -1856,8 +1862,10 @@ body,
   .oasis-resource > span {
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
     font-size: 11px;
-    overflow-wrap: normal;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
   .oasis-policy > button {
     padding-top: 2px;
