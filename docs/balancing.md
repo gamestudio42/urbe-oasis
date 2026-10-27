@@ -584,3 +584,31 @@ With that fix, no lot is abandoned at month 240, every building is powered, the 
 `hubMarketPerJob` (2) of commercial market per job but only one job to the commercial count, and
 the bazaar reaches its 600-job cap. That leaves about 600 jobs of unmet market. The scripted player
 never zones more shops, so the signal stays; a player would answer it with new commercial zones.
+
+## Benchmark checkpoint (2026-10-27)
+
+`pnpm bench --strict` passes for both workloads. Earlier checkpoints recorded a failing 8 ms
+heavy-tick budget. Those runs measured 15–24 ns per tile in calibration, which means a loaded
+machine, against 3.1–3.4 ns here. The budget is in raw milliseconds, so it depends on the
+machine's load. No simulation code changed for this checkpoint.
+
+```sh
+for preset in grid oasis-grid; do
+  for trial in 1 2 3; do
+    pnpm bench --strict --preset "$preset" --out "reports/bench-check/$preset-$trial.json"
+  done
+done
+```
+
+Three separate processes per workload, seed `bench`, 96 warm-up and 24 measured months. P95 in
+milliseconds:
+
+| Workload   | Traffic   | Services  | Influence | Close     | Utility refresh | Month   | Hash       |
+| ---------- | --------- | --------- | --------- | --------- | --------------- | ------- | ---------- |
+| grid       | 1.95–2.14 | 0.21–0.33 | 1.42–1.58 | 1.26–1.47 | 1.80–2.04       | 5.9–6.2 | `b6c91483` |
+| oasis-grid | 1.99–2.15 | 0.22–0.23 | 1.47–1.54 | 2.03–2.35 | 3.28–3.46       | 9.3–9.9 | `9fedd7f3` |
+
+The heaviest stage is the Oasis utility refresh, at 43% of the budget. The classic hash matches
+every earlier checkpoint. The Oasis hash differs from
+`e51be040` because later Oasis rule changes alter that workload. CI still runs `pnpm bench --months 12` without
+`--strict`, because shared runners are too noisy for an absolute budget.
