@@ -48,7 +48,8 @@ for (const populated of [false, true]) {
           })),
         );
         expect(rows).toHaveLength(3);
-        const positions = rows.map((r) => (width > 480 ? r.top : r.left));
+        // Every width keeps the three shares side by side; phones drop the supply line.
+        const positions = rows.map((r) => r.top);
         expect(Math.max(...positions) - Math.min(...positions)).toBeLessThanOrEqual(1);
         expect(rows.every((r) => r.overflow <= 1)).toBe(true);
         const widths = rows.map((r) => r.width);
@@ -57,6 +58,7 @@ for (const populated of [false, true]) {
           expect(rows.every((r) => r.height <= r.lineHeight + 1)).toBe(true);
         }
       }
+      if (width <= 600) await expect(panel.locator('.oasis-resource > small').first()).toBeHidden();
       if (!process.env.CI) {
         await panel.screenshot({
           path: `test-results/oasis-status-${populated ? 'populated' : 'empty'}-${width}.png`,

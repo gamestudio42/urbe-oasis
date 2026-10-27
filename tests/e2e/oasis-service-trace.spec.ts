@@ -95,6 +95,15 @@ test('explains a lot without shade, shows the reach while digging and confirms t
   await expect
     .poll(() => page.evaluate(() => window.__cityDebug!.serviceView()))
     .toMatchObject({ overlay: 'data', trace: { sources: 1, idle: 1 } });
+  // The reach belongs to the inspector: hovering the map with the inspect tool, or a new day
+  // refreshing the preview, must not erase it.
+  const elsewhere = await point(page, 16, 18);
+  await page.mouse.move(elsewhere.x, elsewhere.y);
+  await page.mouse.move(elsewhere.x + 20, elsewhere.y + 10);
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => window.__cityDebug!.serviceView().trace)).toMatchObject({
+    sources: 1,
+  });
   await page.getByTestId('inspector-close').click();
   await expect.poll(() => page.evaluate(() => window.__cityDebug!.serviceView().trace)).toBeNull();
 });

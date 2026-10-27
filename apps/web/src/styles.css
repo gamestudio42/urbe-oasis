@@ -492,7 +492,7 @@ input[type='range'] {
 /* Below the bar, mirroring the tool column on the left. */
 .city-audio {
   position: absolute;
-  top: 64px;
+  top: calc(var(--hud-bottom, 52px) + 12px);
   right: 10px;
   z-index: 10;
   display: flex;
@@ -929,7 +929,7 @@ input[type='range'] {
 
 .side-panels {
   position: absolute;
-  top: 64px;
+  top: calc(var(--hud-bottom, 52px) + 12px);
   /* Leave the 40 px audio controls and a 10 px gap outside the panel stack. */
   right: 60px;
   bottom: 52px;

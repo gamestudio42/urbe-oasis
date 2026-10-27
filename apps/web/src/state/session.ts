@@ -363,6 +363,7 @@ export class GameSession {
         this.tools.onPointer(kind, tile);
       },
       onCancel: () => this.tools.cancel(),
+      drawsOnTouch: () => this.tools.tool.shape === 'path' || this.tools.tool.shape === 'rect',
       onCamera: () => {
         for (const listener of this.cameraListeners) listener();
       },

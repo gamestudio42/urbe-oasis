@@ -144,7 +144,7 @@ body,
 /* Survival telemetry stays near the city, with direct access to the corresponding network. */
 .oasis-status {
   position: absolute;
-  top: 64px;
+  top: calc(var(--hud-bottom, 52px) + 12px);
   left: 120px;
   width: min(620px, calc(100% - 200px));
   padding: 12px 16px;
@@ -268,7 +268,7 @@ body,
 /* The founding guide occupies a separate rail and never covers the construction dock. */
 .oasis-guide {
   position: absolute;
-  top: 64px;
+  top: calc(var(--hud-bottom, 52px) + 12px);
   right: 72px;
   width: 340px;
   max-height: calc(var(--oasis-construction-top, 75dvh) - 76px);
@@ -1694,5 +1694,243 @@ body,
   .budget-panel .panel-body,
   .system-panel .panel-body {
     padding: 10px;
+  }
+}
+
+/* Touch screens: no hover, no keyboard. Hotkeys and the cursor readout mean nothing there. */
+@media (pointer: coarse) {
+  .app:has(.oasis-construction) kbd,
+  .app:has(.oasis-construction) .readout {
+    display: none;
+  }
+}
+
+/* Phones held upright. The top bar takes two rows so speeds and panels stay reachable, the
+   survival card keeps only the shares, and the pressed pause button replaces the banner. */
+@media (max-width: 600px) {
+  .app:has(.oasis-construction) {
+    --hud-bottom: 92px;
+  }
+  .app:has(.oasis-construction) .hud {
+    height: 92px;
+    flex-wrap: wrap;
+    align-content: center;
+    row-gap: 6px;
+    overflow: visible;
+  }
+  .app:has(.oasis-construction) .hud::before {
+    content: '';
+    order: 1;
+    flex-basis: 100%;
+    height: 0;
+  }
+  .app:has(.oasis-construction) .speed-controls,
+  .app:has(.oasis-construction) .hud-panels,
+  .app:has(.oasis-construction) .hud .studio-mark {
+    order: 2;
+  }
+  .app:has(.oasis-construction) .hud-stat[data-testid='spring'] {
+    display: none;
+  }
+  .app:has(.oasis-construction) .speed-button {
+    min-width: 40px;
+    min-height: 36px;
+  }
+  .app:has(.oasis-construction) .hud-button {
+    min-height: 36px;
+  }
+  .oasis-status {
+    top: calc(var(--hud-bottom, 52px) + 8px);
+    left: 8px;
+    width: calc(100% - 66px);
+    padding: 6px 8px;
+  }
+  .oasis-status-heading > span:first-child {
+    display: none;
+  }
+  .oasis-status-heading {
+    justify-content: flex-end;
+  }
+  .oasis-resources {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, auto);
+    margin-top: 0;
+  }
+  .oasis-resource {
+    grid-row: span 2;
+    grid-template-columns: none;
+    grid-template-rows: subgrid;
+    gap: 2px;
+    padding: 4px 6px;
+    border-top: 0;
+    border-left: 1px solid var(--panel-border);
+  }
+  .oasis-resource:first-child {
+    border-left-color: transparent;
+  }
+  .oasis-resource > span {
+    grid-row: auto;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+  .oasis-resource > strong,
+  .oasis-resource > small {
+    grid-column: auto;
+  }
+  .oasis-resource > small {
+    display: none;
+  }
+  /* Columns share the width equally; a word that cannot fit breaks rather than widen one. */
+  .oasis-resource > span {
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  .app:has(.oasis-construction) .city-audio {
+    top: calc(var(--hud-bottom, 52px) + 8px);
+    right: 8px;
+  }
+  .app:has(.oasis-construction) .paused-banner {
+    display: none;
+  }
+  .app:has(.oasis-construction) .toasts {
+    top: calc(var(--oasis-status-bottom, 220px) + 8px);
+    bottom: auto;
+    left: 8px;
+    right: 8px;
+  }
+  .oasis-construction {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+  }
+  .oasis-guide {
+    left: 8px;
+    right: 8px;
+  }
+}
+@media (max-width: 360px) {
+  .app:has(.oasis-construction) .hud {
+    column-gap: 6px;
+  }
+  .oasis-resource > span {
+    font-size: 10px;
+  }
+  .app:has(.oasis-construction) .speed-controls {
+    gap: 2px;
+  }
+  .app:has(.oasis-construction) .speed-button,
+  .app:has(.oasis-construction) .hud-button {
+    min-width: 34px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}
+
+/* Phones held sideways: very little height. The card becomes a strip, the dock drops its
+   labels' extra height, and the minimap gives the map its corner back. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .app:has(.oasis-construction) .hud-stat[data-testid='spring'],
+  .app:has(.oasis-construction) .hud .studio-mark,
+  .app:has(.oasis-construction) .minimap,
+  .app:has(.oasis-construction) .readout,
+  .app:has(.oasis-construction) .paused-banner {
+    display: none;
+  }
+  .oasis-status {
+    top: calc(var(--hud-bottom, 52px) + 6px);
+    left: 8px;
+    width: min(460px, calc(100% - 330px));
+    padding: 4px 8px;
+  }
+  .oasis-status-heading {
+    display: none;
+  }
+  .oasis-resources {
+    grid-template-rows: repeat(2, auto);
+    margin-top: 0;
+  }
+  .oasis-resource {
+    grid-row: span 2;
+    padding: 2px 8px;
+  }
+  .oasis-resource > small {
+    display: none;
+  }
+  .oasis-resource > span {
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    font-size: 11px;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  .oasis-policy > button {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+  .app:has(.oasis-construction) .city-audio {
+    top: calc(var(--hud-bottom, 52px) + 6px);
+    right: 8px;
+    flex-direction: row;
+  }
+  .oasis-chronicle,
+  .app:has(.inspector) .oasis-chronicle {
+    top: calc(var(--hud-bottom, 52px) + 6px);
+    left: auto;
+    right: 108px;
+    width: 220px;
+    max-height: calc(var(--oasis-construction-top, 75dvh) - var(--hud-bottom, 52px) - 18px);
+  }
+  .app:has(.oasis-construction) .toasts {
+    top: calc(var(--hud-bottom, 52px) + 6px);
+    bottom: auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+  .oasis-construction {
+    left: auto;
+    right: 8px;
+    bottom: 6px;
+    transform: none;
+    width: min(520px, calc(100% - 16px));
+  }
+  .construction-dock {
+    padding: 3px;
+    gap: 2px;
+  }
+  .construction-dock > button {
+    min-height: 42px;
+    gap: 2px;
+    font-size: 9px;
+  }
+  .construction-dock svg {
+    width: 20px;
+    height: 20px;
+  }
+  .construction-selection {
+    margin-bottom: 4px;
+    padding: 4px 10px;
+  }
+  .construction-tray {
+    max-height: calc(100dvh - var(--hud-bottom, 52px) - 120px);
+    overflow-y: auto;
+  }
+  .oasis-guide {
+    top: auto;
+    bottom: calc(100% - var(--oasis-construction-top, 75dvh) + 6px);
+    left: 8px;
+    right: auto;
+    width: min(300px, calc(100% - 16px));
+    max-height: calc(var(--oasis-construction-top, 75dvh) - var(--hud-bottom, 52px) - 12px);
+  }
+  .oasis-guide-header {
+    padding: 8px 10px;
+  }
+  .oasis-guide-header h3 {
+    font-size: 14px;
   }
 }

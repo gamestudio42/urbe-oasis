@@ -26,8 +26,10 @@ import {
   REDRAW_BUDGET,
   tileCenter,
   tileQuad,
+  TouchGestures,
   vertexToScreen,
   type ChunkArea,
+  type GestureAction,
   type Point,
 } from '@shell/view-iso';
 import {
@@ -126,6 +128,8 @@ export interface RendererInput {
   onHover?(tile: Point | null): void;
   onCancel?(): void;
   onCamera?(): void;
+  /** Whether a one-finger drag draws with the active tool instead of panning the map. */
+  drawsOnTouch?(): boolean;
 }
 
 /** PixiJS isometric renderer for the mirror world. Never mutates simulation state. */
@@ -164,6 +168,7 @@ export class GameRenderer {
   private input: RendererInput = {};
   private panning: { x: number; y: number } | null = null;
   private activePointer: number | null = null;
+  private readonly touch = new TouchGestures(() => this.input.drawsOnTouch?.() ?? false);
   private readonly listeners = new AbortController();
   private readonly keys = new Set<string>();
   /** Seconds into the menu camera loop, or null outside the menu. */
@@ -765,9 +770,39 @@ export class GameRenderer {
     this.input.onHover?.(tile);
   }
 
+  /** Applies a touch gesture: the camera moves here, taps and drawing go to the tools. */
+  private applyTouch(canvas: HTMLCanvasElement, actions: GestureAction[], e: PointerEvent): void {
+    for (const action of actions) {
+      if (action.type === 'pan') {
+        this.camera.pan(action.dx, action.dy);
+        this.input.onCamera?.();
+      } else if (action.type === 'zoom') {
+        const rect = canvas.getBoundingClientRect();
+        this.camera.zoomAt(action.factor, action.x - rect.left, action.y - rect.top);
+        this.input.onCamera?.();
+      } else if (action.type === 'cancel') {
+        this.input.onCancel?.();
+      } else {
+        const tile = this.pick(action.x, action.y);
+        this.setHover(tile);
+        if (action.type === 'tap') {
+          this.input.onPointer?.('down', tile, e);
+          this.input.onPointer?.('up', tile, e);
+        } else {
+          const kind = action.type === 'drawStart' ? 'down' : action.type === 'draw' ? 'move' : 'up';
+          this.input.onPointer?.(kind, tile, e);
+        }
+      }
+    }
+  }
+
   private attachInput(canvas: HTMLCanvasElement): void {
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
     canvas.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch' && this.activePointer === null) {
+        canvas.setPointerCapture(e.pointerId);
+        return this.applyTouch(canvas, this.touch.down(e.pointerId, e.clientX, e.clientY), e);
+      }
       if (this.activePointer !== null) return;
       this.activePointer = e.pointerId;
       canvas.setPointerCapture(e.pointerId);
@@ -778,6 +813,8 @@ export class GameRenderer {
       if (e.button === 0) this.input.onPointer?.('down', this.pick(e.clientX, e.clientY), e);
     });
     canvas.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch' && this.touch.active)
+        return this.applyTouch(canvas, this.touch.move(e.pointerId, e.clientX, e.clientY), e);
       if (this.activePointer !== null && e.pointerId !== this.activePointer) return;
       if (this.panning) {
         this.camera.pan(e.clientX - this.panning.x, e.clientY - this.panning.y);
@@ -790,6 +827,8 @@ export class GameRenderer {
       this.input.onPointer?.('move', tile, e);
     });
     const end = (e: PointerEvent) => {
+      if (e.pointerType === 'touch' && this.touch.active)
+        return this.applyTouch(canvas, this.touch.up(e.pointerId, e.clientX, e.clientY), e);
       if (this.activePointer !== e.pointerId) return;
       this.activePointer = null;
       if (this.panning) {
@@ -810,6 +849,8 @@ export class GameRenderer {
     };
     for (const type of ['pointercancel', 'lostpointercapture'] as const) {
       canvas.addEventListener(type, (e) => {
+        if (e.pointerType === 'touch' && this.touch.active)
+          return this.applyTouch(canvas, this.touch.cancel(e.pointerId), e);
         if (e.pointerId === this.activePointer) cancel();
       });
     }
