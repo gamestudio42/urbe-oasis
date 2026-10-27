@@ -80,7 +80,7 @@ packages/view-iso/ isometric camera, picking, chunk grid
 packages/chrome/   Store, boot/pause/toasts, i18n helpers, audio graph, IndexedDB
 packages/simulation/src/systems/oasis/
                    Oasis ruleset: water grid, caravans, sandstorms, arcades, spring,
-                   journey, rationing and building heights
+                   journey, rationing, caravan routes and building heights
 packages/theme/    Colourless Theme interface
 packages/theme-urbe/  Classic palette
 packages/theme-oasis/ Desert palette, CSS tokens and audio parameters

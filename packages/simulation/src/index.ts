@@ -102,6 +102,15 @@ export {
   type ArcadeLane,
 } from './systems/oasis/arcades';
 export {
+  boardRiders,
+  boardingStop,
+  pathEnd,
+  transitCatchment,
+  transitSummary,
+  type TransitCatchment,
+  type TransitTrip,
+} from './systems/oasis/transit';
+export {
   oasisCapacity,
   oasisShade,
   oasisMaxLevel,

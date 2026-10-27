@@ -245,7 +245,14 @@ const CLASSIC: Record<ToolId, ReactElement> = {
       <path d="M8 8 H16 M8 12 H16 M8 16 H16" stroke="#7fd0e8" strokeWidth="1.4" />
       <path d="M12 2 V4" stroke="#ffb020" strokeWidth="2" />
     </>
-  ),  rechargeBasin: (
+  ),
+  caravanStop: (
+    <>
+      <path d="M4 9 L12 5 L20 9 Z" fill="#2a2036" stroke="#ffb020" strokeWidth="1.2" />
+      <path d="M6 9 V20 M18 9 V20" stroke="#7fd0e8" strokeWidth="1.6" />
+    </>
+  ),
+  rechargeBasin: (
     <>
       <path d="M3 10 H21 L18 19 H6 Z" fill="#2a2036" stroke="#7fd0e8" strokeWidth="1.2" />
       <path d="M7 14 H17" stroke="#7fd0e8" strokeWidth="1.6" />

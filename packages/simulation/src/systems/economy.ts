@@ -155,6 +155,7 @@ export function computeMonthlyReport(
       case 'arcade':
       case 'caravanserai':
       case 'grandBazaar':
+      case 'caravanStop':
         ex.transport += spec.upkeep;
         break;
     }

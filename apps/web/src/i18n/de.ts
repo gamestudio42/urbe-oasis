@@ -57,6 +57,7 @@ export const de = {
     rechargeBasin: 'Versickerungsbecken',
     grandBazaar: 'Großer Basar',
     palaceGarden: 'Palastgarten',
+    caravanStop: 'Karawanenhalt',
   } satisfies Record<ToolId, string>,
   toolHints: {
     select: 'Klicke ein Grundstück an, um Details zu sehen.',
@@ -100,6 +101,7 @@ export const de = {
     rechargeBasin: 'Freigeschaltet mit dem Titel Dorf. Füllt das Grundwasser auf: In Trockenzeiten der Ära verlieren Qanate nur die Hälfte. Braucht Strom.',
     grandBazaar: 'Freigeschaltet mit dem Titel Stadt. Ein großer überdachter Markt: viele Handelsjobs und höherer Bodenwert. Muss an einer Straße liegen.',
     palaceGarden: 'Freigeschaltet mit dem Titel Hauptstadt der Oase. Dichter Schatten, mehr mit Leitungswasser, und höherer Bodenwert. Braucht Strom.',
+    caravanStop: 'An einer Straße. Fahrten zwischen Halten im selben Straßennetz reisen per Karawane statt mit dem Auto. Bis zu 400 Fahrgäste im Monat.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Untersuchen',
@@ -155,6 +157,7 @@ export const de = {
     rechargeBasin: 'Versickerungsbecken',
     grandBazaar: 'Großer Basar',
     palaceGarden: 'Palastgarten',
+    caravanStop: 'Karawanenhalt',
   } satisfies Record<BuildingKind, string>,
   zones: {
     residential: 'Wohngebiet',
@@ -415,6 +418,8 @@ export const de = {
       operating: 'In Betrieb',
       idle: 'Still (kein Strom)',
       jobs: 'Arbeitsplätze',
+      riders: 'Fahrgäste',
+      ridersNote: 'Pro Monat. Fahrten reisen per Karawane zwischen zwei Halten im selben Netz.',
       jobKind: { commercial: 'gewerblich', industrial: 'industriell' },
       growth: (per1000: number, max: string) => `+${per1000} je 1.000 Einw., bis ${max}`,
       regional: 'Regionalanbindung',

@@ -53,6 +53,7 @@ import { journeySummary, updateJourney } from './systems/oasis/journey';
 import { cisternSummary } from './systems/oasis/grid';
 import { shelterCoverage } from './systems/oasis/sandstorms';
 import { arcadeCount } from './systems/oasis/arcades';
+import { transitSummary } from './systems/oasis/transit';
 import { tickStorms, updateStorms, type StormResult } from './systems/oasis/sandstorms';
 import { DEFAULT_TERRAIN, generateTerrain } from './terrain/generate';
 import { dateOf, isDayStart, monthIndex, monthStage } from './time';
@@ -459,6 +460,7 @@ export class SimulationEngine {
       cisterns: cisternSummary(this),
       windbreak: shelterCoverage(this),
       arcades: arcadeCount(this),
+      transit: transitSummary(this),
       caravans: { count: this.oasis.caravans.length, holdings },
       trade: Math.round(this.oasis.trade),
       data: {

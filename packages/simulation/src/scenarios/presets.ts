@@ -229,8 +229,34 @@ function playJourney(engine: SimulationEngine): void {
   if (chapter >= 4) placeBeside(engine, 'caravanserai', engine.buildings.ofKind('school'), 1);
   keepShade(engine);
   growDistrict(engine);
+  buildStops(engine);
   buildWorks(engine);
 }
+
+/**
+ * A caravan route once the south district stands: six stops along the two avenues, each on a
+ * lot cleared beside the road. Built once, in a fixed order.
+ */
+function buildStops(engine: SimulationEngine): void {
+  const w = engine.world;
+  if (!w.hasInfra(w.index(6, DISTRICT_AVENUE), Infra.Road)) return;
+  if (engine.buildings.ofKind('caravanStop').length > 0 || engine.economy.funds < 5_000) return;
+  for (const [x, y] of STOP_LOTS) {
+    engine.execute({ type: 'demolish', x0: x, y0: y, x1: x, y1: y });
+    engine.execute({ type: 'place', kind: 'caravanStop', x, y });
+  }
+}
+
+/** Lots the era player clears for its caravan stops: north of the old avenue (row 20), south of
+ * the district avenue (row 33). */
+const STOP_LOTS = [
+  [9, 19],
+  [21, 19],
+  [33, 19],
+  [9, 34],
+  [21, 34],
+  [33, 34],
+] as const;
 
 /**
  * Power once the town's fixed plant slots are full (a spring house takes one): a gas plant

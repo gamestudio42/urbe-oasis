@@ -58,6 +58,7 @@ export const en = {
     rechargeBasin: 'Recharge basin',
     grandBazaar: 'Grand bazaar',
     palaceGarden: 'Palace garden',
+    caravanStop: 'Caravan stop',
   } satisfies Record<ToolId, string>,
   toolHints: {
     select: 'Click a lot to see details.',
@@ -100,6 +101,7 @@ export const en = {
     rechargeBasin: 'Unlocked by the Town title. Refills the water table: in era dry seasons qanats take half the cut. Needs power.',
     grandBazaar: 'Unlocked by the City title. A great covered market: many shop jobs and higher land value. Needs a road.',
     palaceGarden: 'Unlocked by the Oasis capital title. Deep shade, fuller with piped water, and higher land value. Needs power.',
+    caravanStop: 'Beside a road. Trips between stops on the same roads ride the caravans instead of driving. Boards up to 400 riders a month.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Inspect',
@@ -155,6 +157,7 @@ export const en = {
     rechargeBasin: 'Recharge basin',
     grandBazaar: 'Grand bazaar',
     palaceGarden: 'Palace garden',
+    caravanStop: 'Caravan stop',
   } satisfies Record<BuildingKind, string>,
   zones: {
     residential: 'Residential',
@@ -415,6 +418,8 @@ export const en = {
       operating: 'Operating',
       idle: 'Idle (no power)',
       jobs: 'Jobs',
+      riders: 'Riders',
+      ridersNote: 'A month. Trips ride between two stops on the same roads.',
       jobKind: { commercial: 'commercial', industrial: 'industrial' },
       growth: (per1000: number, max: string) => `+${per1000} per 1,000 pop., up to ${max}`,
       regional: 'Regional link',

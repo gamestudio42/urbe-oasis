@@ -554,6 +554,32 @@ The 120-month `oasis-balanced` rerun also retains the reference hashes for seeds
 An arcade eases traffic on the streets beside it while it is powered and online. The
 road is required when it is placed. The adobe theme does not draw drones.
 
+## Caravan routes
+
+Caravan routes are the Oasis public transport. A caravan stop is a 1×1 placeable beside a road
+($300, upkeep $15 on the transport line). It needs no power. It serves every road tile within
+`OASIS_TRANSIT.stopRadius` (5, Chebyshev). Stops are taken in building order, and where
+catchments overlap the first stop keeps the tile. A stop is in service while it is online and
+touches a road. It is on a route while another stop in service shares its road component.
+
+The monthly traffic pass assigns each home's commute and shopping trips along the
+shortest-path trees, as in the classic rules. In an Oasis city with stops, a trip whose start
+tile is served by a stop on a route, and whose path ends on a served tile, boards that stop.
+`riderShare` (0.5) of it rides the caravans and leaves the road. The rest drives along the same
+path. Each stop boards at most `stopCapacity` (400) riders a month; beyond that, its trips are
+scaled down evenly. No random draw is involved. The trips that board are assigned after the
+others, so a city without stops keeps its exact flows.
+
+A stop records last month's riders as its occupancy and the capacity as its capacity, so the
+inspector shows riders against capacity. `CityStats.oasis.transit` reports the stops in service,
+their riders and their total capacity. The animation layer draws a camel line from each
+boarding stop to the next stop the roads reach, using the same cosmetic caravans as the
+caravanserai.
+
+The `oasis-journey` player clears six lots once its south district stands: three north of the old
+avenue and three south of the district avenue. It places a stop on each, with no further
+changes.
+
 ## Saves
 
 Oasis cities use the envelope `oasis-city-save` and the extension `.oasis.json`.

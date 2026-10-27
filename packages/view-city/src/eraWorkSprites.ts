@@ -5,12 +5,13 @@ import { Frame, poly } from './isoFrame';
 
 /**
  * Oasis era works, all 3×3: a stepped recharge basin, a domed bazaar hall and a four-part palace
- * garden. Every style draws the same silhouettes; the theme supplies the materials.
+ * garden. The 1×1 caravan stop shares their materials. Every style draws the same silhouettes; the theme supplies the materials.
  */
 export function drawEraWork(g: Graphics, theme: Theme, kind: string): boolean {
   if (kind === 'rechargeBasin') drawRechargeBasin(g, theme);
   else if (kind === 'grandBazaar') drawGrandBazaar(g, theme);
   else if (kind === 'palaceGarden') drawPalaceGarden(g, theme);
+  else if (kind === 'caravanStop') drawCaravanStop(g, theme);
   else return false;
   return true;
 }
@@ -102,6 +103,35 @@ function drawPalaceGarden(g: Graphics, theme: Theme): void {
   }
   f.box(g, [0.05, 2.8, 2.95, 2.95], 0, 3, shade(stone, 0.95), roof);
   f.box(g, [2.8, 0.2, 2.95, 2.8], 0, 3, shade(stone, 0.95), roof);
+}
+
+/** A caravan stop: a striped canopy on four posts over a bench, and a water jar. */
+function drawCaravanStop(g: Graphics, theme: Theme): void {
+  const f = new Frame(1);
+  const stone = color(theme, 'works.stone');
+  const roof = color(theme, 'works.roof');
+  const cloth = color(theme, 'works.cloth');
+  f.quad(g, 0.1, 0.1, 0.9, 0.9, shade(roof, 0.92), 0);
+  f.box(g, [0.22, 0.3, 0.78, 0.46], 0, 4, stone, roof);
+  for (const [u, v] of [
+    [0.15, 0.15],
+    [0.85, 0.15],
+    [0.15, 0.85],
+    [0.85, 0.85],
+  ] as const) {
+    f.post(g, u, v, 18, shade(stone, 0.7), 1.6);
+  }
+  for (let i = 0; i < 4; i++) {
+    const u0 = 0.1 + i * 0.2;
+    const fill = i % 2 === 0 ? cloth : shade(roof, 1.08);
+    poly(
+      g,
+      [f.p(u0, 0.1, 19), f.p(u0 + 0.2, 0.1, 19), f.p(u0 + 0.2, 0.9, 17), f.p(u0, 0.9, 17)],
+      fill,
+    );
+  }
+  const jar = f.p(0.68, 0.7, 0);
+  g.ellipse(jar.x, jar.y - 4, 3.2, 4).fill(shade(color(theme, 'cistern.wall'), 1));
 }
 
 /** A half dome seated on `base`, with a lit crown. */

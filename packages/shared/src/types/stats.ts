@@ -108,6 +108,8 @@ export interface CityStats {
     windbreak: number;
     /** Online arcades. */
     arcades: number;
+    /** Caravan routes: operating stops, riders boarded last month and their monthly capacity. */
+    transit: { stops: number; riders: number; capacity: number };
     /** Caravans and their total holdings. */
     caravans: { count: number; holdings: number };
     /** Cash caravans have paid into the treasury. */

@@ -389,6 +389,19 @@ const GLYPHS: Record<AdobeIconId, Glyph> = {
       </>
     ),
   },
+  caravanStop: {
+    accent: 'clay',
+    shape: (
+      <>
+        <path d="M4 12L16 6L28 12Z" className="oasis-icon-wash" />
+        <path d="M4 12L16 6L28 12ZM7 12V28M25 12V28M3 28H29" />
+        <path
+          d="M11 26V21Q11 18 14 18H17Q19 15 21 17V20Q21 22 19 22V26M14 22V26"
+          className="oasis-icon-accent"
+        />
+      </>
+    ),
+  },
   rechargeBasin: {
     accent: 'water',
     shape: (

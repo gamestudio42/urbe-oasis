@@ -57,6 +57,7 @@ export const fr = {
     rechargeBasin: 'Bassin de recharge',
     grandBazaar: 'Grand bazar',
     palaceGarden: 'Jardin du palais',
+    caravanStop: 'Arrêt de caravane',
   } satisfies Record<ToolId, string>,
   toolHints: {
     select: 'Cliquez sur une parcelle pour voir les détails.',
@@ -100,6 +101,7 @@ export const fr = {
     rechargeBasin: 'Débloqué par le titre de Bourg. Recharge la nappe : pendant les saisons sèches de l’ère, les qanats ne subissent que la moitié de la baisse. A besoin d’énergie.',
     grandBazaar: 'Débloqué par le titre de Ville. Un grand marché couvert : beaucoup d’emplois commerciaux et un terrain plus cher. Doit être au bord d’une route.',
     palaceGarden: 'Débloqué par le titre de Capitale de l’oasis. Une ombre dense, plus forte avec l’eau courante, et un terrain plus cher. A besoin d’énergie.',
+    caravanStop: 'Au bord d’une route. Les trajets entre arrêts du même réseau se font en caravane plutôt qu’en voiture. Jusqu’à 400 voyageurs par mois.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Inspecter',
@@ -155,6 +157,7 @@ export const fr = {
     rechargeBasin: 'Bassin de recharge',
     grandBazaar: 'Grand bazar',
     palaceGarden: 'Jardin du palais',
+    caravanStop: 'Arrêt de caravane',
   } satisfies Record<BuildingKind, string>,
   zones: {
     residential: 'Résidentiel',
@@ -415,6 +418,8 @@ export const fr = {
       operating: 'En service',
       idle: 'À l’arrêt (sans électricité)',
       jobs: 'Emplois',
+      riders: 'Voyageurs',
+      ridersNote: 'Par mois. Les trajets se font en caravane entre deux arrêts du même réseau.',
       jobKind: { commercial: 'commerciaux', industrial: 'industriels' },
       growth: (per1000: number, max: string) => `+${per1000} pour 1 000 hab., jusqu’à ${max}`,
       regional: 'Liaison régionale',

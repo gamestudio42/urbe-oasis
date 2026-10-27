@@ -58,6 +58,7 @@ export const ptBR = {
     rechargeBasin: 'Bacia de recarga',
     grandBazaar: 'Grande bazar',
     palaceGarden: 'Jardim do palácio',
+    caravanStop: 'Parada de caravana',
   } satisfies Record<ToolId, string>,
   toolHints: {
     select: 'Clique em um lote para ver detalhes.',
@@ -101,6 +102,7 @@ export const ptBR = {
     rechargeBasin: 'Liberada pelo título de Vila. Recarrega o lençol freático: nas secas da era, os qanats sofrem metade do corte. Precisa de energia.',
     grandBazaar: 'Liberado pelo título de Cidade. Um grande mercado coberto: muitos empregos no comércio e terrenos mais valorizados. Precisa de estrada.',
     palaceGarden: 'Liberado pelo título de Capital do oásis. Sombra densa, maior com água encanada, e terrenos mais valorizados. Precisa de energia.',
+    caravanStop: 'À beira da estrada. Viagens entre paradas da mesma rede de estradas vão de caravana, sem carro. Leva até 400 passageiros por mês.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Inspecionar',
@@ -156,6 +158,7 @@ export const ptBR = {
     rechargeBasin: 'Bacia de recarga',
     grandBazaar: 'Grande bazar',
     palaceGarden: 'Jardim do palácio',
+    caravanStop: 'Parada de caravana',
   } satisfies Record<BuildingKind, string>,
   zones: {
     residential: 'Residencial',
@@ -417,6 +420,8 @@ export const ptBR = {
       operating: 'Em operação',
       idle: 'Parado (sem energia)',
       jobs: 'Empregos',
+      riders: 'Passageiros',
+      ridersNote: 'Por mês. As viagens vão de caravana entre duas paradas da mesma rede.',
       jobKind: { commercial: 'comerciais', industrial: 'industriais' },
       growth: (per1000: number, max: string) => `+${per1000} a cada 1.000 hab., até ${max}`,
       regional: 'Ligação regional',
