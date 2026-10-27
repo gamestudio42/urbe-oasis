@@ -54,6 +54,12 @@ interface PendingDemo {
 export class CityClient {
   world: World | null = null;
   readonly buildings = new Map<number, BuildingRecord>();
+
+  /** True when the mirror world has a building of this kind (one era work of each per city). */
+  hasBuilding(kind: BuildingRecord['kind']): boolean {
+    for (const b of this.buildings.values()) if (b.kind === kind) return true;
+    return false;
+  }
   stats: CityStats | null = null;
   history: HistoryEntry[] = [];
   name = '';

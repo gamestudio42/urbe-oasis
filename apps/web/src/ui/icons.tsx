@@ -245,6 +245,23 @@ const CLASSIC: Record<ToolId, ReactElement> = {
       <path d="M8 8 H16 M8 12 H16 M8 16 H16" stroke="#7fd0e8" strokeWidth="1.4" />
       <path d="M12 2 V4" stroke="#ffb020" strokeWidth="2" />
     </>
+  ),  rechargeBasin: (
+    <>
+      <path d="M3 10 H21 L18 19 H6 Z" fill="#2a2036" stroke="#7fd0e8" strokeWidth="1.2" />
+      <path d="M7 14 H17" stroke="#7fd0e8" strokeWidth="1.6" />
+    </>
+  ),
+  grandBazaar: (
+    <>
+      <rect x="3" y="9" width="18" height="11" fill="#2a2036" stroke="#ff5ac8" strokeWidth="1.2" />
+      <path d="M6 9 L12 4 L18 9" stroke="#ffb020" strokeWidth="1.6" fill="none" />
+    </>
+  ),
+  palaceGarden: (
+    <>
+      <rect x="3" y="15" width="18" height="5" fill="#2a2036" stroke="#22e6a0" strokeWidth="1.2" />
+      <path d="M8 15 V7 M16 15 V5" stroke="#22e6a0" strokeWidth="2" />
+    </>
   ),
 };
 

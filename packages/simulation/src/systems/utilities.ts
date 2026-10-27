@@ -1,6 +1,7 @@
 import {
   BALANCE,
   Infra,
+  OASIS_ERA_WORKS,
   OASIS_RATIONING,
   OASIS_SHADE,
   OASIS_WATER,
@@ -204,6 +205,9 @@ export function shadeSupply(b: BuildingRecord, nearSpring = true): number {
     if (nearSpring || b.watered) return OASIS_SHADE.springSupplyDry;
     return 0;
   }
+  // A palace garden is fed by the water network, not by the spring.
+  if (b.kind === 'palaceGarden')
+    return b.watered ? OASIS_ERA_WORKS.gardenShade : OASIS_ERA_WORKS.gardenShadeDry;
   return 0;
 }
 

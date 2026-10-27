@@ -2,6 +2,7 @@ import {
   ERA_RANKS,
   JOURNEY_CHAPTERS,
   OASIS_ERA,
+  OASIS_ERA_WORKS,
   OASIS_JOURNEY,
   type BuildingRecord,
   type EraState,
@@ -52,14 +53,23 @@ export function droughtFactor(engine: SimulationEngine): number {
 export function qanatDroughtFactor(engine: SimulationEngine): number {
   const era = engine.ruleset === 'oasis' ? engine.oasis.journey?.era : undefined;
   if (!era || era.droughtMonthsLeft <= 0) return 1;
-  return eraQanatFactor(era.droughts - 1);
+  return eraQanatFactor(era.droughts - 1, basinOperating(engine));
 }
 
-/** Qanat output the n-th era dry season leaves: part of the well cut, deeper each season. */
-export function eraQanatFactor(n: number): number {
+/**
+ * Qanat output the n-th era dry season leaves: part of the well cut, deeper each season. An
+ * operating recharge basin (`recharged`) spares qanats part of that cut.
+ */
+export function eraQanatFactor(n: number, recharged = false): number {
   const e = OASIS_ERA;
   const share = Math.min(e.qanatShareMost, e.qanatShareStart + e.qanatShareStep * n);
-  return 1 - (1 - eraDroughtFactor(n)) * share;
+  const cut = recharged ? share * OASIS_ERA_WORKS.basinQanatCut : share;
+  return 1 - (1 - eraDroughtFactor(n)) * cut;
+}
+
+/** True while a recharge basin is powered and online. */
+export function basinOperating(engine: SimulationEngine): boolean {
+  return engine.buildings.ofKind('rechargeBasin').some((b) => b.powered && b.offline === 0);
 }
 
 /** True while a drought (the journey's or an era dry season) cuts well and pump output. */
@@ -309,7 +319,7 @@ function eraSummary(engine: SimulationEngine, era: EraState, month: number) {
     droughtMonthsLeft: era.droughtMonthsLeft,
     droughtLength: running ? era.droughtLength : eraDroughtLength(n),
     droughtFactor: Math.round(eraDroughtFactor(n) * 100) / 100,
-    qanatFactor: Math.round(eraQanatFactor(n) * 100) / 100,
+    qanatFactor: Math.round(eraQanatFactor(n, basinOperating(engine)) * 100) / 100,
     droughtServed: running && done > 0 ? Math.round(era.droughtServed / done) / 1000 : -1,
     droughtReward: eraDroughtReward(n),
   };

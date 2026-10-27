@@ -70,6 +70,10 @@ export const RejectReason = {
   Locked: 'LOCKED',
   NeedsWater: 'NEEDS_WATER',
   NeedsRoad: 'NEEDS_ROAD',
+  /** Oasis era work whose title the city has not earned yet. */
+  NeedsTitle: 'NEEDS_TITLE',
+  /** Oasis era work the city already has. */
+  OnePerCity: 'ONE_PER_CITY',
   Invalid: 'INVALID',
 } as const;
 export type RejectReason = (typeof RejectReason)[keyof typeof RejectReason];

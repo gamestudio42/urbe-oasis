@@ -205,6 +205,11 @@ export const urbe: Theme = {
     'caravanserai.signGlow': 0xe8f4ff,
     'caravanserai.spire': 0xb8c2ce,
     'caravanserai.beacon': 0xff5a4a,
+    'works.stone': 0xb8b2a6,
+    'works.roof': 0x8a8478,
+    'works.dome': 0x6a8aa8,
+    'works.cloth': 0xc8503c,
+    'works.tile': 0x3a6ea8,
 
     'tree.trunk': 0x6a4a2a,
     'tree.leafDark': 0x2f7a3a,

@@ -71,3 +71,52 @@ test('during an era dry season, the card counts down and offers rationing', asyn
     .toBe('scarce');
   if (!process.env.CI) await page.screenshot({ path: 'test-results/oasis-era-drought.png' });
 });
+
+test('a title unlocks its era work: the dock shows the lock, then the work, then one per city', async ({
+  page,
+}) => {
+  const text = (() => {
+    const run = SIM_PRESETS['oasis-journey']!.create('1', 64);
+    for (let m = 0; m < 60 && (run.engine.oasis.journey?.era?.rank ?? 0) < 1; m++) {
+      run.engine.runMonths(1);
+      run.onMonth(run.engine);
+    }
+    expect(run.engine.oasis.journey?.era?.rank).toBe(1);
+    run.engine.economy.funds = 100_000;
+    return JSON.stringify(
+      encodeSave(
+        run.engine.serialize(),
+        { population: 0, funds: 0, savedAt: '2026-10-27T00:00:00.000Z' },
+        { format: OASIS_SAVE_FORMAT },
+      ),
+    );
+  })();
+  await open(page, text);
+  await page.getByTestId('oasis-guide-toggle').click();
+  await expect(page.getByTestId('oasis-era-work')).toContainText(
+    'Libera a grande obra: Grande bazar',
+  );
+  await page.getByTestId('tool-category-services').click();
+  const bazaar = page.getByTestId('tool-grandBazaar');
+  await expect(bazaar).toHaveAttribute('data-locked', 'true');
+  await expect(bazaar).toContainText('Exige o título Cidade');
+  await page.getByTestId('tool-category-utilities').click();
+  const basin = page.getByTestId('tool-rechargeBasin');
+  await expect(basin).toHaveAttribute('data-locked', 'false');
+  await basin.click();
+  // Open sand south-east of the town.
+  await page.evaluate(() => {
+    window.__cityDebug!.centerOnTile(54, 54);
+    window.__cityDebug!.setZoom(1.5);
+  });
+  const p = (await page.evaluate(() => window.__cityDebug!.tileToClient(54, 54)))!;
+  await page.mouse.click(p.x, p.y);
+  await expect(page.getByTestId('construction-receipt')).toHaveAttribute('data-ok', 'true');
+  await expect
+    .poll(() => page.evaluate(() => window.__cityDebug!.getTile(54, 54)?.buildingId ?? null))
+    .not.toBeNull();
+  await page.getByTestId('tool-category-utilities').click();
+  await expect(basin).toHaveAttribute('data-locked', 'true');
+  await expect(basin).toContainText('Construída: uma por cidade');
+  if (!process.env.CI) await page.screenshot({ path: 'test-results/oasis-era-work.png' });
+});

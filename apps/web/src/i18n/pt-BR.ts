@@ -55,6 +55,9 @@ export const ptBR = {
     caravanserai: 'Caravançará',
     springHouse: 'Casa da nascente',
     palm: 'Palmeira',
+    rechargeBasin: 'Bacia de recarga',
+    grandBazaar: 'Grande bazar',
+    palaceGarden: 'Jardim do palácio',
   } satisfies Record<ToolId, string>,
   toolHints: {
     select: 'Clique em um lote para ver detalhes.',
@@ -95,6 +98,9 @@ export const ptBR = {
     caravanserai: 'As caravanas se encontram aqui. Compram lotes sombreados ou irrigados e pagam o caixa.',
     springHouse: 'Fornece banda. A capacidade cheia precisa de energia e de agua para resfriar.',
     palm: 'Uma fonte pequena de banda. Precisa de energia, nao de agua.',
+    rechargeBasin: 'Liberada pelo título de Vila. Recarrega o lençol freático: nas secas da era, os qanats sofrem metade do corte. Precisa de energia.',
+    grandBazaar: 'Liberado pelo título de Cidade. Um grande mercado coberto: muitos empregos no comércio e terrenos mais valorizados. Precisa de estrada.',
+    palaceGarden: 'Liberado pelo título de Capital do oásis. Sombra densa, maior com água encanada, e terrenos mais valorizados. Precisa de energia.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Inspecionar',
@@ -120,6 +126,8 @@ export const ptBR = {
     LOCKED: 'Ainda não há habitantes suficientes para esta obra.',
     NEEDS_WATER: 'Precisa encostar na água.',
     NEEDS_ROAD: 'Precisa de uma estrada ao lado.',
+    NEEDS_TITLE: 'Esta grande obra precisa de um título mais alto na era.',
+    ONE_PER_CITY: 'A cidade já tem esta grande obra.',
     INVALID: 'Ação inválida.',
   } satisfies Record<RejectReason, string>,
   buildings: {
@@ -145,6 +153,9 @@ export const ptBR = {
     caravanserai: 'Caravançará',
     springHouse: 'Casa da nascente',
     palm: 'Palmeira',
+    rechargeBasin: 'Bacia de recarga',
+    grandBazaar: 'Grande bazar',
+    palaceGarden: 'Jardim do palácio',
   } satisfies Record<BuildingKind, string>,
   zones: {
     residential: 'Residencial',

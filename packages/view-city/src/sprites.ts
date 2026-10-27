@@ -41,6 +41,7 @@ import {
   drawOasisShade,
   drawSubstation,
 } from './oasisSprites';
+import { drawEraWork } from './eraWorkSprites';
 import type { VehicleKind } from './animation/vehicles';
 import { drawCommercial, drawIndustrial, drawResidential } from './zoneSprites';
 
@@ -291,6 +292,8 @@ export function drawBuilding(
   else if (kind === 'caravanserai') drawCorpHQ(g, theme);
   else if (theme.style === 'adobe' && (kind === 'springHouse' || kind === 'palm')) {
     drawOasisShade(g, theme, kind);
+  } else if (drawEraWork(g, theme, kind)) {
+    // Era works keep one silhouette in every style.
   } else if (theme.style === 'adobe' && drawAdobeCivic(g, theme, kind)) {
     // Mud-brick service buildings: a yard, a ward, a court. Not the classic civic set.
   } else if (theme.style === 'adobe' && drawAdobeUtility(g, theme, kind, size)) {

@@ -54,6 +54,9 @@ export const fr = {
     caravanserai: 'Caravansérail',
     springHouse: 'Maison de la source',
     palm: 'Palmier',
+    rechargeBasin: 'Bassin de recharge',
+    grandBazaar: 'Grand bazar',
+    palaceGarden: 'Jardin du palais',
   } satisfies Record<ToolId, string>,
   toolHints: {
     select: 'Cliquez sur une parcelle pour voir les détails.',
@@ -94,6 +97,9 @@ export const fr = {
     caravanserai: 'Les caravanes s’y retrouvent. Elles achètent les lots ombragés ou arrosés et paient la caisse.',
     springHouse: "Fournit de la bande passante. Le plein débit a besoin d'énergie et d'eau pour le refroidissement.",
     palm: "Une petite source de bande passante. A besoin d'énergie, pas d'eau.",
+    rechargeBasin: 'Débloqué par le titre de Bourg. Recharge la nappe : pendant les saisons sèches de l’ère, les qanats ne subissent que la moitié de la baisse. A besoin d’énergie.',
+    grandBazaar: 'Débloqué par le titre de Ville. Un grand marché couvert : beaucoup d’emplois commerciaux et un terrain plus cher. Doit être au bord d’une route.',
+    palaceGarden: 'Débloqué par le titre de Capitale de l’oasis. Une ombre dense, plus forte avec l’eau courante, et un terrain plus cher. A besoin d’énergie.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Inspecter',
@@ -119,6 +125,8 @@ export const fr = {
     LOCKED: 'Pas encore assez d’habitants pour ce bâtiment.',
     NEEDS_WATER: 'Doit toucher l’eau.',
     NEEDS_ROAD: 'Doit être au bord d’une route.',
+    NEEDS_TITLE: 'Ce grand ouvrage demande un titre d’ère plus élevé.',
+    ONE_PER_CITY: 'La ville a déjà ce grand ouvrage.',
     INVALID: 'Action invalide.',
   } satisfies Record<RejectReason, string>,
   buildings: {
@@ -144,6 +152,9 @@ export const fr = {
     caravanserai: 'Caravansérail',
     springHouse: 'Maison de la source',
     palm: 'Palmier',
+    rechargeBasin: 'Bassin de recharge',
+    grandBazaar: 'Grand bazar',
+    palaceGarden: 'Jardin du palais',
   } satisfies Record<BuildingKind, string>,
   zones: {
     residential: 'Résidentiel',

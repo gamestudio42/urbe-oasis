@@ -3,7 +3,9 @@ import {
   PLACEABLE_SPECS,
   ZoneDensity,
   ZoneType,
+  ERA_WORK_KINDS,
   OASIS_ERA,
+  OASIS_ERA_WORKS,
   defaultJourneyState,
   isZoneKind,
   type Command,
@@ -224,7 +226,34 @@ function playJourney(engine: SimulationEngine): void {
   if (chapter >= 4) placeBeside(engine, 'caravanserai', engine.buildings.ofKind('school'), 1);
   keepShade(engine);
   growDistrict(engine);
+  buildWorks(engine);
 }
+
+/**
+ * Era works, after the south district, each once its title is earned and the treasury keeps a
+ * reserve after paying for it:
+ * the basin and the garden beside the pumps (power and water), the bazaar beside a service on a
+ * road.
+ */
+function buildWorks(engine: SimulationEngine): void {
+  const rank = engine.oasis.journey?.era?.rank ?? -1;
+  // Growth comes first: works wait for the south district.
+  if (!engine.world.hasInfra(engine.world.index(6, DISTRICT_AVENUE), Infra.Road)) return;
+  for (const kind of ERA_WORK_KINDS) {
+    if (rank < OASIS_ERA_WORKS.rank[kind] || engine.buildings.ofKind(kind).length > 0) continue;
+    if (engine.economy.funds < PLACEABLE_SPECS[kind].cost + WORK_RESERVE) continue;
+    const anchors =
+      kind === 'grandBazaar'
+        ? [...engine.buildings.values()].filter(
+            (b) => !isZoneKind(b.kind) && PLACEABLE_SPECS[b.kind].requiresRoad,
+          )
+        : [...engine.buildings.ofKind('waterPump'), ...engine.buildings.ofKind('qanat')];
+    placeBeside(engine, kind, anchors, 1);
+  }
+}
+
+/** Treasury the era player keeps after paying for an era work. */
+const WORK_RESERVE = 20_000;
 
 /**
  * The era player's answer to the next title's shelter goal: while cover falls short, a windbreak
@@ -272,7 +301,7 @@ function growDistrict(engine: SimulationEngine): void {
 }
 
 /** Funds the era player keeps before building the south district, and its avenue row. */
-const DISTRICT_FUNDS = 60_000;
+const DISTRICT_FUNDS = 40_000;
 const DISTRICT_AVENUE = 33;
 
 /**

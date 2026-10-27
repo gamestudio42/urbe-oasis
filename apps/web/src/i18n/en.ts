@@ -55,6 +55,9 @@ export const en = {
     caravanserai: 'Caravanserai',
     springHouse: 'Spring house',
     palm: 'Palm',
+    rechargeBasin: 'Recharge basin',
+    grandBazaar: 'Grand bazaar',
+    palaceGarden: 'Palace garden',
   } satisfies Record<ToolId, string>,
   toolHints: {
     select: 'Click a lot to see details.',
@@ -94,6 +97,9 @@ export const en = {
     caravanserai: 'Caravans meet here. They buy shaded or watered lots and pay the treasury.',
     springHouse: 'Full shade near the spring, with water. A dry hall only trickles.',
     palm: 'A small shade tree. No power and no water.',
+    rechargeBasin: 'Unlocked by the Town title. Refills the water table: in era dry seasons qanats take half the cut. Needs power.',
+    grandBazaar: 'Unlocked by the City title. A great covered market: many shop jobs and higher land value. Needs a road.',
+    palaceGarden: 'Unlocked by the Oasis capital title. Deep shade, fuller with piped water, and higher land value. Needs power.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Inspect',
@@ -119,6 +125,8 @@ export const en = {
     LOCKED: 'Not enough people live here for this building yet.',
     NEEDS_WATER: 'Must touch water.',
     NEEDS_ROAD: 'Must sit next to a road.',
+    NEEDS_TITLE: 'This era work needs a higher era title.',
+    ONE_PER_CITY: 'The city already has this era work.',
     INVALID: 'Invalid action.',
   } satisfies Record<RejectReason, string>,
   buildings: {
@@ -144,6 +152,9 @@ export const en = {
     caravanserai: 'Caravanserai',
     springHouse: 'Spring house',
     palm: 'Palm',
+    rechargeBasin: 'Recharge basin',
+    grandBazaar: 'Grand bazaar',
+    palaceGarden: 'Palace garden',
   } satisfies Record<BuildingKind, string>,
   zones: {
     residential: 'Residential',

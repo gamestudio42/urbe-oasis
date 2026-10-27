@@ -54,6 +54,9 @@ export const de = {
     caravanserai: 'Karawanserei',
     springHouse: 'Quellhaus',
     palm: 'Palme',
+    rechargeBasin: 'Versickerungsbecken',
+    grandBazaar: 'Großer Basar',
+    palaceGarden: 'Palastgarten',
   } satisfies Record<ToolId, string>,
   toolHints: {
     select: 'Klicke ein Grundstück an, um Details zu sehen.',
@@ -94,6 +97,9 @@ export const de = {
     caravanserai: 'Karawanen treffen sich hier. Sie kaufen schattige oder bewässerte Grundstücke und zahlen die Kasse.',
     springHouse: 'Liefert Bandbreite. Volle Leistung braucht Strom und Wasser zur Kühlung.',
     palm: 'Eine kleine Bandbreitenquelle. Braucht Strom, kein Wasser.',
+    rechargeBasin: 'Freigeschaltet mit dem Titel Dorf. Füllt das Grundwasser auf: In Trockenzeiten der Ära verlieren Qanate nur die Hälfte. Braucht Strom.',
+    grandBazaar: 'Freigeschaltet mit dem Titel Stadt. Ein großer überdachter Markt: viele Handelsjobs und höherer Bodenwert. Muss an einer Straße liegen.',
+    palaceGarden: 'Freigeschaltet mit dem Titel Hauptstadt der Oase. Dichter Schatten, mehr mit Leitungswasser, und höherer Bodenwert. Braucht Strom.',
   } satisfies Record<ToolId, string>,
   toolGroups: {
     inspect: 'Untersuchen',
@@ -119,6 +125,8 @@ export const de = {
     LOCKED: 'Noch nicht genug Einwohner für dieses Gebäude.',
     NEEDS_WATER: 'Muss ans Wasser grenzen.',
     NEEDS_ROAD: 'Muss an einer Straße liegen.',
+    NEEDS_TITLE: 'Dieses Großprojekt braucht einen höheren Ära-Titel.',
+    ONE_PER_CITY: 'Die Stadt hat dieses Großprojekt schon.',
     INVALID: 'Ungültige Aktion.',
   } satisfies Record<RejectReason, string>,
   buildings: {
@@ -144,6 +152,9 @@ export const de = {
     caravanserai: 'Karawanserei',
     springHouse: 'Quellhaus',
     palm: 'Palme',
+    rechargeBasin: 'Versickerungsbecken',
+    grandBazaar: 'Großer Basar',
+    palaceGarden: 'Palastgarten',
   } satisfies Record<BuildingKind, string>,
   zones: {
     residential: 'Wohngebiet',

@@ -180,6 +180,11 @@ const NEON_OVERRIDES: Record<string, number> = {
   'caravanserai.signGlow': 0xff3ea5,
   'caravanserai.spire': 0x6f7788,
   'caravanserai.beacon': 0xff2d55,
+  'works.stone': 0x1b2330,
+  'works.roof': 0x0a0e16,
+  'works.dome': 0x2de2e6,
+  'works.cloth': 0xff3ea5,
+  'works.tile': 0x9b7bff,
 
   // Civic services: dark concrete shells lit by neon, the way the drone port and the substation
   // read. Each building keeps a colour cue (magenta police, amber fire, cyan school, green

@@ -389,6 +389,37 @@ const GLYPHS: Record<AdobeIconId, Glyph> = {
       </>
     ),
   },
+  rechargeBasin: {
+    accent: 'water',
+    shape: (
+      <>
+        <path d="M3 14H29L25 26H7Z" className="oasis-icon-wash" />
+        <path d="M3 14H29L25 26H7ZM7 19Q11 17 16 19T25 19M16 4V10M12 7L16 11L20 7" />
+      </>
+    ),
+  },
+  grandBazaar: {
+    accent: 'clay',
+    shape: (
+      <>
+        <path d="M3 28V14Q9 6 16 6Q23 6 29 14V28Z" className="oasis-icon-wash" />
+        <path d="M3 28V14Q9 6 16 6Q23 6 29 14V28ZM3 28H29M8 28V21A3 3 0 0 1 14 21V28M18 28V21A3 3 0 0 1 24 21V28M16 6V2" />
+      </>
+    ),
+  },
+  palaceGarden: {
+    accent: 'shade',
+    shape: (
+      <>
+        <path d="M4 28V20H28V28Z" className="oasis-icon-wash" />
+        <path d="M4 28V20H28V28ZM4 28H28M16 20V24M12 24H20" />
+        <path
+          d="M10 20V12M10 12C6 9 4 11 4 13M10 12C14 9 16 11 16 13M22 20V10M22 10C18 7 16 9 16 11M22 10C26 7 28 9 28 11"
+          className="oasis-icon-accent"
+        />
+      </>
+    ),
+  },
   demolish: {
     accent: 'clay',
     shape: (

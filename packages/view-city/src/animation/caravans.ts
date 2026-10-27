@@ -129,7 +129,8 @@ export class CaravanSim {
       if (route && c.distance < route.path.length + FADE_TILES) this.caravans[kept++] = c;
     }
     this.caravans.length = kept;
-    if (!this.open) return;
+    // Paused time sends nobody, even when a reopened caravanserai has a departure due.
+    if (!this.open || dt <= 0) return;
     this.sinceDeparture += dt;
     if (this.sinceDeparture < DEPARTURE_EVERY || this.caravans.length >= MAX_CARAVANS) return;
     this.sinceDeparture = 0;

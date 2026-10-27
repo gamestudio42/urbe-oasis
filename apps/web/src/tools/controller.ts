@@ -190,6 +190,8 @@ export class ToolController {
         bankrupt: stats.bankrupt,
         population: stats.population,
         ruleset: stats.ruleset,
+        ...(stats.oasis?.journey?.era ? { eraRank: stats.oasis.journey.era.rank } : {}),
+        has: (kind) => client.hasBuilding(kind),
       },
       command,
     );

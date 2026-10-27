@@ -144,6 +144,18 @@ describe('oasis street life', () => {
     expect(sim.caravans).toHaveLength(0);
   });
 
+  it('sends no caravan while paused, even when a reopened caravanserai has one due', () => {
+    const route = caravanRoute(street(24, 10, 0, 12), [10 * 24 + 12])!;
+    const sim = new CaravanSim(createRandom(3));
+    sim.setRoutes([route]);
+    sim.setRoutes([]);
+    sim.setRoutes([route]);
+    sim.step(0);
+    expect(sim.caravans).toHaveLength(0);
+    sim.step(0.1);
+    expect(sim.caravans).toHaveLength(1);
+  });
+
   it('lines only shaded canals with palms, chosen by tile so they never flicker', () => {
     const e = city();
     expect(e.execute({ type: 'canal', x0: 2, y0: 5, x1: 20, y1: 5 }).ok).toBe(true);
