@@ -64,6 +64,8 @@ export class ToolController {
   private settledPlacement: Point | null = null;
   /** Overlay this controller opened for a network tool, closed again when the tool changes. */
   private autoOverlay: OverlayMode | null = null;
+  /** Whether the drawn service reach is this controller's preview; the inspector owns others. */
+  private ownsTrace = false;
 
   constructor(private readonly session: GameSession) {}
 
@@ -92,8 +94,14 @@ export class ToolController {
     this.end = null;
     this.session.renderer.setHighlight([]);
     this.session.renderer.setPlacementPreview(null);
-    this.session.renderer.setServiceTrace(null);
+    this.clearTrace();
     this.session.ui.set({ preview: null });
+  }
+
+  private clearTrace(): void {
+    if (!this.ownsTrace) return;
+    this.ownsTrace = false;
+    this.session.renderer.setServiceTrace(null);
   }
 
   /** Network tools show the served area; the player's own overlay choice always wins. */
@@ -207,7 +215,7 @@ export class ToolController {
     ) {
       renderer.setHighlight([]);
       renderer.setPlacementPreview(null);
-      renderer.setServiceTrace(null);
+      this.clearTrace();
       this.session.ui.set({ preview: null });
       return;
     }
@@ -218,7 +226,7 @@ export class ToolController {
     if (!plan || !world) {
       renderer.setHighlight([]);
       renderer.setPlacementPreview(null);
-      renderer.setServiceTrace(null);
+      this.clearTrace();
       this.session.ui.set({ preview: null });
       return;
     }
@@ -257,7 +265,7 @@ export class ToolController {
     const network = serviceNetworkOf(this.tool.id);
     const ctx = network ? this.session.serviceContext() : null;
     if (!network || !ctx) {
-      renderer.setServiceTrace(null);
+      this.clearTrace();
       return null;
     }
     const tiles = [
@@ -268,6 +276,7 @@ export class ToolController {
       command.type === 'place' ? { kind: command.kind, x: command.x, y: command.y } : undefined;
     const start = building ? [ctx.world.index(building.x, building.y)] : tiles;
     const trace = traceService(ctx, network, start, building ? { tiles, building } : { tiles });
+    this.ownsTrace = true;
     renderer.setServiceTrace({
       tiles: trace.tiles,
       sources: trace.sources.map((s) => ({ x: s.x, y: s.y, w: s.w, h: s.h, ok: s.supply > 0 })),
