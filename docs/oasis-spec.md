@@ -319,7 +319,8 @@ city is a City with $40,000 in the treasury, it builds a south district once: a 
 row 33 with dense shops and workshops north of it and dense homes south of it, zoned flush with
 the old blocks so power crosses, with a pipe and a canal along two rows. After that district, it
 builds each era work once its title is earned and $20,000 would remain: the basin and the garden
-beside the pumps or qanats, the bazaar beside a service on a road. The `oasis-founding` preset plays the founding tutorial on Normal funds,
+beside the pumps or qanats, the bazaar beside a service on a road. When power demand passes 85% of
+supply, it adds a gas plant beside the existing plants, since the town's fixed plant slots run out. The `oasis-founding` preset plays the founding tutorial on Normal funds,
 with no services, for measuring the early economy.
 
 ### Presentation
