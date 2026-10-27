@@ -312,7 +312,12 @@ the same drought cut to wells and pumps.
 The `oasis-journey` preset runs the balanced town with $30,000 extra capital and an automated
 player. That player adds qanats and cisterns beside the pumps, windbreaks beside services and a
 caravanserai beside a school. While shade supply is short, it also plants up to three palms a
-month beside the canals. The `oasis-founding` preset plays the founding tutorial on Normal funds,
+month beside the canals. In the era it builds the cistern banks the next title asks for, adds a
+windbreak beside up to two uncovered services a month while shelter is below that title's goal,
+and adds two qanats beside the pumps in each dry-season month that leaves water short. Once the
+city is a City with $60,000 in the treasury, it builds a south district once: a second avenue at
+row 33 with dense shops and workshops north of it and dense homes south of it, zoned flush with
+the old blocks so power crosses, with a pipe and a canal along two rows. The `oasis-founding` preset plays the founding tutorial on Normal funds,
 with no services, for measuring the early economy.
 
 ### Presentation
@@ -352,10 +357,16 @@ cover of services.
 The first era dry season starts `firstDroughtAfter` (18) closes after the era opens, and each
 later one starts `droughtEvery` (24) closes after the previous one ends. Dry season `n` (from 0)
 lasts `min(6, 3 + floor(n / 2))` closes. Wells and pumps deliver `max(0.35, 0.55 − 0.05n)` of
-their output. Unlike the journey drought, era dry seasons also reach qanats, at half the cut:
-`1 − (1 − f) × 0.5`. Cistern releases keep their full output. As in the journey, each close adds
-the served share to a running sum. When the season ends, a mean of at least 75% counts as held
-and pays `3000 + 1500n`. `droughtStarted` and `droughtEnded` (with `reward` when held) report
+their output. Unlike the journey drought, era dry seasons also reach qanats: each season lowers the
+water table further, so qanats take a growing share of the well cut,
+`s = min(0.8, 0.5 + 0.05n)`, and deliver `1 − (1 − f) × s`. Cistern releases keep their full
+output. As in the journey, each close adds the served share to a running sum. When the season
+ends, a mean of at least 75% counts as held and pays `3000 + 1500 × min(n, 6)`.
+
+The era stops escalating at its seventh season (n = 6, about year 17): every later season lasts six
+months, leaves wells at 35% and qanats at 48%, and pays $12,000. Wells reach their floor at the
+fifth season, but the water table keeps falling for two more, so a city that only matched the
+fifth season comes up short later. `droughtStarted` and `droughtEnded` (with `reward` when held) report
 it, and both mark the networks dirty.
 
 ### Era state and presentation
@@ -363,7 +374,7 @@ it, and both mark the networks dirty.
 The decoder validates the rank (0–3), one month per earned title, the season months (at most
 `droughtLongest`) and that held seasons never exceed seasons. `CityStats.oasis.journey.era`
 mirrors the rank, the cistern count and mean charge, the countdown, the current season, its
-factor, the mean served share and the grant. The mirror-world service trace applies the same well,
+well and qanat factors, the mean served share and the grant. The mirror-world service trace applies the same well,
 pump and qanat cuts. The collapsed guide shows `Oasis era · <title>`. Expanded, it shows the next
 title's goal rows and grant, a dry-season card with the countdown, cuts, grant and a rationing
 toggle (from one month before the season), and a record of held seasons. The music turns scarce
@@ -397,7 +408,9 @@ water stays out of the offer. Each settlement adds `cisternChargePerDay` (1/240 
 whole day since the bank was last settled, capped at `cisternChargeDaysCap` (30) days, and records
 the tick on the bank (`settledTick`). A spare network therefore fills a bank in about eight
 months. Several refreshes on one day, such as repeated construction, add nothing. A bank from an
-older save without `settledTick` counts one day on its first settlement. When demand passes the base supply, the cistern releases only the missing water, up
+older save without `settledTick` counts one day on its first settlement. The base supply is what
+the sources deliver after a drought's cut, so a network that is spare in a normal month but short
+in a dry season draws on its banks. When demand passes the base supply, the cistern releases only the missing water, up
 to `charge * cisternOutput`, and the charge falls by the same share. A component whose demand
 reaches `overloadThreshold` (0.9) of its supply is parched. If that component has a qanat, one
 qanat goes offline for `cascadeOutageDays` and the collapse notice fires. With no qanat, a share

@@ -255,18 +255,22 @@ export const OASIS_ERA = {
   droughtFactorStep: 0.05,
   droughtFactorFloor: 0.35,
   /**
-   * Share of an era dry season's cut that also reaches qanats: long droughts lower the water
-   * table. The journey's first drought spares qanats, which is how it teaches their value.
+   * Share of the n-th era dry season's cut that also reaches qanats:
+   * `min(most, start + step * n)`. Each season lowers the water table a little more. The
+   * journey's first drought spares qanats, which is how it teaches their value.
    */
-  qanatShare: 0.5,
+  qanatShareStart: 0.5,
+  qanatShareStep: 0.05,
+  qanatShareMost: 0.8,
   /** Month closes the n-th era dry season lasts: `min(longest, shortest + floor(n / 2))`. */
   droughtShortest: 3,
   droughtLongest: 6,
   /** Mean water service that counts as holding on. */
   droughtTarget: 0.75,
-  /** Grant for holding on through the n-th era dry season: `base + step * n`. */
+  /** Grant for holding on through the n-th era dry season: `base + step * min(n, steps)`. */
   droughtRewardBase: 3000,
   droughtRewardStep: 1500,
+  droughtRewardSteps: 6,
 } as const;
 
 /** Ranks of the era; `rank === ERA_RANKS` means every rank is reached. */

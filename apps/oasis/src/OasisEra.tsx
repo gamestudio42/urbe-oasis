@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ERA_RANKS, OASIS_ERA, type CityStats } from '@city/shared';
-import { qanatFactor } from '@city/simulation';
 import { formatMoney, formatNumber, type Locale } from '@oasis/web/i18n';
 import type { GameSession } from '@oasis/web/state/session';
 import { useStore } from '@oasis/web/state/store';
@@ -124,7 +123,7 @@ export function OasisEra({ session, era }: { session: GameSession; era: Era }) {
           {copy.droughtDetail(
             formatNumber(era.droughtLength, locale),
             pct(era.droughtFactor),
-            pct(qanatFactor(era.droughtFactor)),
+            pct(era.qanatFactor),
           )}
         </p>
         {running && era.droughtServed >= 0 && (

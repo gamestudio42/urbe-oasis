@@ -149,6 +149,8 @@ export interface CityStats {
         /** Length and well/pump factor of the running dry season, or of the next one. */
         droughtLength: number;
         droughtFactor: number;
+        /** Qanat factor of the same dry season. */
+        qanatFactor: number;
         /** Mean water service over the running dry season's closes, 0..1; -1 before the first. */
         droughtServed: number;
         /** Grant for holding on through the running (or next) dry season. */

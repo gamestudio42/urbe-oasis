@@ -126,7 +126,8 @@ function settleCisterns(engine: SimulationEngine, conductors: Uint8Array): void 
     let demand = 0;
     const banks: BuildingRecord[] = [];
     for (const b of buildings) {
-      base += waterSupply(engine.world, b, true);
+      // What the sources deliver after a dry season's cut: that is the gap banks must fill.
+      base += droughtOutput(engine, b, waterSupply(engine.world, b, true));
       demand += waterDemand(b, engine.oasis.waterPolicy?.rationing);
       if (b.kind === 'cistern' && b.powered && b.offline === 0) banks.push(b);
     }

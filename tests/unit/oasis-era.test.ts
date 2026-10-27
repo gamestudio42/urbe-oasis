@@ -17,7 +17,7 @@ import {
   eraDroughtReward,
   hashState,
   qanatDroughtFactor,
-  qanatFactor,
+  eraQanatFactor,
 } from '@city/simulation';
 import { describe, expect, it } from 'vitest';
 
@@ -49,8 +49,69 @@ describe('the Oasis era after the journey', () => {
     expect(eraDroughtLength(99)).toBe(OASIS_ERA.droughtLongest);
     expect(eraDroughtReward(1)).toBeGreaterThan(eraDroughtReward(0));
     // Qanats take part of the cut, never more than wells.
-    expect(qanatFactor(0.4)).toBeGreaterThan(0.4);
-    expect(qanatFactor(0.4)).toBeLessThan(1);
+    for (let n = 0; n < 12; n++) {
+      expect(eraQanatFactor(n)).toBeGreaterThan(eraDroughtFactor(n));
+      expect(eraQanatFactor(n)).toBeLessThan(1);
+    }
+  });
+
+  it('keeps lowering the water table after the well floor, then stops escalating', () => {
+    const e = OASIS_ERA;
+    const floorSeason = (e.droughtFactorStart - e.droughtFactorFloor) / e.droughtFactorStep;
+    // Past the well floor, qanats still lose output season after season.
+    expect(eraDroughtFactor(floorSeason + 1)).toBe(eraDroughtFactor(floorSeason));
+    expect(eraQanatFactor(floorSeason + 1)).toBeLessThan(eraQanatFactor(floorSeason));
+    // From the last escalating season on, every season is the same: length, cuts and grant.
+    const last = e.droughtRewardSteps;
+    expect(eraDroughtLength(last)).toBe(e.droughtLongest);
+    expect(eraQanatFactor(last)).toBeCloseTo(1 - (1 - e.droughtFactorFloor) * e.qanatShareMost, 9);
+    for (const n of [last + 1, last + 10]) {
+      expect(eraDroughtLength(n)).toBe(eraDroughtLength(last));
+      expect(eraQanatFactor(n)).toBeCloseTo(eraQanatFactor(last), 9);
+      expect(eraDroughtReward(n)).toBe(eraDroughtReward(last));
+    }
+    expect(eraDroughtReward(last)).toBeGreaterThan(eraDroughtReward(last - 1));
+  });
+
+  it('lets cistern banks fill the gap a dry season opens in a network that is spare otherwise', () => {
+    const e = finished();
+    e.economy.funds = 100_000;
+    e.runMonths(1);
+    expect(e.execute({ type: 'place', kind: 'coalPlant', x: 4, y: 4 }).ok).toBe(true);
+    expect(e.execute({ type: 'place', kind: 'waterPump', x: 7, y: 4 }).ok).toBe(true);
+    expect(e.execute({ type: 'place', kind: 'cistern', x: 7, y: 6 }).ok).toBe(true);
+    e.buildings.add({
+      kind: 'residential',
+      x: 9,
+      y: 4,
+      w: 1,
+      h: 1,
+      level: 5,
+      capacity: 40,
+      occupancy: 10,
+      condition: 100,
+      age: 0,
+      abandoned: false,
+      emptyMonths: 0,
+      variant: 0,
+      powered: true,
+      watered: false,
+      offline: 0,
+      attractiveness: 0,
+    });
+    const bank = e.buildings.ofKind('cistern')[0]!;
+    e.oasis.cisterns = [{ buildingId: bank.id, charge: 1 }];
+    e.refreshUtilities();
+    // Outside a dry season the pump covers the lot and the bank keeps its charge.
+    expect(e.stats().water.supply).toBeGreaterThan(e.stats().water.demand);
+    expect(e.oasis.cisterns[0]!.charge).toBe(1);
+
+    // The fifth dry season leaves the pump at the floor, below the lot's demand.
+    Object.assign(e.oasis.journey!.era!, { droughts: 5, droughtLength: 4, droughtMonthsLeft: 4 });
+    e.refreshUtilities();
+    const water = e.stats().water;
+    expect(water.supply).toBe(water.demand);
+    expect(e.oasis.cisterns[0]!.charge).toBeLessThan(1);
   });
 
   it('starts for a journey finished before the era existed and schedules the first dry season', () => {
@@ -72,7 +133,7 @@ describe('the Oasis era after the journey', () => {
     events.push(...eraEvents(e.takeEvents()));
     expect(events).toEqual([{ type: 'droughtStarted', months: eraDroughtLength(0) }]);
     expect(droughtFactor(e)).toBeCloseTo(eraDroughtFactor(0), 9);
-    expect(qanatDroughtFactor(e)).toBeCloseTo(qanatFactor(eraDroughtFactor(0)), 9);
+    expect(qanatDroughtFactor(e)).toBeCloseTo(eraQanatFactor(0), 9);
     e.runMonths(eraDroughtLength(0));
     events.push(...eraEvents(e.takeEvents()));
     const ended = events.find((x) => x.type === 'droughtEnded');

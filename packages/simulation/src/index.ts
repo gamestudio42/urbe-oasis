@@ -70,7 +70,7 @@ export {
   eraDroughtReward,
   eraRankMet,
   qanatDroughtFactor,
-  qanatFactor,
+  eraQanatFactor,
   journeySummary,
   updateJourney,
 } from './systems/oasis/journey';

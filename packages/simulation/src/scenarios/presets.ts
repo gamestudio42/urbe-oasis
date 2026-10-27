@@ -3,13 +3,16 @@ import {
   PLACEABLE_SPECS,
   ZoneDensity,
   ZoneType,
+  OASIS_ERA,
   defaultJourneyState,
   isZoneKind,
+  type Command,
   type PlaceableKind,
 } from '@city/shared';
 import { createEngine, type SimulationEngine } from '../engine';
 import { addServices, buildTown, flatCity, maintainTown, recoverCity, run } from './builders';
 import { buildGridCity, maintainGrid } from './grid';
+import { shelterCoverage, windbreakCoverage } from '../systems/oasis/sandstorms';
 
 export interface PresetRun {
   engine: SimulationEngine;
@@ -200,10 +203,16 @@ function addShadeSpine(engine: SimulationEngine): void {
 function playJourney(engine: SimulationEngine): void {
   const chapter = engine.oasis.journey?.chapter ?? 0;
   if (chapter >= 1) {
+    const era = engine.oasis.journey?.era;
+    // A dry season that runs short asks for deep water: two more qanats each month it does.
+    const qanats = engine.buildings.ofKind('qanat').length;
+    const short = era && era.droughtMonthsLeft > 0 && engine.servedShares().water < 1;
     // Reserves only charge from spare water, so deep water comes first.
-    if (engine.servedShares().water < 0.97)
-      placeBeside(engine, 'qanat', engine.buildings.ofKind('waterPump'), 8);
-    placeBeside(engine, 'cistern', engine.buildings.ofKind('waterPump'), 3);
+    if (engine.servedShares().water < 0.97 || short)
+      placeBeside(engine, 'qanat', engine.buildings.ofKind('waterPump'), Math.max(8, qanats + 2));
+    // The next title asks for a number of cistern banks.
+    const goal = era ? OASIS_ERA.ranks[era.rank]?.banks : undefined;
+    placeBeside(engine, 'cistern', engine.buildings.ofKind('waterPump'), Math.max(3, goal ?? 0));
   }
   if (chapter >= 2 && engine.buildings.ofKind('windbreak').length < 8) {
     const services = [...engine.buildings.values()].filter(
@@ -211,9 +220,60 @@ function playJourney(engine: SimulationEngine): void {
     );
     placeBeside(engine, 'windbreak', services, 8);
   }
+  shelterForTitle(engine);
   if (chapter >= 4) placeBeside(engine, 'caravanserai', engine.buildings.ofKind('school'), 1);
   keepShade(engine);
+  growDistrict(engine);
 }
+
+/**
+ * The era player's answer to the next title's shelter goal: while cover falls short, a windbreak
+ * beside each of up to two uncovered services a month.
+ */
+function shelterForTitle(engine: SimulationEngine): void {
+  const era = engine.oasis.journey?.era;
+  const goal = era ? OASIS_ERA.ranks[era.rank] : undefined;
+  if (!goal || shelterCoverage(engine) >= goal.shelter) return;
+  const exposed = [...engine.buildings.values()].filter(
+    (b) =>
+      !isZoneKind(b.kind) &&
+      PLACEABLE_SPECS[b.kind].jobs > 0 &&
+      b.kind !== 'windbreak' &&
+      windbreakCoverage(engine, b) < 0.5,
+  );
+  placeBeside(engine, 'windbreak', exposed, engine.buildings.ofKind('windbreak').length + 2);
+}
+
+/**
+ * What a player with a full town and spare funds does in the era: once the city holds its City
+ * title, a south district with its own avenue, homes, shops and workshops, piped, powered and
+ * shaded from the old network. Built once; tiles the reserves already took are skipped.
+ */
+function growDistrict(engine: SimulationEngine): void {
+  const era = engine.oasis.journey?.era;
+  if (!era || era.rank < 2 || engine.economy.funds < DISTRICT_FUNDS) return;
+  const w = engine.world;
+  if (w.hasInfra(w.index(6, DISTRICT_AVENUE), Infra.Road)) return;
+  const y = DISTRICT_AVENUE;
+  const tryRun = (command: Command) => void engine.execute(command);
+  tryRun({ type: 'road', x0: 6, y0: y, x1: 36, y1: y });
+  for (let x = 6; x <= 36; x += 6) tryRun({ type: 'road', x0: x, y0: 27, x1: x, y1: y + 7 });
+  const zone = (z: ZoneType, x0: number, y0: number, x1: number, y1: number) =>
+    tryRun({ type: 'zone', zone: z, density: ZoneDensity.Dense, x0, y0, x1, y1 });
+  zone(ZoneType.Commercial, 7, y - 6, 23, y - 1);
+  zone(ZoneType.Industrial, 25, y - 6, 35, y - 1);
+  for (let x = 7; x + 4 <= 36; x += 6) zone(ZoneType.Residential, x, y + 1, x + 4, y + 6);
+  for (const row of [y - 3, y + 3]) {
+    tryRun({ type: 'pipe', x0: 7, y0: row, x1: 43, y1: row });
+    tryRun({ type: 'canal', x0: 7, y0: row, x1: 43, y1: row });
+  }
+  tryRun({ type: 'pipe', x0: 43, y0: 22, x1: 43, y1: y + 3 });
+  tryRun({ type: 'canal', x0: 43, y0: 22, x1: 43, y1: y + 3 });
+}
+
+/** Funds the era player keeps before building the south district, and its avenue row. */
+const DISTRICT_FUNDS = 60_000;
+const DISTRICT_AVENUE = 33;
 
 /**
  * Shade upkeep a player reading the coverage figure would do: while supply is short, up to three
