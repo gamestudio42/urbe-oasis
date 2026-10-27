@@ -218,6 +218,60 @@ export const OASIS_JOURNEY = {
 /** Chapters in the journey; `chapter === JOURNEY_CHAPTERS` means it is complete. */
 export const JOURNEY_CHAPTERS = 5;
 
+/**
+ * The era: what an Oasis city faces after the journey. Ranks reward growth that stays served;
+ * dry seasons come back on a calendar and grow longer and harsher. No random draws.
+ * See docs/oasis-spec.md, "Era".
+ */
+export const OASIS_ERA = {
+  /** Each rank's goals, checked at the month close in order, and its treasury grant. */
+  ranks: [
+    { residents: 1500, water: 0.85, shade: 0.8, shelter: 0.5, banks: 0, charge: 0, reward: 5000 },
+    {
+      residents: 4000,
+      water: 0.9,
+      shade: 0.85,
+      shelter: 0.6,
+      banks: 3,
+      charge: 0.5,
+      reward: 10000,
+    },
+    {
+      residents: 8000,
+      water: 0.9,
+      shade: 0.9,
+      shelter: 0.75,
+      banks: 5,
+      charge: 0.5,
+      reward: 20000,
+    },
+  ],
+  /** Months after the journey ends before the first dry season's warning month. */
+  firstDroughtAfter: 18,
+  /** Months from the end of one dry season to the warning month of the next. */
+  droughtEvery: 24,
+  /** Well and pump output left in the n-th era dry season: `max(floor, start - step * n)`. */
+  droughtFactorStart: 0.55,
+  droughtFactorStep: 0.05,
+  droughtFactorFloor: 0.35,
+  /**
+   * Share of an era dry season's cut that also reaches qanats: long droughts lower the water
+   * table. The journey's first drought spares qanats, which is how it teaches their value.
+   */
+  qanatShare: 0.5,
+  /** Month closes the n-th era dry season lasts: `min(longest, shortest + floor(n / 2))`. */
+  droughtShortest: 3,
+  droughtLongest: 6,
+  /** Mean water service that counts as holding on. */
+  droughtTarget: 0.75,
+  /** Grant for holding on through the n-th era dry season: `base + step * n`. */
+  droughtRewardBase: 3000,
+  droughtRewardStep: 1500,
+} as const;
+
+/** Ranks of the era; `rank === ERA_RANKS` means every rank is reached. */
+export const ERA_RANKS = OASIS_ERA.ranks.length;
+
 /** Every Oasis balance table, by system. */
 export const OASIS_BALANCE = {
   water: OASIS_WATER,
@@ -227,6 +281,7 @@ export const OASIS_BALANCE = {
   heights: OASIS_HEAT,
   shade: OASIS_SHADE,
   journey: OASIS_JOURNEY,
+  era: OASIS_ERA,
   rationing: OASIS_RATIONING,
 } as const;
 

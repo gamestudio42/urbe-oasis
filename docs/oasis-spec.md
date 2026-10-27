@@ -300,6 +300,48 @@ the guide with the next heading and shows a toast with the grant. Drought start 
 own toasts. A finished journey shows a closing note and the drought outcome. Copy covers all
 five locales.
 
+## Era
+
+When the fifth chapter completes, the journey opens an open-ended era (`oasis.journey.era`). A
+finished journey loaded from an older save starts its era at its next month close. The era has
+two threads, both decided at the month close after the journey update, with no random draw.
+
+### Titles
+
+The city starts the era as a Village (rank 0) and can earn three titles from `OASIS_ERA.ranks`.
+At most one title is earned per close, and each pays its grant and emits `eraRank`.
+
+| Rank | Title   | Residents | Water | Shade | Shelter | Reserves                             | Grant   |
+| ---- | ------- | --------- | ----- | ----- | ------- | ------------------------------------ | ------- |
+| 1    | Town    | 1,500     | 85%   | 80%   | 50%     | none                                 | $5,000  |
+| 2    | City    | 4,000     | 90%   | 85%   | 60%     | 3 powered, online cisterns, mean 50% | $10,000 |
+| 3    | Capital | 8,000     | 90%   | 90%   | 75%     | 5 powered, online cisterns, mean 50% | $20,000 |
+
+Water and shade are the served shares from the last utility solve, and shelter is the windbreak
+cover of services.
+
+### Escalating dry seasons
+
+The first era dry season starts `firstDroughtAfter` (18) closes after the era opens, and each
+later one starts `droughtEvery` (24) closes after the previous one ends. Dry season `n` (from 0)
+lasts `min(6, 3 + floor(n / 2))` closes. Wells and pumps deliver `max(0.35, 0.55 − 0.05n)` of
+their output. Unlike the journey drought, era dry seasons also reach qanats, at half the cut:
+`1 − (1 − f) × 0.5`. Cistern releases keep their full output. As in the journey, each close adds
+the served share to a running sum. When the season ends, a mean of at least 75% counts as held
+and pays `3000 + 1500n`. `droughtStarted` and `droughtEnded` (with `reward` when held) report
+it, and both mark the networks dirty.
+
+### Era state and presentation
+
+The decoder validates the rank (0–3), one month per earned title, the season months (at most
+`droughtLongest`) and that held seasons never exceed seasons. `CityStats.oasis.journey.era`
+mirrors the rank, the cistern count and mean charge, the countdown, the current season, its
+factor, the mean served share and the grant. The mirror-world service trace applies the same well,
+pump and qanat cuts. The collapsed guide shows `Oasis era · <title>`. Expanded, it shows the next
+title's goal rows and grant, a dry-season card with the countdown, cuts, grant and a rationing
+toggle (from one month before the season), and a record of held seasons. The music turns scarce
+during an era dry season. Copy covers all five locales.
+
 ## Shade
 
 Canals (`Infra.Canal`) and buildings conduct shade, the same way pipes conduct water.

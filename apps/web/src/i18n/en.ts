@@ -476,6 +476,10 @@ export const en = {
       `The dry season has begun: wells and pumps give less water for ${months} months.`,
     droughtHeld: 'The dry season is over. The city kept its water flowing.',
     droughtShort: 'The dry season is over. Many homes went without water.',
+    eraRank: (rank: number, reward: string) =>
+      `The oasis reached title ${rank} of 3. The council granted ${reward}.`,
+    droughtHeldGrant: (reward: string) =>
+      `The dry season is over and the city held its water. The council granted ${reward}.`,
     debt: (months: number) => `The treasury has been in the red for ${months} ${months === 1 ? 'month' : 'months'}.`,
     bankrupt: 'The city went bankrupt! Raise taxes and cut spending to recover.',
     recovered: 'City finances have recovered.',

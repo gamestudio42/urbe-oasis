@@ -1,4 +1,12 @@
-import { JOURNEY_CHAPTERS, OASIS_JOURNEY, type BuildingRecord } from '@city/shared';
+import {
+  ERA_RANKS,
+  JOURNEY_CHAPTERS,
+  OASIS_ERA,
+  OASIS_JOURNEY,
+  type BuildingRecord,
+  type EraState,
+  type JourneyState,
+} from '@city/shared';
 import type { SimulationEngine } from '../../engine';
 import { monthIndex } from '../../time';
 import { cityTotals } from '../demand';
@@ -13,16 +21,59 @@ import { shelterCoverage } from './sandstorms';
  * no random numbers. See docs/oasis-spec.md, "Journey".
  */
 
-/** True while the drought cuts well and pump output. */
-export function droughtActive(engine: SimulationEngine): boolean {
-  return engine.ruleset === 'oasis' && (engine.oasis.journey?.droughtMonthsLeft ?? 0) > 0;
+/** Well and pump output the n-th era dry season leaves (n counts from 0). */
+export function eraDroughtFactor(n: number): number {
+  const e = OASIS_ERA;
+  return Math.max(e.droughtFactorFloor, e.droughtFactorStart - e.droughtFactorStep * n);
 }
 
-/** Well and pump output left by the drought; other sources keep their full output. */
+/** Month closes the n-th era dry season lasts (n counts from 0). */
+export function eraDroughtLength(n: number): number {
+  return Math.min(OASIS_ERA.droughtLongest, OASIS_ERA.droughtShortest + Math.floor(n / 2));
+}
+
+/** Grant for holding on through the n-th era dry season (n counts from 0). */
+export function eraDroughtReward(n: number): number {
+  return OASIS_ERA.droughtRewardBase + OASIS_ERA.droughtRewardStep * n;
+}
+
+/** Share of well and pump output left right now: 1 without a drought. */
+export function droughtFactor(engine: SimulationEngine): number {
+  const journey = engine.oasis.journey;
+  if (engine.ruleset !== 'oasis' || !journey) return 1;
+  if (journey.droughtMonthsLeft > 0) return OASIS_JOURNEY.droughtFactor;
+  const era = journey.era;
+  if (era && era.droughtMonthsLeft > 0) return eraDroughtFactor(era.droughts - 1);
+  return 1;
+}
+
+/** Share of qanat output left right now: only era dry seasons reach the water table. */
+export function qanatDroughtFactor(engine: SimulationEngine): number {
+  const era = engine.ruleset === 'oasis' ? engine.oasis.journey?.era : undefined;
+  if (!era || era.droughtMonthsLeft <= 0) return 1;
+  return qanatFactor(eraDroughtFactor(era.droughts - 1));
+}
+
+/** Qanat output left by a dry season whose wells keep `factor`. */
+export function qanatFactor(factor: number): number {
+  return 1 - (1 - factor) * OASIS_ERA.qanatShare;
+}
+
+/** True while a drought (the journey's or an era dry season) cuts well and pump output. */
+export function droughtActive(engine: SimulationEngine): boolean {
+  return droughtFactor(engine) < 1;
+}
+
+/** Output left by the drought: wells and pumps take the cut, qanats part of an era one. */
 export function droughtOutput(engine: SimulationEngine, b: BuildingRecord, supply: number): number {
-  if (supply <= 0 || (b.kind !== 'well' && b.kind !== 'waterPump') || !droughtActive(engine))
-    return supply;
-  return Math.round(supply * OASIS_JOURNEY.droughtFactor);
+  if (supply <= 0) return supply;
+  const factor =
+    b.kind === 'well' || b.kind === 'waterPump'
+      ? droughtFactor(engine)
+      : b.kind === 'qanat'
+        ? qanatDroughtFactor(engine)
+        : 1;
+  return factor < 1 ? Math.round(supply * factor) : supply;
 }
 
 /** Share of water consumers served on the last solve (1 with no consumers). */
@@ -89,7 +140,13 @@ function complete(engine: SimulationEngine, reward: number, month: number): void
 /** Month close: advance at most one chapter and run the drought calendar. */
 export function updateJourney(engine: SimulationEngine): void {
   const journey = engine.oasis.journey;
-  if (engine.ruleset !== 'oasis' || !journey || journey.chapter >= JOURNEY_CHAPTERS) return;
+  if (engine.ruleset !== 'oasis' || !journey) return;
+  if (journey.chapter >= JOURNEY_CHAPTERS) {
+    // A city that finished the journey before the era existed starts it at its next close.
+    if (!journey.era) startEra(journey, monthIndex(engine.tick));
+    updateEra(engine, journey.era);
+    return;
+  }
   const month = monthIndex(engine.tick);
   const j = OASIS_JOURNEY;
   if (journey.chapter === 3) {
@@ -115,8 +172,95 @@ export function updateJourney(engine: SimulationEngine): void {
   if (!chapterGoalMet(engine, journey.chapter)) return;
   const finished = journey.chapter;
   complete(engine, j.rewards[finished] as number, month);
+  if (journey.chapter >= JOURNEY_CHAPTERS) startEra(journey, month);
   // The warning month: the drought starts at the next close.
   if (finished === 2) journey.droughtStart = month + 1;
+}
+
+/** The era opens when the last chapter completes; the first dry season is scheduled. */
+function startEra(journey: JourneyState, month: number): void {
+  journey.era = {
+    rank: 0,
+    rankMonths: [],
+    droughts: 0,
+    nextDrought: month + OASIS_ERA.firstDroughtAfter + 1,
+    droughtMonthsLeft: 0,
+    droughtLength: 0,
+    droughtServed: 0,
+    held: 0,
+  };
+}
+
+/** Mean charge of powered, online cisterns, and how many there are. */
+function bankCharge(engine: SimulationEngine): { banks: number; charge: number } {
+  let banks = 0;
+  let sum = 0;
+  for (const entry of engine.oasis.cisterns) {
+    const b = engine.buildings.get(entry.buildingId);
+    if (!b || b.kind !== 'cistern' || !b.powered || b.offline > 0) continue;
+    banks++;
+    sum += entry.charge;
+  }
+  return { banks, charge: banks === 0 ? 0 : sum / banks };
+}
+
+/** Whether the city meets the goals of era rank `rank` (0-based) right now. */
+export function eraRankMet(engine: SimulationEngine, rank: number): boolean {
+  const goal = OASIS_ERA.ranks[rank];
+  if (!goal) return false;
+  const reserve = bankCharge(engine);
+  return (
+    cityTotals(engine).residents >= goal.residents &&
+    waterServed(engine) >= goal.water &&
+    shadeServed(engine) >= goal.shade &&
+    shelterCoverage(engine) >= goal.shelter &&
+    reserve.banks >= goal.banks &&
+    (goal.banks === 0 || reserve.charge >= goal.charge)
+  );
+}
+
+/**
+ * Month close after the journey: the dry-season calendar, then at most one rank. A dry season
+ * starts at `nextDrought` (the month before is its warning), samples water service at each close
+ * and, when it ends, schedules the next one `droughtEvery` months later.
+ */
+function updateEra(engine: SimulationEngine, era: EraState | undefined): void {
+  if (!era) return;
+  const month = monthIndex(engine.tick);
+  if (era.droughtMonthsLeft > 0) {
+    era.droughtServed += Math.round(waterServed(engine) * 1000);
+    era.droughtMonthsLeft--;
+    if (era.droughtMonthsLeft === 0) {
+      const n = era.droughts - 1;
+      const served = era.droughtServed / (1000 * era.droughtLength);
+      const held = served >= OASIS_ERA.droughtTarget;
+      const reward = held ? eraDroughtReward(n) : 0;
+      if (held) era.held++;
+      engine.economy.funds += reward;
+      era.nextDrought = month + OASIS_ERA.droughtEvery;
+      engine.networksDirty = true;
+      engine.emit({
+        type: 'droughtEnded',
+        held,
+        served: Math.round(served * 1000) / 1000,
+        reward,
+      });
+    }
+  } else if (month >= era.nextDrought) {
+    const n = era.droughts;
+    era.droughts++;
+    era.droughtLength = eraDroughtLength(n);
+    era.droughtMonthsLeft = era.droughtLength;
+    era.droughtServed = 0;
+    engine.networksDirty = true;
+    engine.emit({ type: 'droughtStarted', months: era.droughtLength });
+  }
+  if (era.rank >= ERA_RANKS || !eraRankMet(engine, era.rank)) return;
+  const reward = OASIS_ERA.ranks[era.rank]!.reward;
+  era.rankMonths.push(month);
+  era.rank++;
+  engine.economy.funds += reward;
+  engine.emit({ type: 'eraRank', rank: era.rank, reward });
 }
 
 /** Telemetry for the HUD and guide. */
@@ -142,5 +286,27 @@ export function journeySummary(
     droughtOutcome: journey.droughtOutcome,
     reserves: storingBanks(engine),
     caravanserais: operatingCaravanserais(engine),
+    ...(journey.era ? { era: eraSummary(engine, journey.era, month) } : {}),
+  };
+}
+
+function eraSummary(engine: SimulationEngine, era: EraState, month: number) {
+  const running = era.droughtMonthsLeft > 0;
+  // While a dry season runs, describe it; otherwise describe the next one.
+  const n = running ? era.droughts - 1 : era.droughts;
+  const done = era.droughtLength - era.droughtMonthsLeft;
+  const reserve = bankCharge(engine);
+  return {
+    rank: era.rank,
+    banks: reserve.banks,
+    charge: Math.round(reserve.charge * 1000) / 1000,
+    droughts: era.droughts,
+    held: era.held,
+    droughtIn: running ? -1 : Math.max(0, era.nextDrought - month),
+    droughtMonthsLeft: era.droughtMonthsLeft,
+    droughtLength: running ? era.droughtLength : eraDroughtLength(n),
+    droughtFactor: Math.round(eraDroughtFactor(n) * 100) / 100,
+    droughtServed: running && done > 0 ? Math.round(era.droughtServed / done) / 1000 : -1,
+    droughtReward: eraDroughtReward(n),
   };
 }

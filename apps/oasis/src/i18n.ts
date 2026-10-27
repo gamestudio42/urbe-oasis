@@ -1364,7 +1364,8 @@ const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
       },
       {
         title: 'Reservas',
-        action: 'Mantenha a água em 80% e encha duas cisternas energizadas até pelo menos um quarto.',
+        action:
+          'Mantenha a água em 80% e encha duas cisternas energizadas até pelo menos um quarto.',
         why: 'A cisterna só guarda água que sobra. Construa um qanat ou poço antes, depois ligue a cisterna à energia e aos canos.',
       },
       {
@@ -1531,7 +1532,8 @@ const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
       },
       {
         title: 'Reserven',
-        action: 'Halte die Wasserversorgung bei 80 % und fülle zwei versorgte Zisternen mindestens zu einem Viertel.',
+        action:
+          'Halte die Wasserversorgung bei 80 % und fülle zwei versorgte Zisternen mindestens zu einem Viertel.',
         why: 'Eine Zisterne speichert nur überschüssiges Wasser. Baue zuerst ein Qanat oder einen Brunnen und schließe die Zisterne dann an Strom und Rohre an.',
       },
       {
@@ -1572,4 +1574,136 @@ const JOURNEY_COPY: Record<Locale, typeof JOURNEY_EN> = {
 };
 export function oasisJourneyCopy(locale: Locale): typeof JOURNEY_EN {
   return JOURNEY_COPY[locale];
+}
+
+const ERA_EN = {
+  label: 'Oasis era',
+  titles: ['Settlement', 'Town', 'City', 'Oasis capital'],
+  intro:
+    'The journey is over. Grow without losing water, shade and shelter, and keep reserves for the dry seasons that come back harsher each time.',
+  next: (title: string) => `Next title: ${title}`,
+  capital: 'Every title reached. The oasis is a capital; keep it alive through each dry season.',
+  rows: {
+    residents: 'Residents',
+    water: 'Water service',
+    shade: 'Shade service',
+    shelter: 'Services sheltered',
+    reserves: (banks: string) => `Reserves (${banks} cisterns)`,
+  },
+  reward: 'Grant',
+  droughtNext: (months: string) => `Next dry season in ${months} months`,
+  droughtSoon: 'The dry season starts next month',
+  droughtNow: (months: string) => `Dry season: ${months} months left`,
+  droughtDetail: (months: string, wells: string, qanats: string) =>
+    `${months} months · wells and pumps at ${wells} · qanats at ${qanats}`,
+  droughtGrant: (reward: string) => `Grant for holding water at 75%: ${reward}`,
+  droughtServed: 'Water service so far',
+  record: (held: string, total: string) => `Dry seasons held: ${held} of ${total}`,
+};
+
+const ERA_COPY: Record<Locale, typeof ERA_EN> = {
+  en: ERA_EN,
+  'pt-BR': {
+    label: 'Era do oásis',
+    titles: ['Assentamento', 'Vila', 'Cidade', 'Capital do oásis'],
+    intro:
+      'A jornada terminou. Cresça sem perder água, sombra e abrigo, e guarde reservas para as estações secas, que voltam mais duras a cada vez.',
+    next: (title) => `Próximo título: ${title}`,
+    capital:
+      'Todos os títulos alcançados. O oásis é uma capital; mantenha-o vivo a cada estação seca.',
+    rows: {
+      residents: 'Moradores',
+      water: 'Abastecimento de água',
+      shade: 'Cobertura de sombra',
+      shelter: 'Serviços abrigados',
+      reserves: (banks) => `Reservas (${banks} cisternas)`,
+    },
+    reward: 'Recompensa',
+    droughtNext: (months) => `Próxima estação seca em ${months} meses`,
+    droughtSoon: 'A estação seca começa no próximo mês',
+    droughtNow: (months) => `Estação seca: faltam ${months} meses`,
+    droughtDetail: (months, wells, qanats) =>
+      `${months} meses · poços e bombas a ${wells} · qanats a ${qanats}`,
+    droughtGrant: (reward) => `Recompensa se a água ficar em 75%: ${reward}`,
+    droughtServed: 'Abastecimento até agora',
+    record: (held, total) => `Secas superadas: ${held} de ${total}`,
+  },
+  es: {
+    label: 'Era del oasis',
+    titles: ['Asentamiento', 'Villa', 'Ciudad', 'Capital del oasis'],
+    intro:
+      'El viaje terminó. Crece sin perder agua, sombra y refugio, y guarda reservas para las estaciones secas, que vuelven más duras cada vez.',
+    next: (title) => `Próximo título: ${title}`,
+    capital:
+      'Todos los títulos alcanzados. El oasis es una capital; mantenlo vivo en cada estación seca.',
+    rows: {
+      residents: 'Habitantes',
+      water: 'Servicio de agua',
+      shade: 'Cobertura de sombra',
+      shelter: 'Servicios protegidos',
+      reserves: (banks) => `Reservas (${banks} cisternas)`,
+    },
+    reward: 'Recompensa',
+    droughtNext: (months) => `Próxima estación seca en ${months} meses`,
+    droughtSoon: 'La estación seca empieza el mes que viene',
+    droughtNow: (months) => `Estación seca: faltan ${months} meses`,
+    droughtDetail: (months, wells, qanats) =>
+      `${months} meses · pozos y bombas al ${wells} · qanats al ${qanats}`,
+    droughtGrant: (reward) => `Recompensa si el agua se mantiene al 75%: ${reward}`,
+    droughtServed: 'Servicio de agua hasta ahora',
+    record: (held, total) => `Sequías superadas: ${held} de ${total}`,
+  },
+  fr: {
+    label: 'Ère de l’oasis',
+    titles: ['Campement', 'Bourg', 'Ville', 'Capitale de l’oasis'],
+    intro:
+      'Le voyage est terminé. Grandissez sans perdre l’eau, l’ombre et l’abri, et gardez des réserves pour les saisons sèches, plus dures à chaque retour.',
+    next: (title) => `Prochain titre : ${title}`,
+    capital:
+      'Tous les titres atteints. L’oasis est une capitale ; gardez-la vivante à chaque saison sèche.',
+    rows: {
+      residents: 'Habitants',
+      water: 'Service d’eau',
+      shade: 'Couverture d’ombre',
+      shelter: 'Services abrités',
+      reserves: (banks) => `Réserves (${banks} citernes)`,
+    },
+    reward: 'Subvention',
+    droughtNext: (months) => `Prochaine saison sèche dans ${months} mois`,
+    droughtSoon: 'La saison sèche commence le mois prochain',
+    droughtNow: (months) => `Saison sèche : encore ${months} mois`,
+    droughtDetail: (months, wells, qanats) =>
+      `${months} mois · puits et pompes à ${wells} · qanats à ${qanats}`,
+    droughtGrant: (reward) => `Subvention si l’eau tient à 75 % : ${reward}`,
+    droughtServed: 'Service d’eau jusqu’ici',
+    record: (held, total) => `Saisons sèches tenues : ${held} sur ${total}`,
+  },
+  de: {
+    label: 'Ära der Oase',
+    titles: ['Siedlung', 'Dorf', 'Stadt', 'Hauptstadt der Oase'],
+    intro:
+      'Die Reise ist vorbei. Wachse, ohne Wasser, Schatten und Schutz zu verlieren, und halte Reserven für die Trockenzeiten bereit, die jedes Mal härter zurückkehren.',
+    next: (title) => `Nächster Titel: ${title}`,
+    capital:
+      'Alle Titel erreicht. Die Oase ist eine Hauptstadt; halte sie in jeder Trockenzeit am Leben.',
+    rows: {
+      residents: 'Einwohner',
+      water: 'Wasserversorgung',
+      shade: 'Schattenabdeckung',
+      shelter: 'Geschützte Dienste',
+      reserves: (banks) => `Reserven (${banks} Zisternen)`,
+    },
+    reward: 'Zuschuss',
+    droughtNext: (months) => `Nächste Trockenzeit in ${months} Monaten`,
+    droughtSoon: 'Die Trockenzeit beginnt nächsten Monat',
+    droughtNow: (months) => `Trockenzeit: noch ${months} Monate`,
+    droughtDetail: (months, wells, qanats) =>
+      `${months} Monate · Brunnen und Pumpen bei ${wells} · Qanats bei ${qanats}`,
+    droughtGrant: (reward) => `Zuschuss, wenn das Wasser bei 75 % bleibt: ${reward}`,
+    droughtServed: 'Wasserversorgung bisher',
+    record: (held, total) => `Gehaltene Trockenzeiten: ${held} von ${total}`,
+  },
+};
+export function oasisEraCopy(locale: Locale): typeof ERA_EN {
+  return ERA_COPY[locale];
 }

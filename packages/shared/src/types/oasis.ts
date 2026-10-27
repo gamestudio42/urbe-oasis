@@ -47,6 +47,28 @@ export interface JourneyState {
   droughtServed: number;
   /** -1 before the drought ends, 1 when the city held on, 0 when it fell short. */
   droughtOutcome: number;
+  /** The era after the journey; created when the last chapter completes. */
+  era?: EraState;
+}
+
+/** Ranks and recurring dry seasons after the journey. */
+export interface EraState {
+  /** Ranks reached, 0..ERA_RANKS. */
+  rank: number;
+  /** Month index at which each rank was reached, in order. */
+  rankMonths: number[];
+  /** Era dry seasons started so far; the running one counts. */
+  droughts: number;
+  /** Month index of the first close of the next dry season (its warning month precedes it). */
+  nextDrought: number;
+  /** Month closes left in the running dry season; 0 when none runs. */
+  droughtMonthsLeft: number;
+  /** Month closes the running (or last) dry season lasts. */
+  droughtLength: number;
+  /** Sum of water service shares at the running dry season's closes, in thousandths. */
+  droughtServed: number;
+  /** Dry seasons the city held on through. */
+  held: number;
 }
 
 export function defaultJourneyState(): JourneyState {

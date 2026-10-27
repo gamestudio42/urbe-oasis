@@ -476,6 +476,10 @@ export const es = {
       `Comenzó la estación seca: pozos y bombas darán menos agua durante ${months} meses.`,
     droughtHeld: 'La estación seca terminó. La ciudad mantuvo el agua.',
     droughtShort: 'La estación seca terminó. Muchas casas se quedaron sin agua.',
+    eraRank: (rank: number, reward: string) =>
+      `El oasis alcanzó el título ${rank} de 3. El consejo concedió ${reward}.`,
+    droughtHeldGrant: (reward: string) =>
+      `La estación seca terminó y la ciudad mantuvo el agua. El consejo concedió ${reward}.`,
     debt: (months: number) => `Las arcas llevan ${months} ${months === 1 ? 'mes' : 'meses'} en números rojos.`,
     bankrupt: '¡La ciudad quebró! Ajusta impuestos y gastos para recuperar la caja.',
     recovered: 'Las finanzas de la ciudad se han recuperado.',

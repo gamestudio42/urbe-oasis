@@ -18,7 +18,9 @@ export function cityMood(stats: CityStats | null, stormUntilTick: number): Music
     return 'storm';
   const water = stats.water;
   const dry = water.demand > 0 && water.served < SCARCE_SERVICE;
-  if ((oasis.journey?.droughtMonthsLeft ?? 0) > 0 || oasis.parched > 0 || dry) return 'scarce';
+  const drought =
+    (oasis.journey?.droughtMonthsLeft ?? 0) > 0 || (oasis.journey?.era?.droughtMonthsLeft ?? 0) > 0;
+  if (drought || oasis.parched > 0 || dry) return 'scarce';
   if (
     stats.population >= PROSPEROUS.residents &&
     stats.lastMonth.net > 0 &&

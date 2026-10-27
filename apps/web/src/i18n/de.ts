@@ -476,6 +476,10 @@ export const de = {
       `Die Trockenzeit beginnt: Brunnen und Pumpen liefern ${months} Monate lang weniger Wasser.`,
     droughtHeld: 'Die Trockenzeit ist vorbei. Die Stadt hielt das Wasser am Fließen.',
     droughtShort: 'Die Trockenzeit ist vorbei. Viele Häuser blieben ohne Wasser.',
+    eraRank: (rank: number, reward: string) =>
+      `Die Oase hat Titel ${rank} von 3 erreicht. Der Rat gewährt ${reward}.`,
+    droughtHeldGrant: (reward: string) =>
+      `Die Trockenzeit ist vorbei, und die Stadt hielt das Wasser. Der Rat gewährt ${reward}.`,
     debt: (months: number) => `Die Kasse ist seit ${months} ${months === 1 ? 'Monat' : 'Monaten'} im Minus.`,
     bankrupt: 'Die Stadt ist bankrott! Passe Steuern und Ausgaben an, um die Kasse zu retten.',
     recovered: 'Die Stadtfinanzen haben sich erholt.',

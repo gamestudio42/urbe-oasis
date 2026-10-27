@@ -1,4 +1,5 @@
 import {
+  OASIS_JOURNEY,
   OASIS_SAVE_FORMAT,
   PLACEABLE_KINDS,
   PLACEABLE_SPECS,
@@ -14,7 +15,7 @@ import {
   type Speed,
   type ToolCommand,
 } from '@city/shared';
-import { RoadNetwork, type ServiceContext, type World } from '@city/simulation';
+import { RoadNetwork, qanatFactor, type ServiceContext, type World } from '@city/simulation';
 import type { Theme } from '@theme/core';
 import { urbe } from '@theme/urbe';
 import { cityMood, STORM_MOOD_TICKS } from '../audio/mood';
@@ -157,6 +158,7 @@ const EVENT_SOUNDS: Partial<Record<SimEvent['type'], SoundName>> = {
   brownout: 'warning',
   waterShortage: 'warning',
   journeyChapter: 'milestone',
+  eraRank: 'milestone',
   droughtStarted: 'warning',
   debt: 'warning',
   bankrupt: 'error',
@@ -164,6 +166,14 @@ const EVENT_SOUNDS: Partial<Record<SimEvent['type'], SoundName>> = {
 };
 
 const TOAST_MS = 3500;
+/** Well and pump output a running drought leaves, from the journey telemetry (1: none). */
+function droughtFactorOf(journey: NonNullable<CityStats['oasis']>['journey']): number {
+  if (!journey) return 1;
+  if (journey.droughtMonthsLeft > 0) return OASIS_JOURNEY.droughtFactor;
+  if (journey.era && journey.era.droughtMonthsLeft > 0) return journey.era.droughtFactor;
+  return 1;
+}
+
 /** Real time between autosaves while the game screen is open. */
 const AUTOSAVE_MS = 60_000;
 const AUTOSAVE_CHECK_MS = 5_000;
@@ -402,7 +412,11 @@ export class GameSession {
       spring: oasis.spring,
       cisternCharge: oasis.cisterns.charge,
       rationing: oasis.waterPolicy.enabled,
-      drought: (oasis.journey?.droughtMonthsLeft ?? 0) > 0,
+      droughtFactor: droughtFactorOf(oasis.journey),
+      qanatDroughtFactor:
+        (oasis.journey?.era?.droughtMonthsLeft ?? 0) > 0
+          ? qanatFactor(oasis.journey!.era!.droughtFactor)
+          : 1,
     };
   }
 
@@ -830,7 +844,16 @@ export class GameSession {
       case 'droughtEnded':
         return this.toast(
           event.held ? 'info' : 'warning',
-          event.held ? e.droughtHeld : e.droughtShort,
+          !event.held
+            ? e.droughtShort
+            : event.reward
+              ? e.droughtHeldGrant(formatMoney(event.reward, this.ui.get().locale))
+              : e.droughtHeld,
+        );
+      case 'eraRank':
+        return this.toast(
+          'info',
+          e.eraRank(event.rank, formatMoney(event.reward, this.ui.get().locale)),
         );
       case 'debt':
         return this.toast('warning', e.debt(event.months));

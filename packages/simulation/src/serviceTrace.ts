@@ -1,7 +1,6 @@
 import {
   Infra,
   OASIS_SHADE,
-  OASIS_JOURNEY,
   OASIS_WATER,
   PLACEABLE_SPECS,
   ZoneType,
@@ -69,8 +68,10 @@ export interface ServiceContext {
   /** Mean cistern charge 0..1 from the city statistics. */
   cisternCharge?: number;
   rationing?: boolean;
-  /** The journey's drought cuts well and pump output. */
-  drought?: boolean;
+  /** Share of well and pump output a running drought leaves (1 or absent: none). */
+  droughtFactor?: number;
+  /** Share of qanat output a running era dry season leaves (1 or absent: none). */
+  qanatDroughtFactor?: number;
 }
 
 /** What a tool command would add to a network. */
@@ -226,8 +227,13 @@ function plannedSource(
 
 /** Mirrors `droughtOutput` in the journey system. */
 function droughtCut(ctx: ServiceContext, kind: PlaceableKind, supply: number): number {
-  if (!ctx.drought || (kind !== 'well' && kind !== 'waterPump')) return supply;
-  return Math.round(supply * OASIS_JOURNEY.droughtFactor);
+  const factor =
+    kind === 'well' || kind === 'waterPump'
+      ? (ctx.droughtFactor ?? 1)
+      : kind === 'qanat'
+        ? (ctx.qanatDroughtFactor ?? 1)
+        : 1;
+  return factor < 1 ? Math.round(supply * factor) : supply;
 }
 
 function hasOutput(trace: ServiceTrace): boolean {
