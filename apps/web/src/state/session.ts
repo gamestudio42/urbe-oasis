@@ -15,7 +15,7 @@ import {
   type Speed,
   type ToolCommand,
 } from '@city/shared';
-import { RoadNetwork, qanatFactor, type ServiceContext, type World } from '@city/simulation';
+import { RoadNetwork, type ServiceContext, type World } from '@city/simulation';
 import type { Theme } from '@theme/core';
 import { urbe } from '@theme/urbe';
 import { cityMood, STORM_MOOD_TICKS } from '../audio/mood';
@@ -415,9 +415,7 @@ export class GameSession {
       rationing: oasis.waterPolicy.enabled,
       droughtFactor: droughtFactorOf(oasis.journey),
       qanatDroughtFactor:
-        (oasis.journey?.era?.droughtMonthsLeft ?? 0) > 0
-          ? qanatFactor(oasis.journey!.era!.droughtFactor)
-          : 1,
+        (oasis.journey?.era?.droughtMonthsLeft ?? 0) > 0 ? oasis.journey!.era!.qanatFactor : 1,
     };
   }
 

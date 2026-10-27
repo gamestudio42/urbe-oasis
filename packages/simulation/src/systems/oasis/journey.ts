@@ -34,7 +34,8 @@ export function eraDroughtLength(n: number): number {
 
 /** Grant for holding on through the n-th era dry season (n counts from 0). */
 export function eraDroughtReward(n: number): number {
-  return OASIS_ERA.droughtRewardBase + OASIS_ERA.droughtRewardStep * n;
+  const e = OASIS_ERA;
+  return e.droughtRewardBase + e.droughtRewardStep * Math.min(n, e.droughtRewardSteps);
 }
 
 /** Share of well and pump output left right now: 1 without a drought. */
@@ -51,12 +52,14 @@ export function droughtFactor(engine: SimulationEngine): number {
 export function qanatDroughtFactor(engine: SimulationEngine): number {
   const era = engine.ruleset === 'oasis' ? engine.oasis.journey?.era : undefined;
   if (!era || era.droughtMonthsLeft <= 0) return 1;
-  return qanatFactor(eraDroughtFactor(era.droughts - 1));
+  return eraQanatFactor(era.droughts - 1);
 }
 
-/** Qanat output left by a dry season whose wells keep `factor`. */
-export function qanatFactor(factor: number): number {
-  return 1 - (1 - factor) * OASIS_ERA.qanatShare;
+/** Qanat output the n-th era dry season leaves: part of the well cut, deeper each season. */
+export function eraQanatFactor(n: number): number {
+  const e = OASIS_ERA;
+  const share = Math.min(e.qanatShareMost, e.qanatShareStart + e.qanatShareStep * n);
+  return 1 - (1 - eraDroughtFactor(n)) * share;
 }
 
 /** True while a drought (the journey's or an era dry season) cuts well and pump output. */
@@ -306,6 +309,7 @@ function eraSummary(engine: SimulationEngine, era: EraState, month: number) {
     droughtMonthsLeft: era.droughtMonthsLeft,
     droughtLength: running ? era.droughtLength : eraDroughtLength(n),
     droughtFactor: Math.round(eraDroughtFactor(n) * 100) / 100,
+    qanatFactor: Math.round(eraQanatFactor(n) * 100) / 100,
     droughtServed: running && done > 0 ? Math.round(era.droughtServed / done) / 1000 : -1,
     droughtReward: eraDroughtReward(n),
   };

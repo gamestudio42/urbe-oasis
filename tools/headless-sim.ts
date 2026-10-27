@@ -41,6 +41,15 @@ interface SeedSummary {
   maxMsPerMonth: number;
   peakHeapMb: number;
   hash: string;
+  /** Oasis era calendar, for journey cities that reach it. */
+  era?: EraLog;
+}
+
+interface EraLog {
+  /** Month each title was earned. */
+  rankMonths: number[];
+  /** Each dry season: start month, mean water served and whether it held. */
+  seasons: { start: number; served: number; held: boolean }[];
 }
 
 const { values } = parseArgs({
@@ -86,10 +95,22 @@ const heapMb = () => round(process.memoryUsage().heapUsed / 1_048_576, 1);
 function simulate(seed: string): { rows: MonthRow[]; summary: SeedSummary } {
   const { engine, onMonth } = preset!.create(seed, size);
   const rows: MonthRow[] = [];
+  const era: EraLog = { rankMonths: [], seasons: [] };
   for (let m = 0; m < months; m++) {
     const start = performance.now();
     engine.runMonths(1);
     const msPerMonth = round(performance.now() - start);
+    for (const event of engine.takeEvents()) {
+      if (!engine.oasis.journey?.era) continue;
+      if (event.type === 'eraRank') era.rankMonths.push(m + 1);
+      if (event.type === 'droughtStarted')
+        era.seasons.push({ start: m + 1, served: 0, held: false });
+      const season = era.seasons.at(-1);
+      if (event.type === 'droughtEnded' && season) {
+        season.served = event.served;
+        season.held = event.held;
+      }
+    }
     rows.push({ ...collectMetrics(engine), msPerMonth, heapMb: heapMb() });
     onMonth(engine);
   }
@@ -124,6 +145,7 @@ function simulate(seed: string): { rows: MonthRow[]; summary: SeedSummary } {
       maxMsPerMonth: Math.max(...ms),
       peakHeapMb: Math.max(...rows.map((r) => r.heapMb)),
       hash: hashState(engine),
+      ...(engine.oasis.journey?.era ? { era } : {}),
     },
   };
 }
@@ -185,3 +207,13 @@ console.table(
     bankrupt: s.bankrupt,
   })),
 );
+
+for (const s of summaries) {
+  if (!s.era) continue;
+  const seasons = s.era.seasons
+    .map((d) => `${d.start}${d.held ? '' : '✗'} (${Math.round(d.served * 100)}%)`)
+    .join(', ');
+  console.log(
+    `seed ${s.seed} era: titles at ${s.era.rankMonths.join(', ') || '-'}; dry seasons ${seasons}`,
+  );
+}

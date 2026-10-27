@@ -22,15 +22,15 @@ git-ignored.
 
 Presets (`packages/simulation/src/scenarios/presets.ts`) drive the city with a scripted player:
 
-| Preset       | City                                                                  |
-| ------------ | --------------------------------------------------------------------- |
-| `balanced`   | Flat map, the scenario town with four services; adds plants and pumps |
-| `disasters`  | Same town with fires and disasters on; clears rubble and rebuilds     |
+| Preset           | City                                                                                |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| `balanced`       | Flat map, the scenario town with four services; adds plants and pumps               |
+| `disasters`      | Same town with fires and disasters on; clears rubble and rebuilds                   |
 | `oasis-balanced` | The balanced town under the oasis ruleset, plus a canal spine and two spring houses |
-| `no-power`   | Same town without any power plant                                     |
-| `high-taxes` | Same town with every tax at 15%                                       |
-| `grid`       | Flat 128×128 map filled with a street grid of dense zones (benchmark) |
-| `terrain`    | Generated terrain and nothing built (baseline cost of an empty map)   |
+| `no-power`       | Same town without any power plant                                                   |
+| `high-taxes`     | Same town with every tax at 15%                                                     |
+| `grid`           | Flat 128×128 map filled with a street grid of dense zones (benchmark)               |
+| `terrain`        | Generated terrain and nothing built (baseline cost of an empty map)                 |
 
 ## Results (64×64, 240 months, seeds 1–5)
 
@@ -141,7 +141,6 @@ GPU-backed Chromium ran at 59–60 FPS (p95 frame 16.8 ms) both with the animati
 dominates. Headless Playwright renders WebGL in software (about 3 FPS either way), so it cannot
 measure this.
 
-
 ## Oasis founding presentation checkpoint (2026-10-23)
 
 The founding defaults, landscape and tutorial change the first-play experience; they do not
@@ -199,8 +198,7 @@ not evidence that indefinite rationing is an optimal strategy.
 
 A controlled near-capacity fixture separately demonstrates the immediate effect: an unshaded
 well supplies 22 units to homes demanding 24; rationing reduces demand to 19, restores the
-last home's water and removes network stress. A reserve fixture spends 32 units instead of
-50. Half-month use retains its 10% business-tax reduction after switching off and after a
+last home's water and removes network stress. A reserve fixture spends 32 units instead of 50. Half-month use retains its 10% business-tax reduction after switching off and after a
 save/load; monthly closing clears the counter only after applying the budget.
 
 The 128 by 128 grid benchmark again ends at 32673 residents and 4312 buildings. Raw p95 in
@@ -450,12 +448,12 @@ building them.
 
 **Results after the pass (120 months, seeds 1–3 unless noted):**
 
-| Preset | Populations | Funds | Notes |
-|---|---|---|---|
-| `oasis-founding` (60 months) | 537 / 557 / 527 | 12958 / 12738 / 12805 | chapters 1–2 by month 7 and 10 |
-| `oasis-balanced` | 2496 / 2759 / 2357 | 4152 / 9121 / 110 | was 2538 / 2372 / 2587 and 5027 / 1670 / 5495 |
-| `oasis-journey` | 7330 / 8016 / 6471 | 105938 / 92513 / 88574 | all five chapters by month 11–13 |
-| `oasis-rationing` | 2615 / 2742 / 2367 | 644 / 3410 / −2871 | seed 3 bankrupt (seed 2 before); continuous rationing remains a stress case |
+| Preset                       | Populations        | Funds                  | Notes                                                                       |
+| ---------------------------- | ------------------ | ---------------------- | --------------------------------------------------------------------------- |
+| `oasis-founding` (60 months) | 537 / 557 / 527    | 12958 / 12738 / 12805  | chapters 1–2 by month 7 and 10                                              |
+| `oasis-balanced`             | 2496 / 2759 / 2357 | 4152 / 9121 / 110      | was 2538 / 2372 / 2587 and 5027 / 1670 / 5495                               |
+| `oasis-journey`              | 7330 / 8016 / 6471 | 105938 / 92513 / 88574 | all five chapters by month 11–13                                            |
+| `oasis-rationing`            | 2615 / 2742 / 2367 | 644 / 3410 / −2871     | seed 3 bankrupt (seed 2 before); continuous rationing remains a stress case |
 
 Classic cities are unchanged: every change sits behind the Oasis ruleset, and the classic `grid`
 reference hashes still match. The Oasis reference hashes in `tests/fixtures/performance-replay.json`
@@ -477,11 +475,11 @@ pnpm sim --preset oasis-journey --months 120 --seeds 1,2,3 --out reports/era
 The control matches the balance pass exactly: populations 2496 / 2759 / 2357 and funds
 4152 / 9121 / 110. The journey preset completes the journey by month 12–13. Its era calendar:
 
-| Seed | Town | City | Dry seasons (start month, grant)                     | Population | Funds  |
-| ---- | ---- | ---- | ---------------------------------------------------- | ---------- | ------ |
-| 1    | 16   | 34   | 31 ($3,000), 58 ($4,500), 85 ($6,000), 113 ($7,500)  | 7962       | 129901 |
-| 2    | 16   | 32   | 32 ($3,000), 59 ($4,500), 86 ($6,000), 114 ($7,500)  | 7952       | 132174 |
-| 3    | 17   | 37   | 32 ($3,000), 59 ($4,500), 86 ($6,000), 114 ($7,500)  | 6730       | 118350 |
+| Seed | Town | City | Dry seasons (start month, grant)                    | Population | Funds  |
+| ---- | ---- | ---- | --------------------------------------------------- | ---------- | ------ |
+| 1    | 16   | 34   | 31 ($3,000), 58 ($4,500), 85 ($6,000), 113 ($7,500) | 7962       | 129901 |
+| 2    | 16   | 32   | 32 ($3,000), 59 ($4,500), 86 ($6,000), 114 ($7,500) | 7952       | 132174 |
+| 3    | 17   | 37   | 32 ($3,000), 59 ($4,500), 86 ($6,000), 114 ($7,500) | 6730       | 118350 |
 
 Every seed holds all four dry seasons. No seed reaches Capital in ten years: seeds 1 and 2 end
 just under 8,000 residents. By the fourth season (wells at 40%, qanats at 70%, four months) the
@@ -490,3 +488,55 @@ scripted player's supply is close to demand, with about 6% to spare, so later se
 100% served. The scripted player builds as soon as a goal opens, so this pace does not predict a
 human player's pace.
 
+## Oasis late era checkpoint (2026-10-27)
+
+Twenty years of the era, with the same three seeds:
+
+```sh
+pnpm sim --preset oasis-journey --months 240 --seeds 1,2,3 --out reports/late
+pnpm sim --preset oasis-balanced --months 120 --seeds 1,2,3 --out reports/late-control
+```
+
+`pnpm sim` now prints each journey seed's era calendar (title months, then each dry season's
+start month and mean water served, with ✗ for a season lost) and stores it under `era` in the
+summary. The control is unchanged: populations 2496 / 2759 / 2357.
+
+Before this pass, 240 months showed three problems:
+
+- **Capital out of reach.** The scripted player stopped at three cisterns and eight windbreaks
+  (shelter 67%, goal 75%), and the town filled its blocks at 6,700–8,400 residents.
+- **Flat late seasons.** From the fifth season on, every season was the same, and the city held
+  with 90–100% served without building anything new.
+- **Idle cisterns in dry seasons.** A bank measured the gap before the drought's cut, so a
+  network that was spare in a normal month kept charging during a dry season instead of releasing.
+
+Changes:
+
+- Cisterns measure the gap after the cut.
+- Qanats take a growing share of the cut, `min(0.8, 0.5 + 0.05n)`, so the water table keeps
+  falling for two seasons after wells reach their floor.
+- Grants stop growing at the seventh season ($12,000).
+- The scripted player builds the cisterns and shelter the next title asks for, adds qanats when a
+  dry season leaves water short, and builds a south district once it is a City with $60,000.
+
+| Seed | Town | City | Capital | Dry seasons (start month, mean served)                                                 | Population | Funds  |
+| ---- | ---- | ---- | ------- | -------------------------------------------------------------------------------------- | ---------- | ------ |
+| 1    | 16   | 37   | 88      | 31 (85%), 58 (100%), 85 (100%), 113 (90%), 141 (91%), 170 (100%), 199 (98%), 229 (98%) | 10757      | 405447 |
+| 2    | 16   | 32   | 92      | 32 (88%), 59 (100%), 86 (100%), 114 (89%), 142 (87%), 171 (89%), 200 (78%), 230 (82%)  | 10808      | 408637 |
+| 3    | 17   | 38   | 107     | 32 (99%), 59 (100%), 86 (100%), 114 (92%), 142 (92%), 171 (91%), 200 (86%), 230 (86%)  | 10121      | 383297 |
+
+At 120 months the populations are 9777 / 9590 / 8854. Capital now arrives in years 8–9 for a
+player who builds the moment a goal opens. The Capital goals stay as they were: what blocked the
+title was the scripted player, not the thresholds.
+
+Late seasons are the tightest of the era. In the seventh and eighth seasons, cisterns empty in the
+first month. Seed 2 has no free tile left beside its pumps for more qanats and holds at 78% and
+82%, just above the 75% target. The scripted player only builds qanats beside the pumps; a human
+player can build them anywhere. Every season is held on every seed.
+
+Open points:
+
+- **Money.** Funds pass $380,000 by year 20, so grants no longer matter. This comes from the
+  shared economy, not the era.
+- **Abandoned lots.** 24–42 lots stand abandoned at month 240, after the south district
+  fills. The cause is not investigated yet.
