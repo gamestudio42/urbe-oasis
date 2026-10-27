@@ -5,6 +5,8 @@ import { expect, test } from '@playwright/test';
 test('construction categories expose names and costs, preserve tools on Escape, and fit smaller screens', async ({
   page,
 }) => {
+  // Several full screenshots at four screen sizes: slow under software rendering.
+  test.setTimeout(120_000);
   await page.addInitScript(() => {
     localStorage.setItem('cityBuilder.locale', 'pt-BR');
     localStorage.setItem('oasis.tutorial.founding.v1', '1');

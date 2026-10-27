@@ -82,7 +82,7 @@ export {
   STORM_KINDS,
   type StormKind,
   type StormResult,
-} from './systems/oasis/intrusion';
+} from './systems/oasis/sandstorms';
 export {
   ARCADE_LANE_CAP,
   arcadeCapacity,
@@ -92,7 +92,7 @@ export {
   longestArcadeLane,
   arcadeCount,
   type ArcadeLane,
-} from './systems/oasis/airTraffic';
+} from './systems/oasis/arcades';
 export {
   oasisCapacity,
   oasisShade,

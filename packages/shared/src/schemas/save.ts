@@ -56,7 +56,7 @@ export interface SaveMeta {
 /** JSON form of `EngineSnapshot`: byte layers are base64 strings. */
 export type SaveState = Omit<EngineSnapshot, 'heights' | 'layers'> & {
   heights: string;
-  /** `linked` is optional: classic cities omit it, and older neon saves load without it. */
+  /** `linked` is optional: classic cities omit it, and older Oasis saves load without it. */
   layers: Record<SnapshotLayer, string> & { linked?: string };
 };
 
@@ -376,7 +376,7 @@ class Validator {
     return this.errors.length > 0 ? null : snapshot;
   }
 
-  /** Structural validation of the neon systems state. */
+  /** Structural validation of the Oasis systems state. */
   oasisState(value: unknown, size: number): OasisState {
     const n = this.record(value, 'state.oasis');
     const caravans = this.array(n.caravans, 'state.oasis.caravans').map((entry, k) => {

@@ -14,7 +14,7 @@ export const PLACEABLE_KINDS = [
   'park',
   'marina',
   'airport',
-  // Neon-only placeables. A classic city never contains them; both rulesets can load them.
+  // Oasis-only placeables. A classic city never contains them; both rulesets can load them.
   'qanat',
   'cistern',
   'windbreak',
@@ -25,7 +25,7 @@ export const PLACEABLE_KINDS = [
 ] as const;
 export type PlaceableKind = (typeof PLACEABLE_KINDS)[number];
 
-/** Placeables that only the `neon` ruleset offers. */
+/** Placeables that only the `oasis` ruleset offers. */
 export const OASIS_PLACEABLE_KINDS = [
   'qanat',
   'cistern',
@@ -65,7 +65,7 @@ export interface BuildingRecord {
   powered: boolean;
   watered: boolean;
   /**
-   * On the neon data network. Absent in a classic city so the serialized building does not
+   * On the Oasis shade network. Absent in a classic city so the serialized building does not
    * gain a key the classic hash has never contained.
    */
   linked?: boolean;
@@ -73,7 +73,7 @@ export interface BuildingRecord {
   offline: number;
   /** Last computed attractiveness 0..1, for diagnostics. */
   attractiveness: number;
-  /** Megacorporation that owns a neon lot, or absent for city-owned buildings. */
+  /** Caravan house that owns an Oasis lot, or absent for city-owned buildings. */
   owner?: number;
 }
 

@@ -118,7 +118,7 @@ export const TOOLS: readonly ToolDef[] = [
   placeDef('school', 'services'),
   placeDef('hospital', 'services'),
   placeDef('park', 'services'),
-  // Neon-only infrastructure; hidden from the classic Urbe toolbar.
+  // Oasis-only infrastructure; hidden from the classic Urbe toolbar.
   placeDef('qanat', 'utilities'),
   placeDef('cistern', 'utilities'),
   placeDef('windbreak', 'services'),
@@ -154,7 +154,7 @@ export function toolByHotkey(key: string, ruleset: 'classic' | 'oasis' = 'classi
   return toolsFor(ruleset).find((tool) => tool.hotkey === key);
 }
 
-/** Tools offered by a ruleset: `neon` sees every tool, `classic` hides the neon-only ones. */
+/** Tools offered by a ruleset: `oasis` sees every tool, `classic` hides the Oasis-only ones. */
 export function toolsFor(ruleset: 'classic' | 'oasis'): readonly ToolDef[] {
   return ruleset === 'oasis' ? TOOLS : TOOLS.filter((tool) => tool.only !== 'oasis');
 }

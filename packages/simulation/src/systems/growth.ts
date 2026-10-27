@@ -98,13 +98,13 @@ export function attractiveness(
 export function maxLevel(
   density: number,
   watered: boolean,
-  neon = false,
+  oasis = false,
   linked = true,
 ): number {
   const z = BALANCE.zones;
   const cap = density === ZoneDensity.Dense ? z.maxLevelDense : z.maxLevelLight;
   const classic = watered ? cap : Math.min(cap, z.maxLevelWithoutWater);
-  return neon ? oasisMaxLevel(density, watered, true, classic, linked) : classic;
+  return oasis ? oasisMaxLevel(density, watered, true, classic, linked) : classic;
 }
 
 export interface GrowthContext {
@@ -159,7 +159,7 @@ export function updateGrowth(engine: SimulationEngine, ctx: GrowthContext): Grow
     const x = w.xOf(i);
     const y = w.yOf(i);
     w.setLayer('trees', i, 0);
-    const neon = engine.ruleset === 'oasis';
+    const oasis = engine.ruleset === 'oasis';
     engine.buildings.add({
       kind,
       x,
@@ -167,7 +167,7 @@ export function updateGrowth(engine: SimulationEngine, ctx: GrowthContext): Grow
       w: 1,
       h: 1,
       level: 1,
-      capacity: neon ? oasisCapacity(kind, 1) : (ZONE_SPECS[kind].capacity[1] as number),
+      capacity: oasis ? oasisCapacity(kind, 1) : (ZONE_SPECS[kind].capacity[1] as number),
       occupancy: 0,
       condition: 100,
       age: 0,
@@ -176,7 +176,7 @@ export function updateGrowth(engine: SimulationEngine, ctx: GrowthContext): Grow
       variant: tileVariant(x, y),
       powered: true,
       watered: w.watered[i] === 1,
-      ...(neon ? { linked: w.linked[i] === 1 } : {}),
+      ...(oasis ? { linked: w.linked[i] === 1 } : {}),
       offline: 0,
       attractiveness: Math.round(a * 1000) / 1000,
     });
@@ -243,12 +243,12 @@ function updateBuilding(
     Math.min(b.capacity, b.occupancy + (delta >= 0 ? Math.ceil(delta) : Math.floor(delta))),
   );
 
-  const neon = engine.ruleset === 'oasis';
+  const oasis = engine.ruleset === 'oasis';
   const cap = maxLevel(
     w.zoneDensity[i] as number,
     w.watered[i] === 1,
-    neon,
-    neon && w.linked[i] === 1,
+    oasis,
+    oasis && w.linked[i] === 1,
   );
   const threshold = g.upgradeThresholds[b.level] ?? g.upgradeThresholds[g.upgradeThresholds.length - 1];
   if (
@@ -259,7 +259,7 @@ function updateBuilding(
     engine.rng.chance(g.upgradeRate * clamp01(g.upgradeBias + g.upgradeDemandGain * demand))
   ) {
     b.level++;
-    b.capacity = neon ? oasisCapacity(kind, b.level) : (spec.capacity[b.level] as number);
+    b.capacity = oasis ? oasisCapacity(kind, b.level) : (spec.capacity[b.level] as number);
     engine.buildings.touch(b);
     w.markDirty(i);
     result.upgraded++;
@@ -270,7 +270,7 @@ function updateBuilding(
     engine.rng.chance(g.downgradeRate)
   ) {
     b.level--;
-    b.capacity = neon ? oasisCapacity(kind, b.level) : (spec.capacity[b.level] as number);
+    b.capacity = oasis ? oasisCapacity(kind, b.level) : (spec.capacity[b.level] as number);
     b.occupancy = Math.min(b.occupancy, b.capacity);
     engine.buildings.touch(b);
     w.markDirty(i);

@@ -8,7 +8,7 @@ import { openWorldOptions } from './helpers';
  * regression in the wrapper shows up here as a missing panel instead of a silent divergence.
  */
 
-const NEON_PORT = Number(process.env.OASIS_PORT ?? 5180);
+const PORT = Number(process.env.OASIS_PORT ?? 5180);
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
@@ -16,11 +16,11 @@ test.beforeEach(async ({ page }) => {
     localStorage.setItem('cityBuilder.tutorialDone', '1');
     localStorage.setItem('oasis.tutorial.founding.v1', '1');
   });
-  await page.goto(`http://localhost:${NEON_PORT}/`);
+  await page.goto(`http://localhost:${PORT}/`);
   await page.getByTestId('main-menu').waitFor();
 });
 
-async function startNeonCity(page: import('@playwright/test').Page, seed: string) {
+async function startOasisCity(page: import('@playwright/test').Page, seed: string) {
   await openWorldOptions(page);
   await page.getByTestId('seed-input').fill(seed);
   await page.getByTestId('start-city').click();
@@ -40,7 +40,7 @@ test('boots into Urbe Oasis with the oasis brand', async ({ page }) => {
 });
 
 test('stacks sound and music on the city, under the bar', async ({ page }) => {
-  await startNeonCity(page, 'neon-audio');
+  await startOasisCity(page, 'neon-audio');
   const sound = page.getByTestId('hud-sound');
   const music = page.getByTestId('hud-music');
   await expect(sound).toBeVisible();
@@ -61,8 +61,8 @@ test('stacks sound and music on the city, under the bar', async ({ page }) => {
   });
 });
 
-test('reports the neon ruleset in the mirror stats', async ({ page }) => {
-  await startNeonCity(page, 'neon-e2e');
+test('reports the Oasis ruleset in the mirror stats', async ({ page }) => {
+  await startOasisCity(page, 'neon-e2e');
   await expect(page.getByTestId('studio-mark')).toBeVisible();
   const stats = await page.evaluate(() => window.__cityDebug?.getStats() ?? null);
   expect(stats).not.toBeNull();
@@ -71,8 +71,8 @@ test('reports the neon ruleset in the mirror stats', async ({ page }) => {
   expect(stats?.oasis?.caravans.count).toBeGreaterThanOrEqual(0);
 });
 
-test('offers the neon-only tools and hides them from classic Urbe', async ({ page }) => {
-  await startNeonCity(page, 'neon-tools');
+test('offers the Oasis-only tools and hides them from classic Urbe', async ({ page }) => {
+  await startOasisCity(page, 'neon-tools');
   for (const id of [
     'tool-qanat',
     'tool-cistern',
@@ -88,7 +88,7 @@ test('offers the neon-only tools and hides them from classic Urbe', async ({ pag
 });
 
 test('canal tool stays on the surface and the shade overlay is listed', async ({ page }) => {
-  await startNeonCity(page, 'neon-canal');
+  await startOasisCity(page, 'neon-canal');
   await page.getByTestId('tool-category-utilities').click();
   await page.getByTestId('tool-canal').click();
   await expect(page.getByTestId('tool-canal')).toHaveAttribute('aria-pressed', 'true');
@@ -103,7 +103,7 @@ test('canal tool stays on the surface and the shade overlay is listed', async ({
 test('places a qanat, a cistern and a windbreak through the debug command API', async ({
   page,
 }) => {
-  await startNeonCity(page, 'neon-build');
+  await startOasisCity(page, 'neon-build');
   const area = await page.evaluate(() => window.__cityDebug?.findFlatArea(3, 3) ?? null);
   expect(area).not.toBeNull();
   if (!area) return;
@@ -123,7 +123,7 @@ test('places a qanat, a cistern and a windbreak through the debug command API', 
 });
 
 test('exports and imports an Oasis save', async ({ page }) => {
-  await startNeonCity(page, 'neon-save');
+  await startOasisCity(page, 'neon-save');
   const text = await page.evaluate(() => window.__cityDebug?.exportText() ?? '');
   expect(text.length).toBeGreaterThan(0);
   const loaded = await page.evaluate(async (saved) => {
@@ -135,7 +135,7 @@ test('exports and imports an Oasis save', async ({ page }) => {
 test('shows only Oasis saves on a shared origin and preserves legacy Oasis saves', async ({
   page,
 }) => {
-  await startNeonCity(page, 'oasis-legacy-save');
+  await startOasisCity(page, 'oasis-legacy-save');
   const text = await page.evaluate(() => window.__cityDebug!.exportText());
   const meta = JSON.parse(text).meta as {
     name: string;
@@ -163,7 +163,7 @@ test('shows only Oasis saves on a shared origin and preserves legacy Oasis saves
       tx.objectStore('meta').put({
         ...meta,
         id: 'autosave',
-        name: 'Neon City',
+        name: 'Urbe City',
         autosave: true,
         bytes: 42,
         savedAt: '2026-10-24T12:00:00.000Z',
@@ -187,14 +187,14 @@ test('shows only Oasis saves on a shared origin and preserves legacy Oasis saves
   await page.getByTestId('main-menu').waitFor();
   await expect(page.getByTestId('save-slot')).toHaveCount(1);
   await expect(page.getByTestId('continue')).toContainText(meta.name);
-  await expect(page.getByTestId('saved-cities')).not.toContainText('Neon City');
+  await expect(page.getByTestId('saved-cities')).not.toContainText('Urbe City');
   await page.getByTestId('load-slot').click();
   await page.waitForFunction(() => window.__cityDebug?.isReady());
   expect(await page.evaluate(() => window.__cityDebug!.getStats()!.ruleset)).toBe('oasis');
 });
 
 test('replays the same command log and ticks to the same hash', async ({ page }) => {
-  await startNeonCity(page, 'oasis-determinism');
+  await startOasisCity(page, 'oasis-determinism');
   await page.getByTestId('speed-0').click();
   const baseline = await page.evaluate(() => window.__cityDebug!.exportText());
   const replay = async () =>
@@ -218,7 +218,7 @@ test('an arcade eases the street and does not launch drones', async ({ page }) =
   await page.getByTestId('terrain-hills').fill('0');
   await page.getByTestId('terrain-forest').fill('0');
   await page.getByTestId('terrain-rivers').fill('0');
-  await startNeonCity(page, 'oasis-arcade');
+  await startOasisCity(page, 'oasis-arcade');
   const area = await page.evaluate(() => window.__cityDebug?.findFlatArea(18, 10) ?? null);
   expect(area).not.toBeNull();
   if (!area) return;

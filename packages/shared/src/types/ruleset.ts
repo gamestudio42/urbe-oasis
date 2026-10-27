@@ -1,4 +1,4 @@
-/** Which set of rules a simulation runs. `classic` is Urbe; `neon` adds the cyberpunk systems. */
+/** Which set of rules a simulation runs. `classic` is Urbe; `oasis` adds the desert systems. */
 export type Ruleset = 'classic' | 'oasis';
 
 export const RULESETS: readonly Ruleset[] = ['classic', 'oasis'];

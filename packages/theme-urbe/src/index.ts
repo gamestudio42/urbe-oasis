@@ -170,7 +170,7 @@ export const urbe: Theme = {
   'park.ground': 0x58b848,
   'park.pond': 0x4f9fe0,
 
-    // Neon placeables. A classic city never builds them, but every theme still answers for the
+    // Oasis placeables. A classic city never builds them, but every theme still answers for the
     // tokens so the renderer never has to guard on the ruleset.
     'qanat.wall': 0x7a8290,
     'qanat.roof': 0x565e6a,

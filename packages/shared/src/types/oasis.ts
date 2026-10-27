@@ -1,6 +1,6 @@
-/** Persisted state of the neon ruleset systems. Plain data, serialized with the snapshot. */
+/** Persisted state of the Oasis ruleset systems. Plain data, serialized with the snapshot. */
 
-/** One megacorporation: an autonomous land buyer with a war chest and a taste for a district. */
+/** One caravan house: an autonomous land buyer with capital and a taste for a district. */
 export interface Caravan {
   id: number;
   name: string;
@@ -21,15 +21,15 @@ export interface BatteryState {
   settledTick?: number;
 }
 
-/** A live intrusion against one service building. */
+/** A sandstorm that buried one service building. */
 export interface Storm {
   /** Building under attack. */
   buildingId: number;
   /** Ticks the service stays offline. */
   ticks: number;
-  /** Firewall coverage at the moment of the attack, 0..1 (for diagnostics). */
+  /** Windbreak coverage when the storm landed, 0..1 (for diagnostics). */
   windbreak: number;
-  /** Storm flavour: `ransom`, `wipe` or `spoof`. */
+  /** Storm flavour, one of `STORM_KINDS` (`haboob`, `drift`, `gust`). */
   kind: string;
 }
 
@@ -60,7 +60,7 @@ export function defaultJourneyState(): JourneyState {
   };
 }
 
-/** Persisted state of every neon system. */
+/** Persisted state of every Oasis system. */
 export interface OasisState {
   /** Optional for legacy saves. Accrued ticks survive a toggle and a mid-month reload. */
   waterPolicy?: { rationing: boolean; rationedTicks: number };
@@ -74,7 +74,7 @@ export interface OasisState {
   parched: number[];
   /** Month index of the last corporate expansion, so it happens once a month. */
   lastCaravanMonth: number;
-  /** Month index of the last intrusion roll. */
+  /** Month index of the last sandstorm roll. */
   lastStormMonth: number;
   /** Total cash the caravans have paid into the city. */
   trade: number;

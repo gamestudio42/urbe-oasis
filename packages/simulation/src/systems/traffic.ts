@@ -8,7 +8,7 @@ import {
   type PlaceableKind,
 } from '@city/shared';
 import type { SimulationEngine } from '../engine';
-import { arcadeRelief } from './oasis/airTraffic';
+import { arcadeRelief } from './oasis/arcades';
 import type { World } from '../world/world';
 import { MinHeap } from './heap';
 import type { RoadNetwork } from './roads';
@@ -302,7 +302,7 @@ export function updateTraffic(engine: SimulationEngine, roads: RoadNetwork): Tra
     addTrips(flow, shops, road, t.shoppingRate * b.occupancy);
   }
   const funding = engine.economy.funding.transport / 100;
-  // Drone lanes relieve the road network before the capacity limit is applied.
+  // Arcades relieve the road network before the capacity limit is applied.
   const relief = engine.ruleset === 'oasis' ? arcadeRelief(engine, roadsCountGuess(w)) : 0;
   const capacity = t.roadCapacity * (0.5 + 0.5 * funding) * (1 + relief);
   const k = t.congestionSmoothing;

@@ -24,7 +24,7 @@ export class World {
   readonly influence: Record<InfluenceLayer, Uint8Array>;
   readonly buildingId: Int32Array;
   /**
-   * Neon data service, 0/1. Allocated for every city so the mirror can draw it, but omitted from
+   * Oasis shade service, 0/1. Allocated for every city so the mirror can draw it, but omitted from
    * classic snapshots so the classic hash does not grow a layer.
    */
   readonly linked: Uint8Array;

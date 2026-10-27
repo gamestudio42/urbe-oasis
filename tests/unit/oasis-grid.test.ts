@@ -9,12 +9,12 @@ import {
 } from '@city/simulation';
 import { describe, expect, it } from 'vitest';
 
-/** A flat neon city with a road, a coal plant and a few dense residential lots. */
-function neonTown(size = 40): SimulationEngine {
+/** A flat Oasis city with a road, a coal plant and a few dense residential lots. */
+function oasisTown(size = 40): SimulationEngine {
   const e = createEngine({
     seed: 'neon-grid',
     size,
-    name: 'Neon',
+    name: 'Oasis',
     ruleset: 'oasis',
     terrain: { flat: true, water: 0, hills: 0, forest: 0, rivers: 0 },
     funds: 200_000,
@@ -25,16 +25,16 @@ function neonTown(size = 40): SimulationEngine {
   return e;
 }
 
-describe('neon power grid', () => {
+describe('Oasis water grid', () => {
   it('keeps a lightly loaded component out of overload', () => {
-    const e = neonTown();
+    const e = oasisTown();
     e.runMonths(2);
     expect(e.oasis.parched).toEqual([]);
     expect(isParched(e, e.world.index(10, 10))).toBe(false);
   });
 
   it('adds qanat supply to the water network', () => {
-    const e = neonTown();
+    const e = oasisTown();
     e.refreshUtilities();
     const before = e.stats().water.supply;
     expect(e.execute({ type: 'place', kind: 'qanat', x: 9, y: 12 }).ok).toBe(true);
@@ -43,7 +43,7 @@ describe('neon power grid', () => {
   });
 
   it('charges an idle cistern bank and reports it', () => {
-    const e = neonTown();
+    const e = oasisTown();
     // The coal plant footprint is 3x3 at (6,12); the bank sits on its east edge.
     expect(e.execute({ type: 'place', kind: 'well', x: 9, y: 12 }).ok).toBe(true);
     expect(e.execute({ type: 'place', kind: 'cistern', x: 10, y: 12 }).ok).toBe(true);
@@ -189,15 +189,15 @@ describe('neon power grid', () => {
   });
 
   it('is deterministic for the same seed and commands', () => {
-    const a = neonTown();
-    const b = neonTown();
+    const a = oasisTown();
+    const b = oasisTown();
     a.runMonths(4);
     b.runMonths(4);
     expect(a.stats()).toEqual(b.stats());
   });
 });
 
-describe('neon vertical density', () => {
+describe('Oasis building heights', () => {
   it('raises the level cap but keeps the classic cap for a classic city', () => {
     expect(oasisMaxLevel(2, true, false, 5)).toBe(BALANCE.zones.maxLevelDense);
     expect(oasisMaxLevel(2, true, true, 5)).toBe(OASIS_HEAT.maxLevelDense);
@@ -211,7 +211,7 @@ describe('neon vertical density', () => {
     expect(oasisCapacity('residential', 5)).toBe(classic);
   });
 
-  it('keeps the neon-only placeables out of the classic spec costs', () => {
+  it('keeps the Oasis-only placeables out of the classic spec costs', () => {
     expect(PLACEABLE_SPECS.qanat.waterSupply).toBeGreaterThan(0);
     expect(PLACEABLE_SPECS.cistern.cost).toBeGreaterThan(0);
   });

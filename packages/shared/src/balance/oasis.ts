@@ -47,11 +47,11 @@ export const OASIS_WATER = {
 /** Megacaravans: land-market agents that buy idle lots and distort land value. */
 export const OASIS_CARAVAN = {
   count: 4,
-  /** Starting capital of each corporation. */
+  /** Starting capital of each caravan house. */
   startingCapital: 24000,
-  /** A corporation buys a lot when it has at least this share of its capital free. */
+  /** A caravan house buys a lot when it has at least this share of its capital free. */
   buyReserve: 0.35,
-  /** Cash a corporation spends on one lot, as a share of its capital. */
+  /** Cash a caravan house spends on one lot, as a share of its capital. */
   lotPrice: 0.18,
   /** Land value added around a corporate lot. */
   landValue: 26,
@@ -62,21 +62,21 @@ export const OASIS_CARAVAN = {
   expandChance: 0.5,
   /** Monthly chance that a caravan abandons one dry lot it owns. */
   leaveChance: 0.35,
-  /** A corporation never buys a lot with this many residents or jobs. */
+  /** A caravan house never buys a lot with this many residents or jobs. */
   maxOccupancy: 6,
   /** Fraction of tax revenue a corporate lot diverts from the city. */
   tradeShare: 0.12,
 } as const;
 
-/** Hackers: storms that take a service offline and windbreaks that stop them. */
+/** Sandstorms that bury a service, and the windbreaks that slow them. */
 export const OASIS_STORM = {
-  /** Base chance per month of an intrusion attempt. */
+  /** Base chance per month of a sandstorm reaching a service. */
   baseChance: 0.35,
   /** Chance added per 1000 residents. */
   populationChance: 0.12,
   /** Chance reduction per point of windbreak coverage (0..1). */
   windbreakMitigation: 0.75,
-  /** Ticks a hacked service stays offline. */
+  /** Ticks a buried service stays offline. */
   offlineTicks: 60,
   /** Cost and upkeep of a windbreak node. */
   windbreakCost: 900,
@@ -85,53 +85,53 @@ export const OASIS_STORM = {
   windbreakRadius: 6,
   /** Cash a sandstorm takes. Sand buries services; it does not rob the treasury. */
   theft: 0,
-  /** Highest chance an intrusion can reach, whatever the windbreak. */
+  /** Highest chance a sandstorm can reach, whatever the windbreak. */
   maxChance: 0.8,
 } as const;
 
-/** Drone traffic: a separate aerial layer above the roads. */
+/** Arcades: covered streets that ease the traffic beside them. */
 export const OASIS_ARCADE = {
-  /** Drones a single drone port supports. */
+  /** Legacy drone capacity of one arcade; the adobe city draws no drones. */
   perPort: 4,
-  /** Cost and upkeep of a drone port. */
+  /** Cost and upkeep of an arcade. */
   portCost: 1600,
   portUpkeep: 30,
-  /** Tiles a drone crosses per tick of simulated traffic. */
+  /** Legacy drone speed, in tiles per tick of simulated traffic (cyber skin only). */
   tilesPerTick: 2,
-  /** Share of a road's traffic that drones relieve while a port is online. */
+  /** Share of a road's traffic an online arcade relieves. */
   relief: 0.15,
-  /** Vertical clearance of the drone lanes, in sprite pixels. */
+  /** Vertical clearance of drone lanes in the cyber skin, in sprite pixels. */
   altitude: 34,
 } as const;
 
 /**
- * Data network: springHouses and edge nodes supply bandwidth, canal conducts it.
+ * Shade network: spring houses and palms supply shade, canals and buildings conduct it.
  * A lot without a link stops at `maxLevelWithoutShade`, the same cap as a lot without water.
  */
 export const OASIS_SHADE = {
   springCost: 1000,
   /**
-   * Monthly upkeep of one hall, booked on the power line.
-   * Eight and then four per hall left seed 2 of `oasis-balanced` in debt at month 120.
-   * One per hall is the highest step on that ladder that closes all three seeds.
+   * Monthly upkeep of one spring house, booked on the power line.
+   * Eight and then four per spring house left seed 2 of `oasis-balanced` in debt at month 120.
+   * One per spring house is the highest step on that ladder that closes all three seeds.
    */
   springUpkeep: 1,
-  /** Power one hall draws, online or hacked. A pair draws the same 40 as the old single hall. */
+  /** Power one spring house draws, online or buried. A pair draws 40. */
   springPowerUse: 20,
   /**
-   * Bandwidth while the hall is powered, online and watered (the water network reached it;
-   * the hall itself does not consume water). One hall is short of the reference town.
-   * Two halls cover it, and a hack leaves only the far side dark.
+   * Shade while the spring house is powered, online and watered (the water network reached it;
+   * the spring house itself does not consume water). One is short of the reference town.
+   * Two cover it, and a buried one leaves only the far side dark.
    */
   springSupply: 400,
-  /** Bandwidth while powered and online but not reached by water. Thirty percent of the cooled output. */
+  /** Shade while powered and online but not reached by water: thirty percent of the full output. */
   springSupplyDry: 120,
-  /** Jobs, so an intrusion can take the hall offline. Targeting is uniform, not weighted by this count. */
+  /** Jobs, so a sandstorm can bury the spring house. Targeting is uniform, not weighted by this count. */
   springJobs: 10,
   palmCost: 250,
   palmUpkeep: 8,
   palmPowerUse: 0,
-  /** Bandwidth of one edge node. It does not need cooling water. */
+  /** Shade of one planted palm. It needs neither power nor water. */
   palmSupply: 80,
   canalCost: 5,
   /** Monthly upkeep of one canal tile. Booked with power, only when canal exists. */
@@ -142,7 +142,7 @@ export const OASIS_SHADE = {
     commercial: [0, 3, 8, 16, 28, 48],
     industrial: [0, 2, 5, 10, 16, 24],
   },
-  /** Extra demand per level above the table. A level-7 shop exceeds one edge node. */
+  /** Extra demand per level above the table. A level-7 shop exceeds one palm. */
   shadePerLevel: 1.4,
   /** Highest level a lot reaches without shade or water. */
   maxLevelWithoutShade: 2,
@@ -179,17 +179,6 @@ export const OASIS_HEAT = {
   /** Extra water demand per level above the classic table. */
   waterPerLevel: 1.15,
 } as const;
-
-export const OASIS_BALANCE = {
-  grid: OASIS_WATER,
-  corps: OASIS_CARAVAN,
-  intrusion: OASIS_STORM,
-  drones: OASIS_ARCADE,
-  vertical: OASIS_HEAT,
-  data: OASIS_SHADE,
-} as const;
-
-export type OasisBalance = typeof OASIS_BALANCE;
 
 /** Emergency conservation trades water demand for business tax receipts. */
 export const OASIS_RATIONING = {
@@ -228,3 +217,17 @@ export const OASIS_JOURNEY = {
 
 /** Chapters in the journey; `chapter === JOURNEY_CHAPTERS` means it is complete. */
 export const JOURNEY_CHAPTERS = 5;
+
+/** Every Oasis balance table, by system. */
+export const OASIS_BALANCE = {
+  water: OASIS_WATER,
+  caravans: OASIS_CARAVAN,
+  sandstorms: OASIS_STORM,
+  arcades: OASIS_ARCADE,
+  heights: OASIS_HEAT,
+  shade: OASIS_SHADE,
+  journey: OASIS_JOURNEY,
+  rationing: OASIS_RATIONING,
+} as const;
+
+export type OasisBalance = typeof OASIS_BALANCE;

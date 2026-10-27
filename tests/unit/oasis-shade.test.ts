@@ -20,7 +20,7 @@ import {
 } from '@city/simulation';
 import { describe, expect, it } from 'vitest';
 
-/** A small flat neon city. Power comes from a wind turbine placed per test. */
+/** A small flat Oasis city. Power comes from a wind turbine placed per test. */
 function city(seed = 'neon-data'): SimulationEngine {
   const e = createEngine({
     seed,
@@ -56,13 +56,13 @@ function shop(e: SimulationEngine, x: number, y: number, level: number): Buildin
   });
 }
 
-/** Wind turbine plus the edge node on its east side. */
+/** Wind turbine plus the palm on its east side. */
 function feed(e: SimulationEngine, x: number, y: number): void {
   expect(e.execute({ type: 'place', kind: 'windTurbine', x, y }).ok).toBe(true);
   expect(e.execute({ type: 'place', kind: 'palm', x: x + 1, y }).ok).toBe(true);
 }
 
-describe('neon data network', () => {
+describe('Oasis data network', () => {
   it('keeps the published costs and the level-5 demand table', () => {
     expect(PLACEABLE_SPECS.springHouse.cost).toBe(OASIS_SHADE.springCost);
     expect(PLACEABLE_SPECS.springHouse.upkeep).toBe(OASIS_SHADE.springUpkeep);
@@ -72,11 +72,11 @@ describe('neon data network', () => {
     expect(oasisShade('residential', 5)).toBe(14);
     expect(oasisShade('commercial', 5)).toBe(48);
     expect(oasisShade('industrial', 5)).toBe(24);
-    // 48 * 1.4^2 = 94.08, rounded. One edge node (80) cannot feed a level-7 shop.
+    // 48 * 1.4^2 = 94.08, rounded. One palm (80) cannot feed a level-7 shop.
     expect(oasisShade('commercial', 7)).toBe(94);
   });
 
-  it('caps a neon lot at level 2 without data and leaves the classic cap alone', () => {
+  it('caps a Oasis lot at level 2 without data and leaves the classic cap alone', () => {
     expect(oasisMaxLevel(ZoneDensity.Dense, true, true, 5, false)).toBe(2);
     expect(oasisMaxLevel(ZoneDensity.Dense, true, true, 5, true)).toBe(5);
     expect(oasisMaxLevel(ZoneDensity.Light, true, true, 3, false)).toBe(2);
@@ -133,7 +133,7 @@ describe('neon data network', () => {
     expect(e.world.linked[e.world.index(9, 12)]).toBe(0);
   });
 
-  it('drops springHouse supply without power and without cooling water', () => {
+  it('drops springHouse supply without power and without water', () => {
     const dry = city('dry-hall');
     expect(dry.execute({ type: 'place', kind: 'springHouse', x: 5, y: 4 }).ok).toBe(true);
     dry.refreshUtilities();
@@ -146,19 +146,19 @@ describe('neon data network', () => {
     expect(cooled.execute({ type: 'place', kind: 'windTurbine', x: 4, y: 4 }).ok).toBe(true);
     expect(cooled.execute({ type: 'place', kind: 'springHouse', x: 5, y: 4 }).ok).toBe(true);
     cooled.refreshUtilities();
-    const hall = cooled.buildings.ofKind('springHouse')[0];
-    expect(hall?.powered).toBe(true);
-    expect(hall?.watered).toBe(false);
+    const house = cooled.buildings.ofKind('springHouse')[0];
+    expect(house?.powered).toBe(true);
+    expect(house?.watered).toBe(false);
     expect(cooled.stats().oasis?.data.supply).toBe(OASIS_SHADE.springSupplyDry);
 
-    // The hall is 2×2 at (5,4), so a well on its south edge cools it.
+    // The house is 2×2 at (5,4), so a well on its south edge waters it.
     expect(cooled.execute({ type: 'place', kind: 'well', x: 5, y: 6 }).ok).toBe(true);
     cooled.refreshUtilities();
     expect(cooled.buildings.ofKind('springHouse')[0]?.watered).toBe(true);
     expect(cooled.stats().oasis?.data.supply).toBe(OASIS_SHADE.springSupply);
   });
 
-  it('refuses a level-7 shop on a single edge node', () => {
+  it('refuses a level-7 shop on a single palm', () => {
     const e = city('tower');
     feed(e, 2, 4);
     e.execute({ type: 'canal', x0: 4, y0: 4, x1: 6, y1: 4 });
@@ -171,7 +171,7 @@ describe('neon data network', () => {
     expect(e.stats().oasis?.data.served).toBe(0);
   });
 
-  it('serves the nearer shop when bandwidth is short', () => {
+  it('serves the nearer shop when shade is short', () => {
     const e = city('nearest');
     feed(e, 2, 4);
     e.execute({ type: 'canal', x0: 4, y0: 4, x1: 12, y1: 4 });
@@ -200,19 +200,19 @@ describe('neon data network', () => {
     expect(e.stats().oasis).toBeUndefined();
   });
 
-  it('gives the neon preset two cooled springHouses on the canal spine', () => {
+  it('gives the Oasis preset two cooled springHouses on the canal spine', () => {
     const { engine } = SIM_PRESETS['oasis-balanced']!.create('preset-data', 64);
     engine.refreshUtilities();
-    const halls = engine.buildings.ofKind('springHouse');
-    expect(halls).toHaveLength(2);
-    const north = halls.find((hall) => hall.x === 46 && hall.y === 14);
-    const south = halls.find((hall) => hall.x === 47 && hall.y === 22);
+    const houses = engine.buildings.ofKind('springHouse');
+    expect(houses).toHaveLength(2);
+    const north = houses.find((house) => house.x === 46 && house.y === 14);
+    const south = houses.find((house) => house.x === 47 && house.y === 22);
     expect(north).toBeDefined();
     expect(south).toBeDefined();
-    for (const hall of halls) {
-      expect(hall.powered).toBe(true);
-      expect(hall.watered).toBe(true);
-      expect(hall.linked).toBe(true);
+    for (const house of houses) {
+      expect(house.powered).toBe(true);
+      expect(house.watered).toBe(true);
+      expect(house.linked).toBe(true);
     }
     expect(engine.stats().oasis?.data.supply).toBe(2 * OASIS_SHADE.springSupply);
     let canals = 0;
@@ -222,10 +222,10 @@ describe('neon data network', () => {
     expect(canals).toBeGreaterThan(40);
   });
 
-  it('darkens the far shop when one of two halls goes offline', () => {
+  it('darkens the far shop when one of two houses goes offline', () => {
     const e = city('two-halls');
     expect(e.execute({ type: 'place', kind: 'windTurbine', x: 2, y: 2 }).ok).toBe(true);
-    // South first, so a search with both online starts at the south hall.
+    // South first, so a search with both online starts at the south house.
     expect(e.execute({ type: 'place', kind: 'springHouse', x: 3, y: 14 }).ok).toBe(true);
     expect(e.execute({ type: 'place', kind: 'springHouse', x: 3, y: 2 }).ok).toBe(true);
     expect(e.execute({ type: 'powerLine', x0: 3, y0: 4, x1: 3, y1: 13 }).ok).toBe(true);
@@ -243,8 +243,8 @@ describe('neon data network', () => {
     expect(northShop.linked).toBe(true);
     expect(southShop.linked).toBe(true);
 
-    const south = e.buildings.ofKind('springHouse').find((hall) => hall.y === 14);
-    const north = e.buildings.ofKind('springHouse').find((hall) => hall.y === 2);
+    const south = e.buildings.ofKind('springHouse').find((house) => house.y === 14);
+    const north = e.buildings.ofKind('springHouse').find((house) => house.y === 2);
     expect(south).toBeDefined();
     expect(north).toBeDefined();
 
@@ -272,17 +272,17 @@ describe('neon data network', () => {
     expect(block.linked).not.toBe(true);
   });
 
-  it('links a dry hall at the dry supply', () => {
+  it('links a dry house at the dry supply', () => {
     const e = city('canal-dry');
     expect(e.execute({ type: 'place', kind: 'windTurbine', x: 2, y: 4 }).ok).toBe(true);
     expect(e.execute({ type: 'place', kind: 'springHouse', x: 3, y: 4 }).ok).toBe(true);
     expect(e.execute({ type: 'canal', x0: 5, y0: 4, x1: 8, y1: 4 }).ok).toBe(true);
     const block = shop(e, 8, 4, 1);
     e.refreshUtilities();
-    const hall = e.buildings.ofKind('springHouse')[0];
-    expect(hall?.powered).toBe(true);
-    expect(hall?.watered).toBe(false);
-    expect(hall?.linked).toBe(true);
+    const house = e.buildings.ofKind('springHouse')[0];
+    expect(house?.powered).toBe(true);
+    expect(house?.watered).toBe(false);
+    expect(house?.linked).toBe(true);
     expect(e.stats().oasis?.data.supply).toBe(OASIS_SHADE.springSupplyDry);
     expect(block.linked).toBe(true);
     expect(block.watered).toBe(false);
@@ -300,18 +300,18 @@ describe('neon data network', () => {
     expect(block.linked).toBe(true);
   });
 
-  it('keeps a hacked hall on the power bill with no bandwidth', () => {
+  it('keeps a buried spring house on the power bill with no shade', () => {
     const e = city('muted-hall');
     expect(e.execute({ type: 'place', kind: 'windTurbine', x: 2, y: 4 }).ok).toBe(true);
     expect(e.execute({ type: 'place', kind: 'springHouse', x: 3, y: 4 }).ok).toBe(true);
     e.refreshUtilities();
-    const hall = e.buildings.ofKind('springHouse')[0];
-    expect(hall).toBeDefined();
-    hall!.offline = 60;
+    const house = e.buildings.ofKind('springHouse')[0];
+    expect(house).toBeDefined();
+    house!.offline = 60;
     e.refreshUtilities();
-    expect(shadeSupply(hall!)).toBe(0);
+    expect(shadeSupply(house!)).toBe(0);
     expect(e.stats().oasis?.data.supply).toBe(0);
-    expect(powerDemand(hall!)).toBe(OASIS_SHADE.springPowerUse);
+    expect(powerDemand(house!)).toBe(OASIS_SHADE.springPowerUse);
     expect(e.stats().power.demand).toBe(OASIS_SHADE.springPowerUse);
   });
 

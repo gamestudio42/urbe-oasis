@@ -46,7 +46,7 @@ export function initCaravans(engine: SimulationEngine): number {
 }
 
 /**
- * Monthly: each corporation may buy one vacant lot in its quadrant. Caravans act in id order
+ * Monthly: each caravan house may buy one vacant lot in its quadrant. Caravans act in id order
  * and scan lots in index order, so the RNG stream stays reproducible for a given seed.
  */
 export function updateCaravans(engine: SimulationEngine): CaravanResult {
@@ -67,7 +67,7 @@ export function updateCaravans(engine: SimulationEngine): CaravanResult {
     corp.holdings++;
     lot.owner = corp.id;
     engine.buildings.touch(lot);
-    // The premium the corporation charges the city for "redeveloping" the lot.
+    // The fee the caravan house pays the city for the lot.
     const fee = Math.round(price * OASIS_CARAVAN.tradeShare);
     engine.economy.funds += fee;
     engine.oasis.trade += fee;
@@ -155,7 +155,7 @@ function stampLandValue(engine: SimulationEngine, b: BuildingRecord): void {
   }
 }
 
-/** Name of the corporation that owns a lot, or null for city-owned property. */
+/** Name of the caravan house that owns a lot, or null for city-owned property. */
 export function ownerOf(engine: SimulationEngine, b: BuildingRecord): string | null {
   if (b.owner === undefined) return null;
   return engine.oasis.caravans.find((c) => c.id === b.owner)?.name ?? null;

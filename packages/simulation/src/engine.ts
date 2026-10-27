@@ -51,9 +51,9 @@ import { ensureSpring, updateSpring } from './systems/oasis/spring';
 import { rationingSummary } from './systems/oasis/rationing';
 import { journeySummary, updateJourney } from './systems/oasis/journey';
 import { cisternSummary } from './systems/oasis/grid';
-import { shelterCoverage } from './systems/oasis/intrusion';
-import { arcadeCount } from './systems/oasis/airTraffic';
-import { tickStorms, updateStorms, type StormResult } from './systems/oasis/intrusion';
+import { shelterCoverage } from './systems/oasis/sandstorms';
+import { arcadeCount } from './systems/oasis/arcades';
+import { tickStorms, updateStorms, type StormResult } from './systems/oasis/sandstorms';
 import { DEFAULT_TERRAIN, generateTerrain } from './terrain/generate';
 import { dateOf, isDayStart, monthIndex, monthStage } from './time';
 import { BuildingStore } from './world/buildings';
@@ -114,7 +114,7 @@ export class SimulationEngine {
   disastersEnabled = true;
   networksDirty = true;
   lastMilestone = 0;
-  /** Neon systems state; empty for a classic city, which never reads it. */
+  /** Oasis systems state; empty for a classic city, which never reads it. */
   oasis: OasisState = defaultOasisState();
   historyDirty = false;
 
@@ -126,7 +126,7 @@ export class SimulationEngine {
   /** Last results of the derived systems (not serialized; recomputed when needed). */
   lastTraffic: TrafficResult | null = null;
   lastGrowth: GrowthResult | null = null;
-  /** Last neon results, for the HUD and reports; null in a classic city. */
+  /** Last Oasis results, for the HUD and reports; null in a classic city. */
   lastGrid: GridResult | null = null;
   lastCorps: CaravanResult | null = null;
   lastStorm: StormResult | null = null;
@@ -444,7 +444,7 @@ export class SimulationEngine {
     };
   }
 
-  /** Neon telemetry for the HUD and the report. */
+  /** Oasis telemetry for the HUD and the report. */
   private oasisStats(): NonNullable<CityStats['oasis']> {
     const journey = journeySummary(this);
     let holdings = 0;

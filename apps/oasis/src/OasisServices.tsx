@@ -72,6 +72,7 @@ export function OasisServices({
       return { result, own };
     });
     // `version` refreshes mirror reads once per day or after tile changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, x, y, version]);
 
   // The drawn reach belongs to this inspector; selecting elsewhere clears it.

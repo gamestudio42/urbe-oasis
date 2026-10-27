@@ -37,7 +37,7 @@ interface NetworkSpec {
 export function powerDemand(b: BuildingRecord): number {
   if (!isZoneKind(b.kind)) return PLACEABLE_SPECS[b.kind].powerUse;
   if (b.abandoned) return 0;
-  // Neon spires grow past the classic table; `oasisPower` extrapolates identically for both rules.
+  // Oasis lots grow past the classic table; `oasisPower` extrapolates identically for both rules.
   const table = ZONE_SPECS[b.kind].power;
   return (table[b.level] ?? oasisPower(b.kind, b.level)) as number;
 }
@@ -183,7 +183,7 @@ function cisternCharge(engine: SimulationEngine, id: number): BatteryState {
   return created;
 }
 
-/** Bandwidth a zone lot asks for. Placeables do not consume data; they only need to be reached. */
+/** Shade a zone lot asks for. Placeables do not consume shade; they only need to be reached. */
 export function shadeDemand(b: BuildingRecord): number {
   if (!isZoneKind(b.kind) || b.abandoned) return 0;
   return oasisShade(b.kind, b.level);
@@ -207,7 +207,8 @@ export function shadeSupply(b: BuildingRecord, nearSpring = true): number {
 }
 
 /**
- * Recomputes power, then water (pumps need power), then the neon data network (halls need both).
+ * Recomputes power, then water (pumps need power), then the Oasis shade network (spring houses
+ * need both).
  * With `write` it updates the service layers and building flags; without it only the summary
  * is computed. The data pass does not run in a classic city.
  */
@@ -295,8 +296,8 @@ export interface PowerComponent {
 
 /**
  * Groups buildings into power components using exactly the conductor rules of the classic
- * solver (built tiles, power lines and zoned tiles, jumping over a plain road). The neon grid
- * layer reuses this so overload, cascade and cisterns describe the same components the
+ * solver (built tiles, power lines and zoned tiles, jumping over a plain road). The Oasis water
+ * grid reuses this so overload, cascade and cisterns describe the same components the
  * `powered` layer was solved from.
  */
 export function powerComponents(engine: SimulationEngine): PowerComponent[] {

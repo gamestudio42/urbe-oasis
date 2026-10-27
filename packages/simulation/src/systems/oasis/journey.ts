@@ -2,7 +2,7 @@ import { JOURNEY_CHAPTERS, OASIS_JOURNEY, type BuildingRecord } from '@city/shar
 import type { SimulationEngine } from '../../engine';
 import { monthIndex } from '../../time';
 import { cityTotals } from '../demand';
-import { shelterCoverage } from './intrusion';
+import { shelterCoverage } from './sandstorms';
 
 /**
  * The journey (oasis ruleset, cities founded by the app only).

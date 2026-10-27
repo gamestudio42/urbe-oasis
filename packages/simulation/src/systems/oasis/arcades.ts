@@ -11,7 +11,7 @@ import { isOperatingHub } from '../traffic';
  * the building, kept so the relief has a length, and the adobe city does not draw drones on it.
  */
 
-/** A rendered aerial corridor along the road that touches a port. */
+/** The straight road an arcade relieves (drawn as a drone lane only by the cyber skin). */
 export interface ArcadeLane {
   portId: number;
   x: number;
@@ -22,7 +22,7 @@ export interface ArcadeLane {
   heading: number;
 }
 
-/** Online drone ports in the city. */
+/** Operating arcades in the city. */
 export function arcadeCount(engine: SimulationEngine): number {
   let ports = 0;
   for (const b of engine.buildings.values()) {
@@ -31,7 +31,7 @@ export function arcadeCount(engine: SimulationEngine): number {
   return ports;
 }
 
-/** Drones the city can keep in the air. */
+/** Drones the cyber skin keeps in the air over the arcades. */
 export function arcadeCapacity(engine: SimulationEngine): number {
   return arcadeCount(engine) * OASIS_ARCADE.perPort;
 }
@@ -59,7 +59,7 @@ export function arcadeLanes(engine: SimulationEngine): ArcadeLane[] {
   return lanes;
 }
 
-/** How far a drone follows one straight road before turning back. */
+/** How far a relief lane (or a cyber-skin drone) follows one straight road. */
 export const ARCADE_LANE_CAP = 14;
 
 const DIRECTIONS = [
@@ -99,7 +99,7 @@ interface PortFootprint {
  *
  * The run starts on every road tile orthogonally beside the footprint and is measured both
  * away from the building and along the street. Walking only outward from one corner stops on
- * the first tile of a normal avenue, which is too short for a drone to launch.
+ * the first tile of a normal avenue, which is too short to count as a lane.
  */
 function scanPort(w: World, port: PortFootprint): {
   best: ArcadeLane | null;

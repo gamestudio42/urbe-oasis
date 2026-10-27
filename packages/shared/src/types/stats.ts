@@ -53,7 +53,7 @@ export interface UtilityStats {
 
 export interface CityStats {
   name: string;
-  /** Rules this city runs; the UI hides neon-only tools for `classic`. */
+  /** Rules this city runs; the UI hides Oasis-only tools for `classic`. */
   ruleset: 'classic' | 'oasis';
   tick: number;
   day: number;
@@ -90,7 +90,7 @@ export interface CityStats {
   disasters: ActiveDisaster[];
   disastersEnabled: boolean;
   edgeConnected: boolean;
-  /** Neon-only telemetry; absent in a classic city. */
+  /** Oasis-only telemetry; absent in a classic city. */
   oasis?: {
     waterPolicy: {
       enabled: boolean;
@@ -106,7 +106,7 @@ export interface CityStats {
     cisterns: { banks: number; charge: number };
     /** Share of services under windbreak cover 0..1. */
     windbreak: number;
-    /** Online drone ports. */
+    /** Online arcades. */
     arcades: number;
     /** Caravans and their total holdings. */
     caravans: { count: number; holdings: number };

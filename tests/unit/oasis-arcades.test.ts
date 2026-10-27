@@ -15,7 +15,7 @@ import { describe, expect, it } from 'vitest';
  * Flat oasis city with the standard town and room for an arcade beside the avenue at y = 20.
  * The footprint is 2x2, so (38,21) hugs the road and satisfies `requiresRoad`.
  */
-function droneTown(seed = 'neon-drone'): SimulationEngine {
+function arcadeTown(seed = 'neon-drone'): SimulationEngine {
   const e = createEngine({
     seed,
     size: 64,
@@ -28,9 +28,9 @@ function droneTown(seed = 'neon-drone'): SimulationEngine {
   return e;
 }
 
-describe('neon drone traffic', () => {
+describe('Oasis arcade traffic', () => {
   it('has no capacity and no relief without a port', () => {
-    const e = droneTown();
+    const e = arcadeTown();
     e.refreshUtilities();
     expect(arcadeCount(e)).toBe(0);
     expect(arcadeCapacity(e)).toBe(0);
@@ -39,7 +39,7 @@ describe('neon drone traffic', () => {
   });
 
   it('adds capacity and relief once a port is online', () => {
-    const e = droneTown();
+    const e = arcadeTown();
     expect(e.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 }).ok).toBe(true);
     e.refreshUtilities();
     expect(arcadeCount(e)).toBe(1);
@@ -48,7 +48,7 @@ describe('neon drone traffic', () => {
   });
 
   it('never exceeds the configured relief cap', () => {
-    const e = droneTown();
+    const e = arcadeTown();
     e.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
     e.refreshUtilities();
     expect(arcadeRelief(e, 1)).toBeLessThanOrEqual(OASIS_ARCADE.relief);
@@ -56,7 +56,7 @@ describe('neon drone traffic', () => {
   });
 
   it('scales relief with the number of online ports', () => {
-    const e = droneTown();
+    const e = arcadeTown();
     e.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
     e.refreshUtilities();
     const one = arcadeRelief(e, 400);
@@ -67,7 +67,7 @@ describe('neon drone traffic', () => {
   });
 
   it('takes an offline port out of service', () => {
-    const e = droneTown();
+    const e = arcadeTown();
     e.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
     e.refreshUtilities();
     expect(arcadeCount(e)).toBe(1);
@@ -80,7 +80,7 @@ describe('neon drone traffic', () => {
   });
 
   it('derives a lane along the avenue beside the port', () => {
-    const e = droneTown();
+    const e = arcadeTown();
     e.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
     e.refreshUtilities();
     const lanes = arcadeLanes(e);
@@ -104,8 +104,8 @@ describe('neon drone traffic', () => {
   });
 
   it('is deterministic for the same seed', () => {
-    const a = droneTown('drone-same');
-    const b = droneTown('drone-same');
+    const a = arcadeTown('drone-same');
+    const b = arcadeTown('drone-same');
     a.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
     b.execute({ type: 'place', kind: 'arcade', x: 38, y: 21 });
     a.runMonths(6);
