@@ -97,6 +97,17 @@ test('a real storm has a report, map location, bounded effects and a non-destruc
   expect(journal!.y).toBeGreaterThan(resources!.y + resources!.height);
   await page.screenshot({ path: 'test-results/oasis-storm.png' });
   const hash = await page.evaluate(() => window.__cityDebug!.hash());
+  // At speed 1 a month closes every six seconds; under load the wait above can span one, and a
+  // newer moment then leads the report. Pick the storm from the history before acting on it.
+  await page.getByTestId('chronicle-history').click();
+  await page
+    .getByTestId('chronicle-entries')
+    .getByRole('button')
+    .filter({ hasText: 'Areia sobre a cidade' })
+    .filter({ hasText: `${fixture.event.x}, ${fixture.event.y}` })
+    .first()
+    .click();
+  await expect(page.getByTestId('chronicle-report')).toHaveAttribute('data-kind', 'storm');
   await page.getByTestId('chronicle-tool').click();
   await expect(page.getByTestId('tool-windbreak')).toHaveAttribute('aria-pressed', 'true');
   await page.getByTestId('chronicle-close').click();
