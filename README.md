@@ -113,6 +113,13 @@ See the [architecture](docs/architecture.md), [Oasis rules](docs/oasis-spec.md),
 
 ## Licence
 
-Urbe Oasis is MIT-licensed. Its code, procedural art, sound and music are original.
+Urbe Oasis is free software under the GNU Affero General Public License, version 3 or any later
+version ([`AGPL-3.0-or-later`](LICENSE)), following the
+[Game Studio 42](https://github.com/gamestudio42) default for complete games. If you run a modified
+version for other people, including as a website or over a network, you must offer them its source
+under the same licence. Copyright (c) 2026 Marcel Savegnago. Releases up to commit dca8532 were published
+under MIT and remain available under those terms.
+
+Its code, procedural art, sound and music are original.
 Micropolis and OpenSC2K were studied as behavioural references only; no code or assets were
 copied. See [LICENSE](LICENSE) and [AGENTS.md](AGENTS.md) for project rules.

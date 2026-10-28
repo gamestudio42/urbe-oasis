@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Urbe Oasis — a desert city builder that runs in the browser.",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "packageManager": "pnpm@10.27.0",
   "engines": {
     "node": ">=22"
