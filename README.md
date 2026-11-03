@@ -56,8 +56,8 @@ shade. These are simulation rules, not just visual effects.
 <table>
 <tr>
 <td align="center" width="50%" valign="top">
-<img src="docs/screenshots/play.png" alt="A young oasis with a road, utilities, palms and the spring" width="460"><br>
-Build around the spring and connect the first services.
+<img src="docs/screenshots/play.png" alt="A young oasis with the survival panel: water coverage, shade and stored water" width="460"><br>
+The survival panel: water, shade and what is stored.
 </td>
 <td align="center" width="50%" valign="top">
 <img src="docs/screenshots/storm.png" alt="A sandstorm report and inspector showing a buried caravanserai" width="460"><br>
@@ -65,6 +65,19 @@ Follow a sandstorm in the chronicle and inspect its impact.
 </td>
 </tr>
 </table>
+
+<p align="center">
+  <img src="docs/screenshots/underground.png" alt="The underground view: qanat, pipes and cisterns under the oasis" width="920">
+</p>
+
+## Why Urbe Oasis
+
+- **Play in the browser.** Open the link and found a settlement. Nothing to download.
+- **The spring decides the shape.** Roads, shade and water are the conditions. Lots without both water and shade stop at level 2.
+- **A panel for survival.** Water coverage, shade and stored water stay on screen. The inspector says what holds a lot back.
+- **A desert that moves.** The spring wanders, caravans trade with districts that can pay, and sandstorms bury a service.
+- **Original soundtrack.** Music synthesized for the menu and for the city.
+- **Your oasis stays with you.** Autosave in the browser, plus export and import of `.oasis.json` files.
 
 ## Play
 
@@ -110,6 +123,24 @@ world; the renderer draws it with the Oasis theme. The classic city ruleset rema
 See the [architecture](docs/architecture.md), [Oasis rules](docs/oasis-spec.md),
 [simulation spec](docs/simulation-spec.md), [balancing](docs/balancing.md),
 [roadmap](docs/roadmap.md) and [contribution guide](CONTRIBUTING.md).
+
+## Fork & remix
+
+Urbe Oasis is free software under the AGPL. Fork it, change the rules, and ship your own oasis on GitHub Pages. If you run a modified version for other people, including as a website, you must offer them its source under the same licence.
+
+```sh
+git clone https://github.com/gamestudio42/urbe-oasis.git
+cd urbe-oasis
+pnpm install
+pnpm dev
+```
+
+Enable Pages on your fork (the workflow in `.github/workflows/deploy.yml` already
+publishes `apps/oasis/dist`). Or host the build anywhere:
+
+```sh
+BASE_PATH=/your-path/ pnpm build
+```
 
 ## Licence
 
