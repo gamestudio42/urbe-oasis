@@ -44,6 +44,7 @@ pnpm test             # unit + integration tests (Vitest)
 pnpm test:simulation  # long scenario tests (Vitest)
 pnpm test:e2e         # Playwright (builds and serves Urbe Oasis)
 pnpm build            # production build of apps/oasis
+pnpm desktop          # Electron window; separate BASE_PATH=./ build, Pages unchanged
 pnpm sim --preset balanced --months 120 --seeds 1,2,3   # headless JSON reports
 pnpm sim --list       # simulation presets
 pnpm bench            # tick timing benchmark (128×128 grid city); --strict fails on budgets
@@ -91,6 +92,8 @@ packages/view-city/  Renderer, sprites and animation layer (theme injected)
   cyberZoneSprites.ts Cyberpunk houses, shops and factories
   utilitySprites.ts   Power plants, wind turbines, pumps and wells
   eraWorkSprites.ts   Oasis era works: recharge basin, grand bazaar, palace garden
+apps/desktop/      Electron shell. Serves apps/desktop/www over oasis://app. No city rules.
+snap/              snapcraft.yaml, desktop entry and icon
 apps/oasis/        Urbe Oasis web app (port 5180): theme, ruleset, copy and music
 apps/web/src/      City UI the oasis app boots
   ui/         React screens and panels: boot screen, logo, menu, HUD, pause overlay,
@@ -110,7 +113,7 @@ packages/simulation/src/
 packages/shared/src/
   types/ commands/ balance/ schemas/ protocol/ util/
 tests/{unit,scenarios,e2e,helpers}
-tools/{headless-sim.ts,benchmark.ts}
+tools/{headless-sim.ts,benchmark.ts,desktop-smoke.ts}
 ```
 
 UI conventions: every interactive element that tests touch has a `data-testid`.

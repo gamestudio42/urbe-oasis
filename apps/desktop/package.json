@@ -1,0 +1,47 @@
+{
+  "name": "@oasis/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Linux window for the Urbe Oasis web build. City rules do not live here.",
+  "author": "Game Studio 42",
+  "license": "AGPL-3.0-or-later",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "electron .",
+    "typecheck": "tsc -p tsconfig.json",
+    "dist:dir": "pnpm -w desktop:build && electron-builder --linux dir --publish never"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "electron": "^45.0.0",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "io.github.gamestudio42.urbe-oasis",
+    "productName": "Urbe Oasis",
+    "directories": {
+      "output": "release",
+      "buildResources": "assets"
+    },
+    "files": [
+      "dist/**",
+      "www/**",
+      "assets/**",
+      "package.json"
+    ],
+    "asar": true,
+    "linux": {
+      "target": [
+        "dir"
+      ],
+      "category": "Game",
+      "icon": "assets/icon.png",
+      "synopsis": "Build around the spring. Help a desert city endure.",
+      "description": "A desert isometric city builder. Lay roads, zones, water and shade, and keep the spring alive.",
+      "executableName": "urbe-oasis"
+    },
+    "executableName": "urbe-oasis"
+  }
+}

@@ -1,0 +1,51 @@
+# Builds the Urbe Oasis snap from snap/snapcraft.yaml, installs it and runs the desktop smoke test.
+# Publishing is the Snap Store's: its Builds tab builds the same file on every push to main and
+# releases it to edge; promote to stable from the store's Releases page.
+name: Snap
+
+on:
+  push:
+    branches: [main]
+    paths:
+      [
+        'snap/**',
+        'apps/desktop/**',
+        'apps/oasis/**',
+        'apps/web/**',
+        'packages/**',
+        'package.json',
+        'pnpm-lock.yaml',
+        '.github/workflows/snap.yml',
+      ]
+  pull_request:
+    paths: ['snap/**', 'apps/desktop/**', '.github/workflows/snap.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  snap:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: snapcore/action-build@v1
+        id: build
+
+      - name: Install and smoke-test
+        run: |
+          sudo snap install --dangerous ${{ steps.build.outputs.snap }}
+          sudo apt-get install -y xvfb
+          # The runner has no GPU: render WebGL in software, as the browser tests do.
+          xvfb-run -a snap run urbe-oasis --smoke --ignore-gpu-blocklist --enable-unsafe-swiftshader --use-angle=swiftshader 2>&1 | tee smoke.log
+          grep -q '^SMOKE .*"ready":true' smoke.log
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: urbe-oasis-snap
+          path: ${{ steps.build.outputs.snap }}

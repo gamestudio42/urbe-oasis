@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://gamestudio42.github.io/urbe-oasis/"><img src="https://img.shields.io/badge/Play_in_browser-1f8a86?style=for-the-badge&labelColor=1c1410&color=1f8a86" alt="Play Urbe Oasis"></a>
-  <a href="https://github.com/gamestudio42/urbe-oasis/actions/workflows/deploy.yml"><img src="https://img.shields.io/github/actions/workflow/status/gamestudio42/urbe-oasis/deploy.yml?branch=main&style=for-the-badge&labelColor=1c1410&label=Pages" alt="GitHub Pages deployment status"></a>
+  <a href="https://github.com/gamestudio42/urbe-oasis/actions/workflows/pages.yml"><img src="https://img.shields.io/github/actions/workflow/status/gamestudio42/urbe-oasis/pages.yml?branch=main&style=for-the-badge&labelColor=1c1410&label=Pages" alt="GitHub Pages deployment status"></a>
   <a href="https://github.com/gamestudio42/urbe-oasis/stargazers"><img src="https://img.shields.io/github/stars/gamestudio42/urbe-oasis?style=for-the-badge&labelColor=1c1410&color=c4784a" alt="GitHub stars"></a>
   <a href="https://github.com/gamestudio42"><img src="https://img.shields.io/badge/Game_Studio_42-1c1410?style=for-the-badge&labelColor=1c1410&color=6d9a48" alt="Game Studio 42"></a>
 </p>
@@ -114,9 +114,13 @@ Docker is also available with `docker compose up`.
 | `pnpm test:e2e`   | Playwright browser tests                                    |
 | `pnpm sim --list` | List headless simulation presets                            |
 | `pnpm bench`      | Measure simulation tick times                               |
+| `pnpm desktop`    | Linux window around a separate `BASE_PATH=./` build         |
 
-Every push to `main` builds `apps/oasis/dist` for GitHub Pages. A different deployment path can
-be set with `BASE_PATH=/your-path/ pnpm build`.
+Every push to `main` publishes `apps/oasis/dist` to GitHub Pages from the `gh-pages` branch.
+That build is unchanged by the desktop shell: `pnpm desktop` writes a second copy under
+`apps/desktop/www` with `BASE_PATH=./`. Browser saves stay in IndexedDB. The window keeps
+its own profile. Cities still move between them as `.oasis.json`. `snapcraft pack` builds
+the snap from source. A different deployment path can be set with `BASE_PATH=/your-path/ pnpm build`.
 
 The simulation is deterministic and runs in a Web Worker. React sends commands and reads the
 world; the renderer draws it with the Oasis theme. The classic city ruleset remains separate.
@@ -135,8 +139,8 @@ pnpm install
 pnpm dev
 ```
 
-Enable Pages on your fork (the workflow in `.github/workflows/deploy.yml` already
-publishes `apps/oasis/dist`). Or host the build anywhere:
+Enable Pages on your fork from the `gh-pages` branch (`.github/workflows/pages.yml`
+already publishes `apps/oasis/dist`). Or host the build anywhere:
 
 ```sh
 BASE_PATH=/your-path/ pnpm build
