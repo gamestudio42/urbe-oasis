@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Urbe Oasis
+Comment=Build around the spring. Help a desert city endure.
+Exec=urbe-oasis
+Icon=${SNAP}/meta/gui/icon.png
+Type=Application
+Categories=Game;Simulation;
+StartupWMClass=urbe-oasis
+Terminal=false

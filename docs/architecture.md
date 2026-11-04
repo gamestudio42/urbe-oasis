@@ -9,23 +9,24 @@ simulation so oasis mechanics remain a gated layer; new cities from the menu are
 
 ## Packages
 
-| Package               | Responsibility                                                         | May depend on                      |
-| --------------------- | ---------------------------------------------------------------------- | ---------------------------------- |
-| `packages/kernel`     | RNG, hash, base64, save envelope, command queue, tick runner           | nothing                            |
-| `packages/bridge`     | Worker clock and RPC inbox                                             | nothing                            |
-| `packages/view-iso`   | Isometric projection, camera, 16×16 chunk grid                         | pixi.js                            |
-| `packages/chrome`     | Store, boot/pause/toasts, Logo, SoundToggle, SfxBoard, locale, saves   | react                              |
-| `packages/shared`     | City tile constants, commands, balance, save schema                    | `@shell/kernel`                    |
-| `packages/simulation` | City engine: world, systems, commands, persistence, scenarios          | `@city/shared`, `@shell/kernel`    |
-| `packages/theme`      | Colourless `Theme` interface injected into the renderer                | nothing                            |
-| `packages/theme-urbe` | Classic palette, kept so the renderer can still draw that ruleset      | `@theme/core`                      |
-| `packages/theme-neon` | Cyberpunk palette kept so the sprite tests still have a cyber skin    | `@theme/core`                      |
-| `packages/theme-oasis`| Desert palette, CSS tokens and audio parameters                        | `@theme/core`                      |
-| `packages/view-city`  | Pixi renderer, sprites and animation layer, theme injected             | pixi.js + city packages            |
-| `apps/web`            | City UI: Vite + React panels, worker host, shared by the oasis shell   | city packages + shell              |
-| `apps/oasis`          | Urbe Oasis: adobe theme, oasis ruleset, desert music, port 5180        | view-city + themes + city packages |
-| `tools/`              | Headless city reports and the tick benchmark                           | shared, simulation                 |
-| `tests/`              | Unit, integration, scenario (Vitest) and end-to-end (Playwright) tests | everything                         |
+| Package                | Responsibility                                                         | May depend on                      |
+| ---------------------- | ---------------------------------------------------------------------- | ---------------------------------- |
+| `packages/kernel`      | RNG, hash, base64, save envelope, command queue, tick runner           | nothing                            |
+| `packages/bridge`      | Worker clock and RPC inbox                                             | nothing                            |
+| `packages/view-iso`    | Isometric projection, camera, 16×16 chunk grid                         | pixi.js                            |
+| `packages/chrome`      | Store, boot/pause/toasts, Logo, SoundToggle, SfxBoard, locale, saves   | react                              |
+| `packages/shared`      | City tile constants, commands, balance, save schema                    | `@shell/kernel`                    |
+| `packages/simulation`  | City engine: world, systems, commands, persistence, scenarios          | `@city/shared`, `@shell/kernel`    |
+| `packages/theme`       | Colourless `Theme` interface injected into the renderer                | nothing                            |
+| `packages/theme-urbe`  | Classic palette, kept so the renderer can still draw that ruleset      | `@theme/core`                      |
+| `packages/theme-neon`  | Cyberpunk palette kept so the sprite tests still have a cyber skin     | `@theme/core`                      |
+| `packages/theme-oasis` | Desert palette, CSS tokens and audio parameters                        | `@theme/core`                      |
+| `packages/view-city`   | Pixi renderer, sprites and animation layer, theme injected             | pixi.js + city packages            |
+| `apps/web`             | City UI: Vite + React panels, worker host, shared by the oasis shell   | city packages + shell              |
+| `apps/oasis`           | Urbe Oasis: adobe theme, oasis ruleset, desert music, port 5180        | view-city + themes + city packages |
+| `apps/desktop`         | Electron window for that web build. No city rules                      | the built site                     |
+| `tools/`               | Headless city reports and the tick benchmark                           | shared, simulation                 |
+| `tests/`               | Unit, integration, scenario (Vitest) and end-to-end (Playwright) tests | everything                         |
 
 Packages expose their TypeScript sources directly (`"exports": "./src/index.ts"`). Vite, Vitest
 and `tsx` compile them on the fly, so there is no package build step.
@@ -33,7 +34,22 @@ and `tsx` compile them on the fly, so there is no package build step.
 ## Publish
 
 `pnpm dev` serves Urbe Oasis on port 5180 with `base: '/'`. `pnpm build` writes `apps/oasis/dist`.
-GitHub Pages publishes that folder (`BASE_PATH` from the repository name).
+GitHub Pages publishes that folder from the `gh-pages` branch. The workflow builds it with
+`BASE_PATH=./`, so the same files work at the site root and under a pull request preview.
+Neither command reads the desktop output.
+
+`pnpm desktop` builds the oasis app again with `BASE_PATH=./` into `apps/desktop/www`, then
+opens it in Electron. The window loads `oasis://app/` so the module worker can start.
+That scheme only serves files inside `apps/desktop/www`. The shell refuses other
+navigation. Browser saves and window saves stay apart. Export and import still use
+`.oasis.json`.
+
+The snap is built from source. `snap/snapcraft.yaml` installs the workspace, runs
+`pnpm --filter @oasis/desktop dist:dir` and packs `apps/desktop/release/linux-unpacked`.
+`.github/workflows/snap.yml` builds that file and smoke-tests it. The desktop entry
+points its icon at `${SNAP}/meta/gui/icon.png`, because a bare icon name is looked up
+in the theme and the app grid then shows a missing-file placeholder. Snapcraft copies
+only `snap/gui` into the package. The store banner is listing media, not a snap file.
 
 New cities use the `oasis-city-save` envelope (`.oasis.json`). The decoder still accepts the
 classic `city-builder-save` envelope; the `ruleset` stored in the file decides which rules run.
@@ -91,7 +107,7 @@ flowchart LR
 | Pause     | `ui/PauseOverlay.tsx` | Vignette and "Pausado" badge; does not block the map         |
 | Toolbar   | `ui/Toolbar.tsx`      | Tool groups with hotkeys and cost tooltips                   |
 | Minimap   | `ui/Minimap.tsx`      | Isometric diamond, current overlay, view rectangle, recentre |
-| Overlays  | `ui/OverlayPanel.tsx` | Twelve thematic maps, plus a shade map in Urbe Oasis        |
+| Overlays  | `ui/OverlayPanel.tsx` | Twelve thematic maps, plus a shade map in Urbe Oasis         |
 | Budget    | `ui/BudgetPanel.tsx`  | Taxes, department funding, monthly ledger, debt warnings     |
 | Charts    | `ui/ChartsPanel.tsx`  | Population, money, demand and environment history            |
 | Inspector | `ui/Inspector.tsx`    | Tile facts and the "why is it (not) growing" problem list    |
@@ -146,7 +162,7 @@ The map is a square grid (`size × size`, 128 by default) stored as a structure 
 | `infra`                                      | `Uint8Array` | Bit flags: road, power line, water pipe, rubble, fiber (16). Fiber stays unset in a classic city |
 | `buildingId`                                 | `Int32Array` | Building occupying the tile, `0` = none                                                          |
 | `powered`, `watered`                         | `Uint8Array` | Utility service flags                                                                            |
-| `linked`                                     | `Uint8Array` | Oasis shade. Not a structure layer, and omitted from a classic snapshot                         |
+| `linked`                                     | `Uint8Array` | Oasis shade. Not a structure layer, and omitted from a classic snapshot                          |
 | `fire`                                       | `Uint8Array` | Fire intensity, `0` = not burning                                                                |
 | `pollution`, `crime`, `landValue`            | `Uint8Array` | Influence maps, 0..255                                                                           |
 | `traffic`, `jobAccess`                       | `Uint8Array` | Aggregated traffic load and job accessibility                                                    |
@@ -199,14 +215,14 @@ stored in the snapshot and in the save, so a loaded city keeps its own rules reg
 that opened it. The classic path is untouched: every oasis branch is guarded by
 `ruleset === 'oasis'`, and the classic unit, scenario and E2E suites keep the same hashes.
 
-| Area     | Classic                 | Oasis                                                                    |
-| -------- | ----------------------- | ------------------------------------------------------------------------ |
-| Water    | Component balance       | Same components, plus evaporation, cisterns, qanats and parched districts |
-| Shade    | No shade network        | Canals, palms and spring houses. A lot without shade or water stops at 2 |
-| Land     | Vacant lots stay vacant | Four caravans buy watered or shaded lots while a caravanserai is open   |
-| Storms   | No sandstorms           | A monthly storm buries a service; a powered windbreak can block it      |
-| Traffic  | Ground network only     | An arcade eases congestion. The adobe theme does not draw drones         |
-| Zoning   | Classic level caps      | Dense level 5 and light level 2 when the lot has water and shade         |
+| Area    | Classic                 | Oasis                                                                     |
+| ------- | ----------------------- | ------------------------------------------------------------------------- |
+| Water   | Component balance       | Same components, plus evaporation, cisterns, qanats and parched districts |
+| Shade   | No shade network        | Canals, palms and spring houses. A lot without shade or water stops at 2  |
+| Land    | Vacant lots stay vacant | Four caravans buy watered or shaded lots while a caravanserai is open     |
+| Storms  | No sandstorms           | A monthly storm buries a service; a powered windbreak can block it        |
+| Traffic | Ground network only     | An arcade eases congestion. The adobe theme does not draw drones          |
+| Zoning  | Classic level caps      | Dense level 5 and light level 2 when the lot has water and shade          |
 
 The oasis systems live in `packages/simulation/src/systems/oasis/` (the shade pass itself stays in
 `systems/utilities.ts`, beside power and water); their constants are in
