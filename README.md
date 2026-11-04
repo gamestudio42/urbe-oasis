@@ -120,7 +120,9 @@ Every push to `main` publishes `apps/oasis/dist` to GitHub Pages from the `gh-pa
 That build is unchanged by the desktop shell: `pnpm desktop` writes a second copy under
 `apps/desktop/www` with `BASE_PATH=./`. Browser saves stay in IndexedDB. The window keeps
 its own profile. Cities still move between them as `.oasis.json`. `snapcraft pack` builds
-the snap from source. A different deployment path can be set with `BASE_PATH=/your-path/ pnpm build`.
+the snap from source. The store banner is `snap/store/banner.jpg`: upload that file, still named
+`banner.jpg`. It is not inside the snap. A different deployment path can be set with
+`BASE_PATH=/your-path/ pnpm build`.
 
 The simulation is deterministic and runs in a Web Worker. React sends commands and reads the
 world; the renderer draws it with the Oasis theme. The classic city ruleset remains separate.
