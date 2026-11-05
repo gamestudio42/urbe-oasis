@@ -16,8 +16,9 @@
 <p align="center">
   An isometric city builder for the browser. Lay roads, zones, water and shade; the simulation
   decides which lots grow, which services fail and who remains. Found a settlement beside a
-  wandering spring, then keep it alive through drought, sandstorms and a changing economy.
-  No installation is needed to play.
+  wandering spring, keep it alive through drought, sandstorms and a changing economy, and grow
+  it from a village into an oasis capital. No installation is needed to play, on a computer or
+  a phone.
 </p>
 
 <p align="center">
@@ -42,6 +43,9 @@
    see what holds it back; use maps, charts and the budget to decide what to change.
 4. **Adapt.** The spring moves. Caravans trade with viable districts. Sandstorms can bury a
    service, while windbreaks lower the risk. Water rationing can ease a shortage at a cost.
+5. **Endure the era.** A five-chapter journey leads to an open era. The city earns the titles of
+   Town, City and Oasis capital, while dry seasons return every two years, longer and harsher.
+   Each title unlocks an era work: a recharge basin, a grand bazaar, a palace garden.
 
 Lots without both water and shade cannot develop beyond level 2. A spring house is strongest
 near the spring and on the water network; a wild palm is scenery, while a planted palm supplies
@@ -70,6 +74,24 @@ Follow a sandstorm in the chronicle and inspect its impact.
   <img src="docs/screenshots/underground.png" alt="The underground view: qanat, pipes and cisterns under the oasis" width="920">
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/era.jpg" alt="An oasis capital twenty years on: the grand bazaar, the palace garden, the recharge basin and the era card with the next dry season" width="920"><br>
+  Twenty years on: an oasis capital with its bazaar, palace garden and recharge basin.
+</p>
+
+<table>
+<tr>
+<td align="center" width="72%" valign="top">
+<img src="docs/screenshots/caravans.jpg" alt="Camels walking between caravan stops, with the inspector counting a stop's riders" width="640"><br>
+Caravan routes carry commuters between stops and take them off the roads.
+</td>
+<td align="center" width="28%" valign="top">
+<img src="docs/screenshots/phone.jpg" alt="Urbe Oasis on a phone in portrait: a two-row top bar, the survival panel and the touch dock" width="220"><br>
+The same city on a phone.
+</td>
+</tr>
+</table>
+
 ## Why Urbe Oasis
 
 - **Play in the browser.** Open the link and found a settlement. Nothing to download.
@@ -77,6 +99,9 @@ Follow a sandstorm in the chronicle and inspect its impact.
 - **A panel for survival.** Water coverage, shade and stored water stay on screen. The inspector says what holds a lot back.
 - **A desert that moves.** The spring wanders, caravans trade with districts that can pay, and sandstorms bury a service.
 - **Original soundtrack.** Music synthesized for the menu and for the city.
+- **A long game.** After the journey, an open era: three titles, dry seasons that keep getting harsher, and three era works to fund.
+- **Caravan routes.** Stops along the roads carry commuters off the streets. Camels walk the route.
+- **Play anywhere.** Mouse and keyboard on a computer; tap, pan, pinch and draw with a finger on a phone or tablet.
 - **Your oasis stays with you.** Autosave in the browser, plus export and import of `.oasis.json` files.
 
 ## Play
@@ -84,6 +109,8 @@ Follow a sandstorm in the chronicle and inspect its impact.
 Open **[gamestudio42.github.io/urbe-oasis](https://gamestudio42.github.io/urbe-oasis/)**.
 Choose a seed, map size and difficulty, then found your oasis. The first visit follows your
 browser language; the interface supports English, Portuguese, Spanish, French and German.
+On a touch screen, tap to inspect or build, drag one finger to pan or to draw roads, zones and
+pipes, and pinch to zoom. A second finger cancels a stroke.
 
 | Action                                   | Shortcut    |
 | ---------------------------------------- | ----------- |
