@@ -14,9 +14,13 @@ adopt-info: urbe-oasis
 icon: snap/gui/icon.png
 summary: Build around the spring. Help a desert city endure.
 description: |
-  A desert isometric city builder. Lay roads, zones, water and shade beside a
-  wandering spring, then keep the settlement alive. The interface is in
-  Portuguese, English, Spanish, French and German.
+  Build around the spring and help a desert city endure. Urbe Oasis is an
+  isometric city builder: lay roads, zones, water and shade beside a
+  wandering spring, and the simulation decides which lots grow. Dig qanats,
+  fill cisterns, plant palms along shade canals, shelter services from
+  sandstorms and run caravan routes between stops. A five-chapter journey
+  opens an era of harsher dry seasons, three titles and great works to fund.
+  Play with mouse or touch, in Portuguese, English, Spanish, French or German.
 license: AGPL-3.0-or-later
 website: https://gamestudio42.github.io/urbe-oasis/
 source-code: https://github.com/gamestudio42/urbe-oasis
