@@ -441,6 +441,8 @@ export const fr = {
       {
         title: 'Bienvenue, maire !',
         text: 'Glissez avec le bouton droit pour déplacer la caméra et utilisez la molette pour zoomer. Fondons la ville.',
+        touch:
+          'Glissez avec un doigt pour déplacer la caméra et pincez avec deux doigts pour zoomer. Fondons la ville.',
       },
       {
         title: 'Une route jusqu’au bord',

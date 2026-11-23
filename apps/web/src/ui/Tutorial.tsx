@@ -2,11 +2,13 @@ import { useStrings } from '../i18n';
 import type { GameSession } from '../state/session';
 import { useStore } from '../state/store';
 import { OASIS_TUTORIAL_TOOLS, tutorialChecks } from '../state/tutorial';
+import { useCoarsePointer } from './coarsePointer';
 import { ToolIcon } from './icons';
 import { InterfaceIcon } from './interfaceIcons';
 
 export function Tutorial({ session }: { session: GameSession }) {
   const t = useStrings(session.ui);
+  const coarse = useCoarsePointer();
   const step = useStore(session.ui, (s) => s.tutorial);
   const speed = useStore(session.ui, (s) => s.speed);
   if (step === null) return null;
@@ -21,7 +23,7 @@ export function Tutorial({ session }: { session: GameSession }) {
         {t.tutorial.title} · {step + 1}/{t.tutorial.steps.length}
       </div>
       <h3>{content.title}</h3>
-      <p>{content.text}</p>
+      <p>{coarse && 'touch' in content && content.touch ? content.touch : content.text}</p>
       {session.ruleset === 'oasis' && (
         <div className="tutorial-tools">
           {tools.map((tool) => (

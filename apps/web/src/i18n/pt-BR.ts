@@ -443,6 +443,8 @@ export const ptBR = {
       {
         title: 'Bem-vindo, prefeito!',
         text: 'Arraste com o botão direito para mover a câmera e use a roda do mouse para o zoom. Vamos fundar a cidade.',
+        touch:
+          'Arraste com um dedo para mover a câmera e junte ou afaste dois dedos para o zoom. Vamos fundar a cidade.',
       },
       {
         title: 'Uma estrada até a borda',

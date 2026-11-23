@@ -1934,3 +1934,16 @@ body,
     font-size: 14px;
   }
 }
+
+/* The studio seal is fixed over the founding card. On a short landscape phone it
+   joins the scrolling column so the title and the found-city action stay reachable. */
+@media (max-height: 520px) {
+  .menu-chrome:has(.studio-mark) {
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+    width: min(460px, 100%);
+    margin: 0 0 4px;
+  }
+}

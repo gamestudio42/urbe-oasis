@@ -32,6 +32,11 @@ export class TouchGestures {
     return this.touches.size > 0;
   }
 
+  /** Whether this pointer is part of the current gesture. */
+  has(id: number): boolean {
+    return this.touches.has(id);
+  }
+
   down(id: number, x: number, y: number): GestureAction[] {
     this.touches.set(id, { x, y });
     if (this.touches.size === 1) {

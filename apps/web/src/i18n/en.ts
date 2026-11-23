@@ -441,6 +441,8 @@ export const en = {
       {
         title: 'Welcome, mayor!',
         text: 'Right-drag to move the camera and use the mouse wheel to zoom. Let’s found the city.',
+        touch:
+          'Drag with one finger to move the camera and pinch with two fingers to zoom. Let’s found the city.',
       },
       {
         title: 'A road to the edge',

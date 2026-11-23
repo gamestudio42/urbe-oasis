@@ -158,6 +158,23 @@ test.describe('touch on the map', () => {
     expect(await page.evaluate(() => window.__cityDebug!.getSelected())).toBeNull();
   });
 
+  test('a left-button drag pans when the pointer is coarse, and a click still selects', async ({
+    page,
+  }) => {
+    await open(page);
+    const tile = await client(page, 24, 24);
+    await page.mouse.move(tile.x, tile.y);
+    await page.mouse.down();
+    await page.mouse.move(tile.x + 70, tile.y + 30, { steps: 8 });
+    await page.mouse.up();
+    const moved = await client(page, 24, 24);
+    expect(moved.x - tile.x).toBeCloseTo(70, -1);
+    expect(moved.y - tile.y).toBeCloseTo(30, -1);
+    expect(await page.evaluate(() => window.__cityDebug!.getSelected())).toBeNull();
+    await page.mouse.click(moved.x, moved.y);
+    expect(await page.evaluate(() => window.__cityDebug!.getSelected())).toEqual({ x: 24, y: 24 });
+  });
+
   test('with the road tool one finger draws a road, and a second finger cancels it', async ({
     page,
   }) => {
@@ -196,5 +213,72 @@ test.describe('touch on the map', () => {
     await send('touchEnd', []);
     await page.waitForTimeout(500);
     for (let x = 20; x <= 24; x++) expect(await road(x, 26), `road at ${x},26`).toBe(false);
+  });
+});
+
+for (const viewport of [
+  { width: 360, height: 740 },
+  { width: 412, height: 915 },
+  { width: 915, height: 412 },
+  { width: 820, height: 1180 },
+  { width: 1180, height: 820 },
+]) {
+  test.describe(`menu at ${viewport.width}x${viewport.height}`, () => {
+    test.use({ viewport, hasTouch: true, isMobile: true });
+
+    test('the founding action is reachable and the targets are at least 44px', async ({ page }) => {
+      await page.addInitScript(() => localStorage.setItem('cityBuilder.locale', 'pt-BR'));
+      await page.goto('/');
+      await page.getByTestId('main-menu').waitFor();
+      const start = page.getByTestId('start-city');
+      await expect(start).toHaveText('Fundar cidade');
+      await start.scrollIntoViewIfNeeded();
+      await expect(start).toBeInViewport({ ratio: 1 });
+      const heightOf = async (locator: Locator) => {
+        const bounds = await box(locator);
+        expect(bounds.height).toBeGreaterThanOrEqual(44);
+        expect(bounds.y).toBeGreaterThanOrEqual(0);
+        expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height);
+      };
+      await heightOf(start);
+      await heightOf(page.getByTestId('menu-sound'));
+      await heightOf(page.locator('.menu-locale .locale-trigger'));
+      await heightOf(page.getByTestId('city-name-input'));
+      await heightOf(page.getByTestId('size-select'));
+      // World options make the card taller than a short window; the action still scrolls in.
+      await page.getByTestId('menu-advanced-toggle').click();
+      await start.scrollIntoViewIfNeeded();
+      await expect(start).toBeInViewport({ ratio: 1 });
+      const menu = page.getByTestId('main-menu');
+      expect(await menu.evaluate((node) => node.scrollHeight >= node.clientHeight)).toBe(true);
+    });
+  });
+}
+
+test.describe('coarse founding hint', () => {
+  test.use({ viewport: { width: 412, height: 915 }, hasTouch: true, isMobile: true });
+
+  test('teaches a drag and a pinch and hides keyboard shortcuts', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.addInitScript(() => {
+      localStorage.setItem('cityBuilder.locale', 'pt-BR');
+      localStorage.removeItem('oasis.tutorial.founding.v1');
+    });
+    await page.goto('/');
+    await page.getByTestId('main-menu').waitFor();
+    await page.getByTestId('start-city').scrollIntoViewIfNeeded();
+    await page.getByTestId('start-city').click();
+    await page.waitForFunction(() => window.__cityDebug?.isReady());
+    await page.getByTestId('tutorial-details-toggle').click();
+    const details = page.getByTestId('tutorial-details');
+    await expect(details).toContainText('um dedo');
+    await expect(details).toContainText('dois dedos');
+    await expect(details).not.toContainText('botão direito');
+    await expect(details).not.toContainText('roda');
+    await expect(page.locator('.construction-selection kbd')).toBeHidden();
+    await page.getByTestId('open-system').scrollIntoViewIfNeeded();
+    await page.getByTestId('open-system').click();
+    await expect(page.getByTestId('system-panel')).toBeVisible();
+    await expect(page.getByTestId('system-shortcuts')).toBeHidden();
   });
 });

@@ -120,22 +120,34 @@ toasts appear under the survival card. Below 360 px the speed and panel buttons 
 second row never wraps. Phones held sideways (500 px tall and below, landscape) keep a one-row
 bar without the spring or studio mark. The survival card becomes a strip without its heading,
 the chronicle sits beside the audio controls, the minimap is hidden, and the dock is shorter.
-The guide sits above the dock on the left. On touch screens (`pointer: coarse`), hotkey hints
-and the cursor readout are hidden.
+The guide sits above the dock on the left. On touch screens (`pointer: coarse`), hotkey hints,
+the cursor readout, the pause-banner shortcut and the keyboard-shortcut section are hidden.
+The founding hint then says to drag with one finger and pinch with two, in every locale.
 
 On the map, `TouchGestures` (`@shell/view-iso`) turns touches into camera moves and tool
-input, without the DOM:
+input, without the DOM. A coarse primary pointer uses the same gestures for a left-button
+drag, so touch emulation that still reports a mouse can pan. A fine pointer keeps
+right-drag, middle-drag and Space-drag, and the wheel.
 
-- A touch that moves less than `TAP_SLOP` (10 px) is a tap: it selects with the inspector, or
+- A contact that moves less than `TAP_SLOP` (10 px) is a tap: it selects with the inspector, or
   places with a footprint tool.
 - One finger that moves further pans the map. With a path or rectangle tool (roads, pipes,
   zones, canals) it draws from where it landed instead.
 - A second finger cancels a drawing in progress and pans and pinch-zooms around the midpoint
   of the two fingers. The sequence stays a camera gesture until every finger lifts.
 
-Mouse and keyboard input are unchanged. Browser checks cover 390×844, 320×568, 844×390 and
-667×375 with touch enabled: the controls stay inside the screen without overlapping, and tap,
-pan, pinch, drawing a road and cancelling a stroke with a second finger all work.
+The founding menu scrolls inside its own panel (the document does not). Below 800 px of
+height the card uses safe centering, so a card taller than the window starts at the top and
+can be scrolled. Below 520 px the card tightens and the studio seal joins that column, so
+the found-city action fits a phone held sideways; opening the world options still scrolls
+to that action. On a coarse pointer the menu sound control, language trigger, text fields,
+selects and the found-city button are at least 44 px tall.
+
+Mouse and keyboard input on a fine pointer are unchanged. Browser checks cover 390×844,
+320×568, 844×390 and 667×375 with touch enabled, plus 360×740, 412×915, 915×412, 820×1180
+and 1180×820: the controls stay inside the screen without overlapping, a left-button drag
+pans without selecting, a tap selects, and real touches tap, pan, pinch, draw a road and
+cancel a stroke with a second finger.
 
 ### Management panels
 

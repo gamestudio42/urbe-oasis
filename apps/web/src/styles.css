@@ -508,6 +508,113 @@ input[type='range'] {
   }
 }
 
+/* Short windows: a centred grid clips the card and the page itself cannot scroll.
+   Safe centering keeps the card in the middle when it fits and at the start when it
+   does not, so the founding action can be scrolled into view. */
+@media (max-height: 800px) {
+  .main-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
+    align-items: flex-start;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+
+  .menu-card {
+    flex: 0 0 auto;
+    width: min(460px, 100%);
+  }
+}
+
+@media (max-width: 720px) and (max-height: 800px) {
+  .main-menu {
+    align-items: center;
+  }
+}
+
+/* Phone landscape: tighten the card. The fixed corner chrome is pulled into the
+   flow by the oasis skin so it no longer covers the title. */
+@media (max-height: 520px) {
+  .main-menu {
+    justify-content: flex-start;
+    padding: 4px 12px 8px clamp(12px, 3vw, 32px);
+  }
+
+  .menu-card {
+    padding: 0 12px 8px;
+  }
+
+  .menu-card h1 {
+    line-height: 1;
+  }
+
+  .menu-card .logo {
+    gap: 8px;
+  }
+
+  .menu-card .logo-mark {
+    width: 28px;
+    height: 28px;
+  }
+
+  .menu-card .logo-word {
+    font-size: 18px;
+    letter-spacing: 0.14em;
+  }
+
+  .menu-card p {
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  .menu-form {
+    gap: 2px;
+    margin: 0;
+  }
+
+  .menu-card .field {
+    gap: 1px;
+  }
+
+  .menu-card .field > span:first-child {
+    font-size: 11px;
+    line-height: 1.2;
+  }
+}
+
+@media (pointer: coarse) {
+  .menu-sound {
+    width: 44px;
+    height: 44px;
+  }
+
+  .menu-locale .locale-trigger,
+  .locale-menu button {
+    min-height: 44px;
+  }
+
+  .menu-card input:not([type='range']),
+  .menu-card select,
+  .menu-actions .button,
+  .menu-continue,
+  .menu-advanced summary {
+    min-height: 44px;
+  }
+
+  .menu-advanced summary {
+    display: flex;
+    align-items: center;
+  }
+
+  kbd,
+  .paused-banner span,
+  [data-testid='system-shortcuts'] {
+    display: none;
+  }
+}
+
 .logo {
   display: inline-flex;
   align-items: center;
