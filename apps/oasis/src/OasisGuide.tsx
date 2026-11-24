@@ -9,6 +9,7 @@ import { costLabel } from '@oasis/web/ui/Toolbar';
 import { Tutorial } from '@oasis/web/ui/Tutorial';
 import { ToolIcon } from '@oasis/web/ui/icons';
 import { AdobeIcon } from '@oasis/web/ui/adobeIcons';
+import { useCoarsePointer } from '@oasis/web/ui/coarsePointer';
 import { oasisCopy, oasisGuideCopy } from './i18n';
 import { OasisJourney, journeyHeading } from './OasisJourney';
 
@@ -40,6 +41,7 @@ function GuideCard({ session, step }: { session: GameSession; step: number | nul
   const titleId = useId();
   const copy = oasisGuideCopy(locale);
   const oasis = oasisCopy(locale);
+  const coarse = useCoarsePointer();
   if (!stats?.oasis || panel || selected) return null;
   const content = step === null ? null : oasis.tutorial.steps[step];
   const last = step === oasis.tutorial.steps.length - 1;
@@ -193,7 +195,7 @@ function GuideCard({ session, step }: { session: GameSession; step: number | nul
             )}
             <details className="oasis-guide-details" data-testid="tutorial-details">
               <summary data-testid="tutorial-details-toggle">{copy.details}</summary>
-              <p>{content.text}</p>
+              <p>{coarse && content.touch ? content.touch : content.text}</p>
             </details>
             {step > 0 && !last && speed === 0 && (
               <div className="oasis-guide-waiting">

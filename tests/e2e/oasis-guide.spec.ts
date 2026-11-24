@@ -36,6 +36,10 @@ for (const locale of ['pt-BR', 'de']) {
       await expect(details.locator('p')).toBeHidden();
       await page.getByTestId('tutorial-details-toggle').click();
       await expect(details.locator('p')).toBeVisible();
+      if (width === 1440)
+        await expect(details.locator('p')).toContainText(
+          locale === 'pt-BR' ? 'botão direito' : 'Maustaste',
+        );
       await expect
         .poll(async () => {
           const box = await guide.boundingBox();

@@ -168,6 +168,8 @@ export class GameRenderer {
   private input: RendererInput = {};
   private panning: { x: number; y: number } | null = null;
   private activePointer: number | null = null;
+  /** Phones, tablets and touch emulation: the primary pointer is coarse. */
+  private coarsePointer = false;
   private readonly touch = new TouchGestures(() => this.input.drawsOnTouch?.() ?? false);
   private readonly listeners = new AbortController();
   private readonly keys = new Set<string>();
@@ -770,6 +772,21 @@ export class GameRenderer {
     this.input.onHover?.(tile);
   }
 
+  /**
+   * A finger, or the left button on a coarse pointer (phones, tablets, and touch
+   * emulation that still reports a mouse). Space keeps the desktop grab-to-pan chord.
+   */
+  private directContact(event: PointerEvent): boolean {
+    if (this.activePointer !== null) return false;
+    if (event.pointerType === 'touch') return true;
+    return (
+      this.coarsePointer &&
+      event.pointerType === 'mouse' &&
+      event.button === 0 &&
+      !this.keys.has(' ')
+    );
+  }
+
   /** Applies a touch gesture: the camera moves here, taps and drawing go to the tools. */
   private applyTouch(canvas: HTMLCanvasElement, actions: GestureAction[], e: PointerEvent): void {
     for (const action of actions) {
@@ -789,7 +806,8 @@ export class GameRenderer {
           this.input.onPointer?.('down', tile, e);
           this.input.onPointer?.('up', tile, e);
         } else {
-          const kind = action.type === 'drawStart' ? 'down' : action.type === 'draw' ? 'move' : 'up';
+          const kind =
+            action.type === 'drawStart' ? 'down' : action.type === 'draw' ? 'move' : 'up';
           this.input.onPointer?.(kind, tile, e);
         }
       }
@@ -797,11 +815,25 @@ export class GameRenderer {
   }
 
   private attachInput(canvas: HTMLCanvasElement): void {
+    const coarse = window.matchMedia?.('(pointer: coarse)');
+    if (coarse) {
+      this.coarsePointer = coarse.matches;
+      coarse.addEventListener(
+        'change',
+        () => {
+          this.coarsePointer = coarse.matches;
+        },
+        { signal: this.listeners.signal },
+      );
+    }
+    canvas.style.touchAction = 'none';
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
     canvas.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'touch' && this.activePointer === null) {
+      if (this.directContact(e)) {
+        const actions = this.touch.down(e.pointerId, e.clientX, e.clientY);
         canvas.setPointerCapture(e.pointerId);
-        return this.applyTouch(canvas, this.touch.down(e.pointerId, e.clientX, e.clientY), e);
+        e.preventDefault();
+        return this.applyTouch(canvas, actions, e);
       }
       if (this.activePointer !== null) return;
       this.activePointer = e.pointerId;
@@ -813,7 +845,7 @@ export class GameRenderer {
       if (e.button === 0) this.input.onPointer?.('down', this.pick(e.clientX, e.clientY), e);
     });
     canvas.addEventListener('pointermove', (e) => {
-      if (e.pointerType === 'touch' && this.touch.active)
+      if (this.touch.has(e.pointerId))
         return this.applyTouch(canvas, this.touch.move(e.pointerId, e.clientX, e.clientY), e);
       if (this.activePointer !== null && e.pointerId !== this.activePointer) return;
       if (this.panning) {
@@ -827,7 +859,7 @@ export class GameRenderer {
       this.input.onPointer?.('move', tile, e);
     });
     const end = (e: PointerEvent) => {
-      if (e.pointerType === 'touch' && this.touch.active)
+      if (this.touch.has(e.pointerId))
         return this.applyTouch(canvas, this.touch.up(e.pointerId, e.clientX, e.clientY), e);
       if (this.activePointer !== e.pointerId) return;
       this.activePointer = null;
@@ -849,8 +881,11 @@ export class GameRenderer {
     };
     for (const type of ['pointercancel', 'lostpointercapture'] as const) {
       canvas.addEventListener(type, (e) => {
-        if (e.pointerType === 'touch' && this.touch.active)
+        // setPointerCapture can emit lostpointercapture while the finger is still down.
+        if (this.touch.has(e.pointerId)) {
+          if (type === 'lostpointercapture' && e.buttons !== 0) return;
           return this.applyTouch(canvas, this.touch.cancel(e.pointerId), e);
+        }
         if (e.pointerId === this.activePointer) cancel();
       });
     }

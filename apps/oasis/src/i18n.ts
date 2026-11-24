@@ -78,7 +78,7 @@ type Copy = {
   hubIdle: string;
   chronicle: typeof CHRONICLE_EN;
   survival: typeof SURVIVAL_EN;
-  tutorial: { title: string; steps: { title: string; text: string }[] };
+  tutorial: { title: string; steps: { title: string; text: string; touch?: string }[] };
   pageTitle: string;
   subtitle: string;
   defaultCityName: string;
@@ -113,6 +113,8 @@ const EN: Copy = {
       {
         title: 'A city around a moving spring',
         text: 'The city starts paused. Right-drag to pan and scroll to zoom. Find the spring above: it strengthens nearby spring houses, but does not fill your pipes. Your first goal is a home with power, water and shade.',
+        touch:
+          'The city starts paused. Drag with one finger to pan and pinch with two fingers to zoom. Find the spring above: it strengthens nearby spring houses, but does not fill your pipes. Your first goal is a home with power, water and shade.',
       },
       {
         title: 'Connect to the outside world',
@@ -247,6 +249,8 @@ const PT: Copy = {
       {
         title: 'Uma cidade ao redor da nascente',
         text: 'A cidade começa pausada. Arraste com o botão direito para mover a câmera e use a roda para o zoom. Localize a nascente pelo botão acima: ela fortalece as casas da nascente próximas, mas não abastece tubulações. Sua primeira meta é uma moradia com energia, água e sombra.',
+        touch:
+          'A cidade começa pausada. Arraste com um dedo para mover a câmera e junte ou afaste dois dedos para o zoom. Localize a nascente pelo botão acima: ela fortalece as casas da nascente próximas, mas não abastece tubulações. Sua primeira meta é uma moradia com energia, água e sombra.',
       },
       {
         title: 'Abra um caminho para o mundo',
@@ -383,6 +387,8 @@ const ES: Copy = {
       {
         title: 'Una ciudad junto al manantial',
         text: 'La ciudad empieza en pausa. Arrastra con el botón derecho y usa la rueda para ampliar. Localiza el manantial con el botón superior: refuerza las casas del manantial cercanas, pero no llena las tuberías. Tu primera meta es una vivienda con energía, agua y sombra.',
+        touch:
+          'La ciudad empieza en pausa. Arrastra con un dedo para mover la cámara y pellizca con dos dedos para ampliar. Localiza el manantial con el botón superior: refuerza las casas del manantial cercanas, pero no llena las tuberías. Tu primera meta es una vivienda con energía, agua y sombra.',
       },
       {
         title: 'Conecta con el mundo',
@@ -519,6 +525,8 @@ const FR: Copy = {
       {
         title: 'Une ville autour de la source',
         text: 'La ville commence en pause. Faites glisser avec le bouton droit et zoomez avec la molette. Le bouton du haut localise la source : elle renforce les maisons de la source proches, mais ne remplit pas les tuyaux. Visez un logement avec électricité, eau et ombre.',
+        touch:
+          'La ville commence en pause. Faites glisser un doigt pour déplacer la caméra et pincez avec deux doigts pour zoomer. Le bouton du haut localise la source : elle renforce les maisons de la source proches, mais ne remplit pas les tuyaux. Visez un logement avec électricité, eau et ombre.',
       },
       {
         title: 'Relier la ville au monde',
@@ -656,6 +664,8 @@ const DE: Copy = {
       {
         title: 'Eine Stadt um die Quelle',
         text: 'Die Stadt beginnt pausiert. Ziehe mit der rechten Maustaste und zoome mit dem Mausrad. Die Schaltfläche oben zeigt die Quelle: Sie stärkt nahe Quellhäuser, füllt aber keine Rohre. Dein erstes Ziel ist ein Zuhause mit Strom, Wasser und Schatten.',
+        touch:
+          'Die Stadt beginnt pausiert. Ziehe mit einem Finger, um die Kamera zu bewegen, und zoome mit zwei Fingern. Die Schaltfläche oben zeigt die Quelle: Sie stärkt nahe Quellhäuser, füllt aber keine Rohre. Dein erstes Ziel ist ein Zuhause mit Strom, Wasser und Schatten.',
       },
       {
         title: 'Die Außenwelt erreichen',

@@ -441,6 +441,8 @@ export const es = {
       {
         title: '¡Bienvenido, alcalde!',
         text: 'Arrastra con el botón derecho para mover la cámara y usa la rueda del ratón para el zoom. Vamos a fundar la ciudad.',
+        touch:
+          'Arrastra con un dedo para mover la cámara y pellizca con dos dedos para el zoom. Vamos a fundar la ciudad.',
       },
       {
         title: 'Una carretera hasta el borde',

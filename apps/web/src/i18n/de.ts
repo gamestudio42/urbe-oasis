@@ -441,6 +441,8 @@ export const de = {
       {
         title: 'Willkommen, Bürgermeister!',
         text: 'Ziehe mit der rechten Taste, um die Kamera zu bewegen, und zoome mit dem Mausrad. Gründen wir die Stadt.',
+        touch:
+          'Ziehe mit einem Finger, um die Kamera zu bewegen, und zoome mit zwei Fingern. Gründen wir die Stadt.',
       },
       {
         title: 'Eine Straße zum Rand',
